@@ -1,0 +1,39 @@
+{
+  "name": "@bridge-protocol/bridge-protocol-js",
+  "version": "1.1.0",
+  "description": "Bridge Protocol and Bridge Protocol Network SDK",
+  "main": "./src/index.js",
+  "scripts": {
+    "test": "mocha --timeout 10000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bridge-protocol/bridge-protocol-js"
+  },
+  "keywords": [
+    "bridge",
+    "protocol",
+    "identity"
+  ],
+  "author": "Bridge Protocol Corporation",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/bridge-protocol/bridge-protocol-js/issues"
+  },
+  "homepage": "https://github.com/bridge-protocol/bridge-protocol-js#readme",
+  "dependencies": {
+    "@cityofzion/neon-js": "^3.11.9",
+    "kbpgp": "^2.0.82",
+    "node-fetch": "^2.3.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "config": "2.0.1",
+    "mocha": "^5.2.0",
+    "webpack": "^4.16.2",
+    "webpack-cli": "^3.1.0",
+    "webpack-node-externals": "^1.7.2",
+    "worker-loader": "^2.0.0",
+    "license-checker-webpack-plugin": "0.0.6"
+  }
+}
