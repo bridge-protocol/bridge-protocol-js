@@ -42,6 +42,17 @@ class NEOUtility {
         return _neon.wallet.encrypt(wif, passphrase);
     }
 
+    createNep2KeyFromWif(wif, passphrase) {
+        if(!wif){
+            throw new Error("wif not provided");
+        }
+        if (!passphrase) {
+            throw new Error("passphrase not provided");
+        }
+
+        return _neon.wallet.encrypt(wif, passphrase);
+    }
+
     createNeoWallet(passphrase) {
         if (!passphrase) {
             throw new Error("passphrase not provided");
