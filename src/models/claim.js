@@ -10,12 +10,12 @@ var claim = class Claim
     };
 
     get isExpired(){
-        if(!this.expiresOn){
+        if(this.expiresOn == null){
             throw new Error("Expiration not set.");
         }
 
         //Never expires
-        if(this.expiresOn == 0){
+        if(this.expiresOn === 0){
             return false;
         }
         
@@ -56,7 +56,7 @@ var claim = class Claim
         if(this.claimTypeId &&
             this.claimValue &&
             this.createdOn &&
-            this.expiresOn &&
+            this.expiresOn != null &&
             this.signedByKey){
             return true;
         }
