@@ -35,6 +35,40 @@ describe("Create a Passport", function() {
     });
 });
 
+describe("Create a Passport with an existing NEO Account", function() {
+    let _passport;
+
+    before(async () => {
+        _passport = await _passportHelper.createPassport(_passphrase, "KyHPUiRAs9UnTUQMSiLRhLCAT31dDNyd4y9FchWJZK7w7gDL1iRf");
+    });
+
+    it("should have an id", function() {
+    	expect(_passport).to.have.property('id');
+    });
+
+    it("should have a public key", function() {
+        expect(_passport.key).to.have.property('public');
+    });
+
+    it("should have a private key", function() {
+        expect(_passport.key).to.have.property('private');
+    });
+
+    it("should have a neo wallet", function() {
+        expect(_passport.wallets[0].network).to.equal('NEO');
+    });
+
+    it("should have claims", function() {
+        expect(_passport).to.have.property('claims')
+    });
+
+    if("should have the imported Address and NEP-2 key", function(){
+        expect(_passport.wallets).to.be.not.null;
+        expect(_passport.wallets[0].key).to.equal("6PYRrd3rGmuKxkkybMCtTSSijXf3Ym63FQJJQcigTKNuk5uAF76Gpfafr4");
+        expect(_passport.wallets[0].address).to.equal("AQ6Nt3Ak6A8qKa2HDZDUWZgRhsFqEVJ2vN");
+    });
+});
+
 describe("Save a Passport", function() {
     let passport;
 

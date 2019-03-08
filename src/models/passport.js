@@ -19,19 +19,7 @@ var passport = class Passport
     }
 
     async create(createPassportOptions) {
-        let wallet;
-        if(createPassportOptions.neoKey)
-        {
-            //Associate a payment wallet
-            wallet = _neo.NEOUtility.getNeoWallet(createPassportOptions.neoKey, createPassportOptions.passphrase);
-            if(!wallet)
-                throw new Error("Incorrect NEP-2 key passphrase.");
-        }
-        else
-        {
-            wallet = _neo.NEOUtility.createNeoWallet(createPassportOptions.passphrase);
-        }
-
+        let wallet = _neo.NEOUtility.createNeoWallet(createPassportOptions.passphrase, createPassportOptions.neoKey);
         if(wallet)
             this.wallets.push(wallet);     
 

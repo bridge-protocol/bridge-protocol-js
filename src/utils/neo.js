@@ -53,12 +53,19 @@ class NEOUtility {
         return _neon.wallet.encrypt(wif, passphrase);
     }
 
-    createNeoWallet(passphrase) {
+    createNeoWallet(passphrase, wif) {
         if (!passphrase) {
             throw new Error("passphrase not provided");
         }
 
-        var nep2Key = this.createNep2Key(passphrase);
+        let nep2Key;
+        if(wif){
+            nep2Key = this.createNep2KeyFromWif(wif, passphrase);
+        }
+        else{
+            nep2Key = this.createNep2Key(passphrase);
+        }
+
         return this.getNeoWallet(nep2Key, passphrase);
     }
 
