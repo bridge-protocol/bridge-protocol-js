@@ -8,8 +8,12 @@ var applicationUtility = class ApplicationUtility{
         this._verificationPartnerService = new _verificationPartnerApi.VerificationPartnerApi(apiBaseUrl, passport, passphrase);
     }
 
-    async createApplication(verificationPartnerId, paymentNetwork, paymentTransactionId){
-        return await this._applicationService.createApplication(verificationPartnerId, paymentNetwork, paymentTransactionId);
+    async createApplication(verificationPartnerId){
+        return await this._applicationService.createApplication(verificationPartnerId);
+    }
+
+    async updatePaymentTransaction(applicationId, network, transactionId){
+        return await this._applicationService.updatePaymentTransaction(applicationId, network, transactionId);
     }
 
     async retrySend(applicationId){
