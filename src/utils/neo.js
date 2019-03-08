@@ -190,7 +190,7 @@ class NEOUtility {
         return this._getTransaction(scripthash, 'revoke', args, passport, passphrase);
     }
 
-    getSpendTokensTransaction(recipient, amount, passport, passphrase, scripthash) {
+    getSpendTokensTransaction(recipient, amount, passport, passphrase, scripthash, paymentIdentifier) {
         if (!amount) {
             throw new Error("amount not provided");
         }
@@ -223,7 +223,7 @@ class NEOUtility {
         //recipient = the recipient address for the payment
         //amount = number of tokens
         //provider = the account paying the tokens for the action
-        return this._getTransaction(scripthash, 'spend', args, passport, passphrase);
+        return this._getTransaction(scripthash, 'spend', args, passport, passphrase, paymentIdentifier);
     }
 
     getAddHashTransaction(hash, passport, passphrase, scripthash) {
@@ -318,7 +318,7 @@ class NEOUtility {
         //claimvalue
         //createdon
         //provider = the account paying the tokens for the action
-        return this._getTransaction(scripthash, 'addclaim', args, passport, passphrase, bridgeAddress);
+        return this._getTransaction(scripthash, 'addclaim', args, passport, passphrase, null, bridgeAddress);
     }
 
     getRemoveClaimTransaction(claimTypeId, passport, passphrase, scripthash) {
@@ -357,7 +357,7 @@ class NEOUtility {
             script: _neon.sc.createScript(transactionParameters.scriptParams),
             gas: 0
         });
-        transaction.addRemark(transactionParameters.random);
+        transaction.addRemark(transactionParameters.remark);
         transaction.addAttribute(32, _neon.u.reverseHex(_neon.wallet.getScriptHashFromAddress(transactionParameters.primaryAddress)));
         if(transactionParameters.secondaryAddress){
             transaction.addAttribute(32, _neon.u.reverseHex(_neon.wallet.getScriptHashFromAddress(transactionParameters.secondaryAddress)));
@@ -366,7 +366,7 @@ class NEOUtility {
         return transaction;
     }
 
-    _getTransaction(scriptHash, operation, args, passport, passphrase, secondaryAddress) {
+    _getTransaction(scriptHash, operation, args, passport, passphrase, remark, secondaryAddress) {
         if (!scriptHash) {
             throw new Error("scriptHash not provided");
         }
@@ -390,11 +390,15 @@ class NEOUtility {
             throw new Error("could not open wallet for signing");
         }
 
+        if(!remark){
+            remark = this._getRandom();
+        }
+
         // Create a transaction script and parameters
         let scriptParams = { scriptHash, operation, args };
         let transactionParameters = {
             scriptParams,
-            random: this._getRandom(),
+            remark,
             primaryAddress
         };
         if(secondaryAddress){
