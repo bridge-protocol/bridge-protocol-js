@@ -48,14 +48,28 @@ var applicationApi = class ApplicationApi
         return null;
     }
 
-    async createApplication(verificationPartner, paymentNetwork, paymentTransactionId){
+    async createApplication(verificationPartner){
         var obj = {
-            "verificationPartner": verificationPartner,
-            "transactionNetwork": paymentNetwork,
-            "transactionId": paymentTransactionId
+            verificationPartner
         };
         var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
         var res = await api.callApi("POST", "create/", obj);
+
+        if(res.application){
+            return res.application;
+        }
+
+        return null;
+    }
+
+    async updatePaymentTransaction(applicationId, network, transactionId){
+        var obj = {
+            applicationId,
+            network,
+            transactionId
+        };
+        var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
+        var res = await api.callApi("POST", "updatetransaction/", obj);
 
         if(res.application){
             return res.application;

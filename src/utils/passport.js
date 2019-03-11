@@ -164,7 +164,7 @@ var passportUtility = class PassportUtility {
         return null;
     }
 
-    async sendPayment(network, amount, recipient) {
+    async sendPayment(network, amount, recipient, paymentIdentifier) {
         if(!network){
             throw new Error("network not provided.");
         }
@@ -176,7 +176,7 @@ var passportUtility = class PassportUtility {
         }
 
         if(network.toLowerCase() === "neo"){
-            let transaction = this._neoHelper.getSpendTokensTransaction(recipient, amount, this._passport, this._passphrase, this._scripthash);
+            let transaction = this._neoHelper.getSpendTokensTransaction(recipient, amount, this._passport, this._passphrase, this._scripthash, paymentIdentifier);
             let success = await this._passportService.sendPayment(network, recipient, amount, transaction);
             if(success){
                 return transaction.hash;

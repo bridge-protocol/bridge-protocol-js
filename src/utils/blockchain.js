@@ -114,7 +114,7 @@ var blockchainUtility = class BlockchainUtility {
         }
 
         var res = await this.getTransactionStatus(network, transactionId);
-        if (res && res.hash)
+        if (res && res.complete)
             return true;
 
         return false;

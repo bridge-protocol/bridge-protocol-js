@@ -36,13 +36,13 @@ var neoApi = class NEOApi
     async getPassportStatus(passportId){
         var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
         var res = await api.callApi("GET", "id/" + passportId, null);
-        return res.keyserver;
+        return res;
     }
 
     async getAddressStatus(address){
         var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
         var res = await api.callApi("GET", "address/" + address, null);
-        return res.keyserver;
+        return res;
     }
 
     async addHash(address, digest, transaction) {
@@ -121,7 +121,7 @@ var neoApi = class NEOApi
     async getTransactionStatus(transactionId){
         var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
         var res = await api.callApi("GET", "transaction/" + transactionId, null);
-        return res.transaction;
+        return res;
     }
 };
 
