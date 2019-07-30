@@ -19,7 +19,7 @@ var passport = class Passport
     }
 
     async create(createPassportOptions) {
-        let wallet = _neo.NEOUtility.createNeoWallet(createPassportOptions.passphrase, createPassportOptions.neoKey);
+        let wallet = await _neo.NEOUtility.createNeoWallet(createPassportOptions.passphrase, createPassportOptions.neoKey);
         if(wallet)
             this.wallets.push(wallet);     
 
@@ -46,7 +46,7 @@ var passport = class Passport
 
         try{
             key = await _crypto.CryptoUtility.decryptPrivateKey(this.key.private, passphrase);
-            wif = _neo.NEOUtility.getWifFromNep2Key(this.wallets[0].key, passphrase);
+            wif = await _neo.NEOUtility.getWifFromNep2Key(this.wallets[0].key, passphrase);
         }
         catch(err){
             throw new Error("Invalid passphrase");

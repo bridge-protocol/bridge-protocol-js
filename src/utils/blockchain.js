@@ -120,6 +120,12 @@ var blockchainUtility = class BlockchainUtility {
         return false;
     }
 
+    async getGasBalance(network){
+        if(network.toLowerCase() === "neo"){
+            return await _neo.NEOUtility.getGasBalance(this._passport.wallets[0].address);
+        }
+    }
+
     async addHash(network, hash) {
         if (network.toLowerCase() === "neo") {
             let transaction = _neo.NEOUtility.getAddHashTransaction(hash, this._passport, this._passphrase, this._scripthash);

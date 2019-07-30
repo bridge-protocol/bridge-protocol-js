@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/bridge-protocol/bridge-protocol-js#readme",
   "dependencies": {
-    "@cityofzion/neon-js": "^3.11.9",
+    "@cityofzion/neon-js": "^4.7.0",
     "kbpgp": "^2.0.82",
     "node-fetch": "^2.3.0"
   },

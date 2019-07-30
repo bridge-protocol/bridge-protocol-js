@@ -139,7 +139,8 @@ var passportUtility = class PassportUtility {
         }
 
         if(network.toLowerCase() === "neo"){
-            let transaction = this._neoHelper.getPublishAddressTransaction(this._passport, this._passphrase, this._scripthash);
+            let publicKeyHash = this._cryptoHelper.getHash(this._passport.publicKey);
+            let transaction = await this._neoHelper.getPublishAddressTransaction(this._passport, this._passphrase, this._scripthash, publicKeyHash);
             let success = await this._passportService.addBlockchainAddress(network, transaction);
             if(success){
                 return transaction.hash;
@@ -155,7 +156,7 @@ var passportUtility = class PassportUtility {
         }
 
         if(network.toLowerCase() === "neo"){
-            let transaction = this._neoHelper.getRevokeAddressTransaction(this._passport, this._passphrase, this._scripthash);
+            let transaction = await this._neoHelper.getRevokeAddressTransaction(this._passport, this._passphrase, this._scripthash);
             let success = await this._passportService.removeBlockchainAddress(network, transaction);
             if(success){
                 return transaction.hash;
@@ -163,7 +164,7 @@ var passportUtility = class PassportUtility {
         }
         return null;
     }
-
+    
     async sendPayment(network, amount, recipient, paymentIdentifier) {
         if(!network){
             throw new Error("network not provided.");
@@ -176,7 +177,7 @@ var passportUtility = class PassportUtility {
         }
 
         if(network.toLowerCase() === "neo"){
-            let transaction = this._neoHelper.getSpendTokensTransaction(recipient, amount, this._passport, this._passphrase, this._scripthash, paymentIdentifier);
+            let transaction = await this._neoHelper.getSpendTokensTransaction(recipient, amount, this._passport, this._passphrase, this._scripthash, paymentIdentifier);
             let success = await this._passportService.sendPayment(network, recipient, amount, transaction);
             if(success){
                 return transaction.hash;
