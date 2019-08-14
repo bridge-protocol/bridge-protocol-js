@@ -139,6 +139,64 @@ class NEOUtility {
         });
     }
 
+    async relayTransaction(transaction)
+    {
+        return new Promise((resolve, reject) => {
+            const provider = new _neon.api.neoscan.instance("MainNet");
+            _neon.settings.httpsOnly = true;
+            provider.getRPCEndpoint().then(nodeUrl => {
+                let client = _neon.default.create.rpcClient(nodeUrl);
+                client.sendRawTransaction(transaction)
+                .then(res => {
+                    resolve(res);
+                })
+                .catch(err => {
+                    reject(err);
+                });
+            });
+        });
+    }
+
+    async checkTransactionComplete(txid, callback) {
+        let neo = this;
+        setTimeout(async function () {
+            let tx;
+            
+            try{
+              tx = await neo.getRawTransaction(txid);
+            }
+            catch{
+
+            }
+            
+            if(!tx || !tx.blockhash){
+                console.log("Transaction not found or not complete, waiting 15s and retrying...");
+                await neo.checkTransactionComplete(txid, callback);
+            }
+            else{
+                console.log("Transaction found and complete");
+                callback(tx);
+            }
+        }, 15000);
+    }
+
+    async getRawTransaction(txid){
+        return new Promise((resolve, reject) => {
+            const provider = new _neon.api.neoscan.instance("MainNet");
+            _neon.settings.httpsOnly = true;
+            provider.getRPCEndpoint().then(nodeUrl => {
+                let client = _neon.default.create.rpcClient(nodeUrl);
+                client.getRawTransaction(txid)            
+                .then(res => {
+                    resolve(res);
+                })
+                .catch(err => {
+                    reject(err);
+                });
+            });
+        });
+    }
+
     async getPublishAddressTransaction(passport, passphrase, scripthash, publicKeyHash) {
         if (!passport) {
             throw new Error("passport not provided");
@@ -166,7 +224,7 @@ class NEOUtility {
         //identity = bridge passport id
         //key = bridge passport public key
         //provider = the account paying the tokens for the action
-        return await this._getTransaction(scripthash, 'publish', args, passport, passphrase);
+        return await this._createTransaction(scripthash, 'publish', args, passport, passphrase);
     }
 
     async getAddAddressTransaction(passport, passphrase, scripthash) {
@@ -193,7 +251,7 @@ class NEOUtility {
         //identity = bridge passport id
         //user = the address scripthash
         //provider = the account paying the tokens for the action
-        return await this._getTransaction(scripthash, 'add', args, passport, passphrase);
+        return await this._createTransaction(scripthash, 'add', args, passport, passphrase);
     }
 
     async getRevokeAddressTransaction(passport, passphrase, scripthash) {
@@ -218,7 +276,7 @@ class NEOUtility {
         //address = your public neo address being used to sign the invocation / tx
         //identity = bridge passport id
         //user = the signer of the transaction
-        return await this._getTransaction(scripthash, 'revoke', args, passport, passphrase);
+        return await this._createTransaction(scripthash, 'revoke', args, passport, passphrase);
     }
 
     async getSpendTokensTransaction(recipient, amount, passport, passphrase, scripthash, paymentIdentifier) {
@@ -254,7 +312,7 @@ class NEOUtility {
         //recipient = the recipient address for the payment
         //amount = number of tokens
         //provider = the account paying the tokens for the action
-        return await this._getTransaction(scripthash, 'spend', args, passport, passphrase, paymentIdentifier);
+        return await this._createTransaction(scripthash, 'spend', args, passport, passphrase, paymentIdentifier);
     }
 
     async getAddHashTransaction(hash, passport, passphrase, scripthash) {
@@ -284,7 +342,7 @@ class NEOUtility {
         //identity = bridge passport id to deposit funds to
         //digest = SHA256 hash payload
         //provider = the account paying the tokens for the action
-        return await this._getTransaction(scripthash, 'addhash', args, passport, passphrase);
+        return await this._createTransaction(scripthash, 'addhash', args, passport, passphrase);
     }
 
     async getRemoveHashTransaction(hash, passport, passphrase, scripthash) {
@@ -312,7 +370,7 @@ class NEOUtility {
         //address = your public neo address being used to sign the invocation / tx
         //identity = bridge passport id to deposit funds to
         //digest = SHA256 hash payload
-        return await this._getTransaction(scripthash, 'revokehash', args, passport, passphrase);
+        return await this._createTransaction(scripthash, 'revokehash', args, passport, passphrase);
     }
 
     async getAddClaimTransaction(claim, passport, passphrase, scripthash, bridgeAddress) {
@@ -349,7 +407,7 @@ class NEOUtility {
         //claimvalue
         //createdon
         //provider = the account paying the tokens for the action
-        return await this._getTransaction(scripthash, 'addclaim', args, passport, passphrase, null, bridgeAddress);
+        return await this._createTransaction(scripthash, 'addclaim', args, passport, passphrase, null, bridgeAddress);
     }
 
     async getRemoveClaimTransaction(claimTypeId, passport, passphrase, scripthash) {
@@ -377,7 +435,7 @@ class NEOUtility {
         //address
         //identity
         //claims - [[claimtypeid,claimvalue,createdon]]
-        return await this._getTransaction(scripthash, 'revokeclaim', args, passport, passphrase);
+        return await this._createTransaction(scripthash, 'revokeclaim', args, passport, passphrase);
     }
 
     _createTx(transactionParameters){
@@ -392,7 +450,7 @@ class NEOUtility {
         return transaction;
     }
 
-    async _getTransaction(scriptHash, operation, args, passport, passphrase, remark, secondaryAddress) {
+    async _createTransaction(scriptHash, operation, args, passport, passphrase, remark, secondaryAddress) {
         if (!scriptHash) {
             throw new Error("scriptHash not provided");
         }
