@@ -180,6 +180,58 @@ class NEOUtility {
         }, 15000);
     }
 
+    async getApplicationLog(txid){
+        return new Promise((resolve, reject) => {
+            const provider = new _neon.api.neoscan.instance("MainNet");
+            _neon.settings.httpsOnly = true;
+            provider.getRPCEndpoint().then(nodeUrl => {
+                let client = _neon.default.create.rpcClient(nodeUrl);
+                let query = _neon.default.create.query({ method: "getapplicationlog", params: [txid] });
+                client.execute(query)        
+                .then(res => {
+                    resolve(res);
+                })
+                .catch(err => {
+                    reject(err);
+                });
+            });
+        });
+    }
+
+    async invokeFunction(scriptHash, operation, params){
+        return new Promise((resolve, reject) => {
+            const provider = new _neon.api.neoscan.instance("MainNet");
+            _neon.settings.httpsOnly = true;
+            provider.getRPCEndpoint().then(nodeUrl => {
+                let client = _neon.default.create.rpcClient(nodeUrl);
+                client.invokeFunction(scriptHash, operation, params)       
+                .then(res => {
+                    resolve(res);
+                })
+                .catch(err => {
+                    reject(err);
+                });
+            });
+        });
+    }
+
+    async getStorage(scriptHash, key){
+        return new Promise((resolve, reject) => {
+            const provider = new _neon.api.neoscan.instance("MainNet");
+            _neon.settings.httpsOnly = true;
+            provider.getRPCEndpoint().then(nodeUrl => {
+                let client = _neon.default.create.rpcClient(nodeUrl);
+                client.getStorage(scriptHash, key)           
+                .then(res => {
+                    resolve(res);
+                })
+                .catch(err => {
+                    reject(err);
+                });
+            });
+        });
+    }
+
     async getRawTransaction(txid){
         return new Promise((resolve, reject) => {
             const provider = new _neon.api.neoscan.instance("MainNet");
