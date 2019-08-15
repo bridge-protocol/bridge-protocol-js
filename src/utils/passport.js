@@ -130,33 +130,6 @@ var passportUtility = class PassportUtility {
         
         return null;
     }
-
-    async addBlockchainAddress(network, wait) {
-        if(!network){
-            throw new Error("network not provided.");
-        }
-
-        if(network.toLowerCase() === "neo"){
-            return await this._neoHelper.sendPublishAddressTransaction(this._passport, this._passphrase, wait);
-        }
-
-        return null;
-    }
-
-    async sendPayment(network, amount, paymentIdentifier, wait) {
-        if(!network){
-            throw new Error("network not provided.");
-        }
-        if(!amount){
-            throw new Error("amount not provided.");
-        }
-
-        if(network.toLowerCase() === "neo"){
-            return await this._neoHelper.sendSpendTokensTransaction(amount, paymentIdentifier, this._passport, this._passphrase, wait);
-        }
-
-        return null;
-    }
 };
 
 exports.PassportUtility = passportUtility;

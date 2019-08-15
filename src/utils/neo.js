@@ -130,6 +130,7 @@ class NEOUtility {
     async getAddressBalances(address) {
         let addressBalances = [];
         let balances = await this._callNeoscan("get_balance", address);
+
         for (let i = 0; i < balances.balance.length; i++) {
             addressBalances.push({
                 asset: balances.balance[i].asset_symbol,
@@ -179,7 +180,7 @@ class NEOUtility {
         });
     }
 
-    async sendSpendTokensTransaction(amount, paymentIdentifier, passport, passphrase, wait) {
+    async sendSpendTokensTransaction(amount, paymentIdentifier, recipient, passport, passphrase, wait) {
         let neo = this;
         return new Promise(async (resolve, reject) => {
             if (!amount) {
@@ -192,9 +193,12 @@ class NEOUtility {
                 reject("passphrase not provided");
             }
 
+            if(!recipient)
+                _recipient = _bridgeContractAddress;
+
             try {
                 let addressScriptHash = this._getAddressScriptHash(passport.wallets[0].address);
-                let recipientScriptHash = this._getAddressScriptHash(_bridgeContractAddress);
+                let recipientScriptHash = this._getAddressScriptHash(recipient);
                 let args = [
                     addressScriptHash,
                     passport.id,
@@ -393,6 +397,31 @@ class NEOUtility {
                 return;
             }
         });
+    }
+
+    async getRegisteredPassportInfo(passportId){
+        let storage = await this._getStorage(_bridgeContractHash, passportId);
+        if(!storage){
+            console.log("Address not registered.");
+            return null;
+        }
+
+        var deserialized = this._deserialize(storage);
+        var passport = {
+            passportId,
+            publicKeyHash: deserialized[0],
+            addresses: []
+        };
+        
+        // For each NEO address we are going to get the token balance
+        let addresslist = deserialized[1];
+        for (var scripthash in addresslist) {
+            let address = this._getAddressFromScriptHash(addresslist[scripthash]);
+            let balances = await this.getAddressBalances(address);
+            passport.addresses.push({ address, balances })
+        }
+
+        return passport;
     }
 
     async getRegisteredAddressInfo(address)
@@ -607,9 +636,8 @@ class NEOUtility {
                 console.log("Checking transaction complete for " + txid + " (" + count + ")");
                 let log = await neo._getApplicationLog(txid);
                 let tx = await neo._getRawTransaction(txid);
-                tx.executions = log.result.executions;
                 console.log("Transaction found and complete");
-                callback(tx);
+                callback({tx,log});
             }
             catch (err) {
                 console.log("Transaction not found or not complete, waiting and retrying...");
@@ -713,7 +741,8 @@ class NEOUtility {
                     if(Array.isArray(no.state.value)){
                         for(let s=0; s<no.state.value.length; s++){
                             let val = no.state.value[s];
-                            notification.values.push(this._unhexlify(val.value)); 
+                            let unhex = this._unhexlify(val.value);
+                            notification.values.push(unhex); 
                         }
                     }
                     else if(no.state.value){
@@ -723,13 +752,26 @@ class NEOUtility {
                                 let de = deserialized[d];
                                 if(Array.isArray(de)){
                                     for(let d2=0; d2<de.length; d2++){
-                                        notification.values.push(this._unhexlify(de[d2])); 
+                                        let dval = de[d2];
+                                        let unhex = this._unhexlify(dval);
+                                        //We have a passport ID we don't want to have converted to a NEO address
+                                        if(d2 == 1){
+                                            notification.values.push(dval); 
+                                        }
+                                        else{
+                                            notification.values.push(unhex); 
+                                        }     
                                     }
                                 }
                                 else{
-                                    notification.values.push(this._unhexlify(de)); 
+                                    let unhex = this._unhexlify(de);
+                                    notification.values.push(unhex); 
                                 }
                             }
+                        }
+                        else{
+                            let unhex = this._unhexlify(deserialized);
+                            notification.values.push(unhex); 
                         }
                     }
 
@@ -796,6 +838,10 @@ class NEOUtility {
         }
 
         return _neon.u.reverseHex(_neon.wallet.getScriptHashFromAddress(address));
+    }
+
+    _getAddressFromScriptHash(scripthash){
+        return _neon.wallet.getAddressFromScriptHash(_neon.u.reverseHex(scripthash));
     }
 
     _getRandom() {
