@@ -6,13 +6,12 @@ const _passportApi = require('../api/passport');
 const _passport = require('../models/passport');
 
 var passportUtility = class PassportUtility {
-    constructor(apiBaseUrl, passport, passphrase, scripthash) {
+    constructor(apiBaseUrl, passport, passphrase) {
         if (!passport)
             return;
 
         this._passport = passport;
         this._passphrase = passphrase;
-        this._scripthash = scripthash;
         this._cryptoHelper = _cryptoUtility.CryptoUtility;
         this._claimHelper = new _claimUtility.ClaimUtility(apiBaseUrl, passport, passphrase);
         this._neoHelper = _neoUtility.NEOUtility;
@@ -116,7 +115,6 @@ var passportUtility = class PassportUtility {
     }
 
     async getDecryptedClaims(claimTypeIds){
-        let decryptedClaims = new Array();
         let claimPackages;   
 
         if(!claimTypeIds){
@@ -133,56 +131,30 @@ var passportUtility = class PassportUtility {
         return null;
     }
 
-    async addBlockchainAddress(network) {
+    async addBlockchainAddress(network, wait) {
         if(!network){
             throw new Error("network not provided.");
         }
 
         if(network.toLowerCase() === "neo"){
-            let publicKeyHash = this._cryptoHelper.getHash(this._passport.publicKey);
-            let transaction = await this._neoHelper.getPublishAddressTransaction(this._passport, this._passphrase, this._scripthash, publicKeyHash);
-            let success = await this._passportService.addBlockchainAddress(network, transaction);
-            if(success){
-                return transaction.hash;
-            }
+            return await this._neoHelper.sendPublishAddressTransaction(this._passport, this._passphrase, wait);
         }
 
         return null;
     }
 
-    async removeBlockchainAddress(network) {
-        if(!network){
-            throw new Error("network not provided.");
-        }
-
-        if(network.toLowerCase() === "neo"){
-            let transaction = await this._neoHelper.getRevokeAddressTransaction(this._passport, this._passphrase, this._scripthash);
-            let success = await this._passportService.removeBlockchainAddress(network, transaction);
-            if(success){
-                return transaction.hash;
-            }
-        }
-        return null;
-    }
-    
-    async sendPayment(network, amount, recipient, paymentIdentifier) {
+    async sendPayment(network, amount, paymentIdentifier, wait) {
         if(!network){
             throw new Error("network not provided.");
         }
         if(!amount){
             throw new Error("amount not provided.");
         }
-        if(!recipient){
-            throw new Error("recipient not provided.");
-        }
 
         if(network.toLowerCase() === "neo"){
-            let transaction = await this._neoHelper.getSpendTokensTransaction(recipient, amount, this._passport, this._passphrase, this._scripthash, paymentIdentifier);
-            let success = await this._passportService.sendPayment(network, recipient, amount, transaction);
-            if(success){
-                return transaction.hash;
-            }
+            return await this._neoHelper.sendSpendTokensTransaction(amount, paymentIdentifier, this._passport, this._passphrase, wait);
         }
+
         return null;
     }
 };

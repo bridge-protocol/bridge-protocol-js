@@ -4,10 +4,9 @@ const _claims = require('../utils/claim');
 const _crypto = require('../utils/crypto');
 
 var blockchainUtility = class BlockchainUtility {
-    constructor(apiBaseUrl, passport, passphrase, scripthash) {
+    constructor(apiBaseUrl, passport, passphrase) {
         this._passport = passport;
         this._passphrase = passphrase;
-        this._scripthash = scripthash;
         this._neoService = new _neoApi.NEOApi(apiBaseUrl, passport, passphrase);
     }
 
