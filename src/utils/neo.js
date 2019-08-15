@@ -644,17 +644,32 @@ class NEOUtility {
         });
     }
 
+
+
     async _getRawTransaction(txid) {
         return new Promise(async (resolve, reject) => {
             let client = await this._getRpcClient();
             client.getRawTransaction(txid)
                 .then(res => {
-                    resolve(res);
+                    resolve(this._parseRawTransaction(res));
                 })
                 .catch(err => {
                     reject(err);
                 });
         });
+    }
+
+    _parseRawTransaction(raw){
+        let attributes = [];
+        if (Array.isArray(raw.attributes)) {
+            for (let a in raw.attributes) {
+                attributes.push( {
+                    type: raw.attributes[a].usage,
+                    value: this._unhexlify(raw.attributes[a].data)
+                } );
+            };
+        };
+        return attributes;
     }
 
     async _getApplicationLog(txid) {
@@ -663,12 +678,69 @@ class NEOUtility {
             let query = _neon.default.create.query({ method: "getapplicationlog", params: [txid] });
             client.execute(query)
                 .then(res => {
-                    resolve(res);
+                    resolve(this._parseApplicationLog(res));
                 })
                 .catch(err => {
                     reject(err);
                 });
         });
+    }
+
+    _parseApplicationLog(log){
+        let result = {};
+        result.txid = log.result.txid;
+        result.executions = [];
+
+        for(let e=0; e<log.result.executions.length; e++){
+            let ex = log.result.executions[e];
+            let execution = {
+                trigger: ex.trigger,
+                contract: ex.contract,
+                vmstate: ex.vmstate,
+                gas_consumed: ex.gas_consumed,
+                stack: ex.stack,
+                notifications: []                
+            };
+
+            if(Array.isArray(ex.notifications)){
+                for(let n=0; n<ex.notifications.length; n++){
+                    let no = ex.notifications[n];
+                    let notification = {
+                        contract: no.contract,
+                        values: []
+                    };
+
+                    if(Array.isArray(no.state.value)){
+                        for(let s=0; s<no.state.value.length; s++){
+                            let val = no.state.value[s];
+                            notification.values.push(this._unhexlify(val.value)); 
+                        }
+                    }
+                    else if(no.state.value){
+                        let deserialized = this._deserialize(no.state.value);
+                        if(Array.isArray(deserialized)){
+                            for(let d=0; d<deserialized.length; d++){
+                                let de = deserialized[d];
+                                if(Array.isArray(de)){
+                                    for(let d2=0; d2<de.length; d2++){
+                                        notification.values.push(this._unhexlify(de[d2])); 
+                                    }
+                                }
+                                else{
+                                    notification.values.push(this._unhexlify(de)); 
+                                }
+                            }
+                        }
+                    }
+
+                    execution.notifications.push(notification);
+                }
+            }
+
+            result.executions.push(execution);
+        }
+
+        return result;
     }
 
     async _getRpcClient() {
@@ -806,7 +878,7 @@ class NEOUtility {
             };
 
             // Check if we have a valid string
-            if (/^[\x00-\x7F]*$/.test(string)) {
+            if (string && /^[\x00-\x7F]*$/.test(string)) {
                 return string;
             }
 
