@@ -180,6 +180,7 @@ class NEOUtility {
         });
     }
 
+    //Amount is 100000000 = 1
     async sendSpendTokensTransaction(amount, paymentIdentifier, recipient, passport, passphrase, wait) {
         let neo = this;
         return new Promise(async (resolve, reject) => {
@@ -194,7 +195,7 @@ class NEOUtility {
             }
 
             if(!recipient)
-                _recipient = _bridgeContractAddress;
+                recipient = _bridgeContractAddress;
 
             try {
                 let addressScriptHash = this._getAddressScriptHash(passport.wallets[0].address);
@@ -203,7 +204,7 @@ class NEOUtility {
                     addressScriptHash,
                     passport.id,
                     recipientScriptHash,
-                    (amount * 100000000),
+                    amount,
                     addressScriptHash
                 ];
 
@@ -311,7 +312,8 @@ class NEOUtility {
         });
     }
 
-    async sendAddClaimTransaction(claim, passport, passphrase) {
+    //Need to get the transaction, send to bridge, then relay
+    async getAddClaimTransaction(claim, passport, passphrase) {
         let neo = this;
         return new Promise(async (resolve, reject) => {
             if (!claim) {
@@ -343,9 +345,25 @@ class NEOUtility {
                 //createdon
                 //provider = the account paying the tokens for the action
                 let tx = await this._createAndSignTransaction(_bridgeContractHash, 'addclaim', args, passport, passphrase, null, _bridgeAddress);
+                resolve(tx);
+            }
+            catch (err) {
+                reject(err);
+                return;
+            }
+        });
+    }
 
-                //TODO: This tx has to be sent to Bridge for claim validation and secondary signing
+    //This is the secondary signed transaction by Bridge for publish
+    //If it's not signed by Bridge the smart contract will reject it
+    async sendAddClaimTransaction(tx, wait) {
+        let neo = this;
+        return new Promise(async (resolve, reject) => {
+            if (!tx) {
+                reject("tx not provided");
+            }
 
+            try {
                 //Relay the transaction
                 if(wait)
                     resolve(await this._relayTransactionWaitStatus(tx));
@@ -359,7 +377,7 @@ class NEOUtility {
         });
     }
 
-    async sendRemoveClaimTransaction(claimTypeId, passport, passphrase, scripthash) {
+    async sendRemoveClaimTransaction(claimTypeId, passport, passphrase, wait) {
         let neo = this;
         return new Promise(async (resolve, reject) => {
             if (!claimTypeId) {
@@ -471,7 +489,7 @@ class NEOUtility {
         }
         claimType = _neon.u.reverseHex(claimType);
 
-        let storageKey = ( passportId + '3032' + claim );
+        let storageKey = ( passportId + '3032' + claimType );
         let storage = await this._getStorage(_bridgeContractHash, storageKey);
         if(!storage || storage.length == 0)
             return null;
@@ -489,7 +507,7 @@ class NEOUtility {
 
     secondarySignTransaction(transactionParameters, transaction, hash, wif) {
         //The transaction we want to sign
-        let primaryTransaction = _neon.tx.deserializeTransaction(transaction);
+        let primaryTransaction = _neon.tx.Transaction.deserialize(transaction);
 
         //Create a second transaction with the same properties
         let secondaryTransaction = this._createTransaction(transactionParameters);
@@ -508,7 +526,7 @@ class NEOUtility {
         transaction.scripts.reverse();
 
         // Get the transaction hash
-        hash = _neon.tx.getTransactionHash(transaction);
+        hash = transaction.hash;
 
         //Serialize the transaction
         transaction = transaction.serialize();
@@ -516,15 +534,9 @@ class NEOUtility {
         return { hash, transaction };
     }
 
-    async verifySpendTransaction(txid, amount, recipient, identifier)
-    {
-        if(!recipient)
-            recipient = this._bridgeContractAddress;
-
-        //Get the transaction info
-        let info = await this._getTransactionInfo(txid);
-        if(info == null){
-            console.log("transaction not found");
+    async verifySpendTransactionFromInfo(info, amount, recipient, identifier){
+        if(!info){
+            console.log("transaction info was null");
             return false;
         }
         if(!Array.isArray(info.tx)){
@@ -535,6 +547,9 @@ class NEOUtility {
             console.log("log executions is null");
             return false;
         }
+
+        if(!recipient)
+            recipient = this._bridgeContractAddress;
             
         //If an identifier to match is specified, make sure it exists on the transaction
         if(identifier){
@@ -550,7 +565,7 @@ class NEOUtility {
                 console.log("remark not found on transaction");
                 return false;
             }
-            if(remark != identifier){
+            if(!remark.includes(identifier)){
                 console.log("transaction remark does not match requested identifier");
                 return false;
             }
@@ -566,23 +581,21 @@ class NEOUtility {
                         //Look for spend tx to the smart contract
                         if(notify.contract == _bridgeContractHash && notify.values[0] == "spend" && notify.values.length == 6)
                         {
-                            let from = notify.values[1];
+                            //let from = notify.values[1];
                             let to = notify.values[3];
                             let amt = notify.values[4];
-                            let adjusted = amt / 100000000;
 
-                            if(adjusted >= amount && to == recipient){
+                            if(amt >= amount && to == recipient){
                                 return true;
                             }
                         }
                         //Look for a straight nep5 transfer
                         if(notify.contract == _brdgHash && notify.values[0] == "transfer" && notify.values.length == 4){
-                            let from = notify.values[1];
+                            //let from = notify.values[1];
                             let to = notify.values[2];
                             let amt = notify.values[3];
-                            let adjusted = amt / 100000000;
 
-                            if(adjusted >= amount && to == recipient){
+                            if(amt >= amount && to == recipient){
                                 return true;
                             }
                         }
@@ -594,11 +607,25 @@ class NEOUtility {
         return false;
     }
 
+    async verifySpendTransaction(txid, amount, recipient, identifier)
+    {
+        //Get the transaction info
+        let info = await this._getTransactionInfo(txid);
+        if(info == null){
+            console.log("transaction not found");
+            return false;
+        }
+        
+        return await this.verifySpendTransactionFromInfo(info, amount, recipient, identifier);
+    }
+
     _createTransaction(transactionParameters) {
         //Create the transaction
         let transaction = new _neon.tx.InvocationTransaction();
         transaction.script = _neon.sc.createScript(transactionParameters.scriptParams);
-        transaction.addRemark(transactionParameters.remark);
+
+        let rand = this._getRandom(5);
+        transaction.addRemark(transactionParameters.remark + "-" + rand); //Add randomness to the remark in case the identifier needs to be reused
         transaction.addAttribute(32, _neon.u.reverseHex(_neon.wallet.getScriptHashFromAddress(transactionParameters.primaryAddress)));
         if (transactionParameters.secondaryAddress) {
             transaction.addAttribute(32, _neon.u.reverseHex(_neon.wallet.getScriptHashFromAddress(transactionParameters.secondaryAddress)));
@@ -621,6 +648,11 @@ class NEOUtility {
         }
         if (!passphrase) {
             throw new Error("passphrase not provided");
+        }
+
+        //Sanitize the scripthash
+        if(scriptHash.startsWith("0x")){
+            scriptHash = scriptHash.slice(2);
         }
 
         //The user's address and unlocked wallet for signing
@@ -933,9 +965,14 @@ class NEOUtility {
         return _neon.wallet.getAddressFromScriptHash(_neon.u.reverseHex(scripthash));
     }
 
-    _getRandom() {
+    _getRandom(len) {
         let date = new Date();
-        return _neon.u.sha256(_neon.u.str2hexstring(date.toISOString() + Math.random()));
+        let str = _neon.u.sha256(_neon.u.str2hexstring(date.toISOString() + Math.random()));
+
+        if(len)
+            str = str.substring(0,len);
+
+        return str;
     }
 
     _isHex(input) {
