@@ -4,7 +4,7 @@ const _crypto = require('./crypto');
 const _neoscanUrl = "https://neoscan.io/api/main_net/v1";
 const _pollInterval = 15000;
 const _pollRetries = 20;
-const _bridgeContractHash = "e7692ab0005cda56121e4d5384e7647f97f3035d";
+const _bridgeContractHash = "0xe7692ab0005cda56121e4d5384e7647f97f3035d";
 const _bridgeContractAddress = "AS6suhfGBbj9temaLLHSQRZ363xdx8e94n";
 const _bridgeAddress = "ALEN8KC46GLaadRxaWdvYBUhdokT3RhxPC";
 const _brdgHash = "0xbac0d143a547dc66a1d6a2b7d66b06de42614971";
@@ -516,6 +516,84 @@ class NEOUtility {
         return { hash, transaction };
     }
 
+    async verifySpendTransaction(txid, amount, recipient, identifier)
+    {
+        if(!recipient)
+            recipient = this._bridgeContractAddress;
+
+        //Get the transaction info
+        let info = await this._getTransactionInfo(txid);
+        if(info == null){
+            console.log("transaction not found");
+            return false;
+        }
+        if(!Array.isArray(info.tx)){
+            console.log("transaction values not found");
+            return false;
+        }
+        if(!info.log.executions || !Array.isArray(info.log.executions)){
+            console.log("log executions is null");
+            return false;
+        }
+            
+        //If an identifier to match is specified, make sure it exists on the transaction
+        if(identifier){
+            //Find the remark and see if it matches
+            let remark;
+            for (let t in info.tx) {
+                let val = info.tx[t];
+                if(val.type && val.type == "Remark"){
+                    remark = val.value;
+                }
+            };
+            if(remark == null){
+                console.log("remark not found on transaction");
+                return false;
+            }
+            if(remark != identifier){
+                console.log("transaction remark does not match requested identifier");
+                return false;
+            }
+        }
+          
+        //Get the notifications about the transaction
+        for(let e in info.log.executions){
+            let execution = info.log.executions[e];
+            if(Array.isArray(execution.notifications)){
+                for(let n in execution.notifications){
+                    let notify = execution.notifications[n];
+                    if(notify.values && Array.isArray(notify.values)){
+                        //Look for spend tx to the smart contract
+                        if(notify.contract == _bridgeContractHash && notify.values[0] == "spend" && notify.values.length == 6)
+                        {
+                            let from = notify.values[1];
+                            let to = notify.values[3];
+                            let amt = notify.values[4];
+                            let adjusted = amt / 100000000;
+
+                            if(adjusted == amount && to == recipient){
+                                return true;
+                            }
+                        }
+                        //Look for a straight nep5 transfer
+                        if(notify.contract == _brdgHash && notify.values[0] == "transfer" && notify.values.length == 4){
+                            let from = notify.values[1];
+                            let to = notify.values[2];
+                            let amt = notify.values[3];
+                            let adjusted = amt / 100000000;
+
+                            if(adjusted == amount && to == recipient){
+                                //return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
     _createTransaction(transactionParameters) {
         //Create the transaction
         let transaction = new _neon.tx.InvocationTransaction();
@@ -615,6 +693,19 @@ class NEOUtility {
         });
     }
 
+    async _getTransactionInfo(txid){
+        try{
+            let log = await this._getApplicationLog(txid);
+            let tx = await this._getRawTransaction(txid);
+            return { tx, log };
+        }
+        catch(err){
+            
+        }
+
+        return null;
+    }
+
     async _checkTransactionComplete(txid, callback, count) {
         let neo = this;
 
@@ -671,8 +762,6 @@ class NEOUtility {
                 });
         });
     }
-
-
 
     async _getRawTransaction(txid) {
         return new Promise(async (resolve, reject) => {
