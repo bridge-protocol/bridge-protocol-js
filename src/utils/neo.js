@@ -571,7 +571,7 @@ class NEOUtility {
                             let amt = notify.values[4];
                             let adjusted = amt / 100000000;
 
-                            if(adjusted == amount && to == recipient){
+                            if(adjusted >= amount && to == recipient){
                                 return true;
                             }
                         }
@@ -582,8 +582,8 @@ class NEOUtility {
                             let amt = notify.values[3];
                             let adjusted = amt / 100000000;
 
-                            if(adjusted == amount && to == recipient){
-                                //return true;
+                            if(adjusted >= amount && to == recipient){
+                                return true;
                             }
                         }
                     }
