@@ -48,9 +48,9 @@ var applicationApi = class ApplicationApi
         return null;
     }
 
-    async createApplication(verificationPartner){
+    async createApplication(partner){
         var obj = {
-            verificationPartner
+            partner
         };
         var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
         var res = await api.callApi("POST", "create/", obj);

@@ -107,9 +107,23 @@ describe("User creates a valid auth response to the parther auth request", funct
 describe("Partner verifies the auth response and gets the passport and claim data", function(){
     let response;
 
+    it("should not let the user pass back the request as the response", async function(){
+        let authHelper = new _bridge.Auth(_apiBaseUrl, _partnerPassport, _passphrase);
+        let error = null;
+
+        try{
+            response = await authHelper.verifyPassportLoginChallengeResponse(_authRequest, _randomAuthToken, _requiredClaimTypes, _partnerPassport.id);
+        }
+        catch(err){
+            error = err.message;
+        }
+
+        expect(error).to.equal("Invalid response.  Request and response passports cannot be the same.");
+    });
+
     it("should verify the auth response", async function(){
         let authHelper = new _bridge.Auth(_apiBaseUrl, _partnerPassport, _passphrase);
-        response = await authHelper.verifyPassportLoginChallengeResponse(_authResponse, _randomAuthToken, _requiredClaimTypes);
+        response = await authHelper.verifyPassportLoginChallengeResponse(_authResponse, _randomAuthToken, _requiredClaimTypes, _partnerPassport.id);
      });
 
     it("should verify the token matches what was sent", function(){

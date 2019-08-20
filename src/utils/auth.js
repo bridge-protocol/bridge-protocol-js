@@ -55,15 +55,21 @@ var authUtility = class AuthUtility{
         return await this._messageHelper.createMessage(payload, publicKey);
     }
 
-    async verifyPassportLoginChallengeResponse(message, verifyToken, claimTypeIds) {
+    async verifyPassportLoginChallengeResponse(message, verifyToken, claimTypeIds, requestPassportId) {
         if(!message){
             throw new Error("message not provided");
         }
         if(!verifyToken){
             throw new Error("verifyToken not provided");
         }
+        if(!requestPassportId){
+            throw new Error("requestPassportId not provided");
+        }
 
         let res = await this._messageHelper.decryptMessage(message);
+        if(res.passportId === requestPassportId){
+            throw new Error("Invalid response.  Request and response passports cannot be the same.");
+        }
 
         if(!res.payload.claims){
             res.payload.claims = new Array();

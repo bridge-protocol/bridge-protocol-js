@@ -1,15 +1,15 @@
 const _applicationApi = require('../api/application');
-const _verificationPartnerApi = require('../api/verificationpartner');
+const _partnerApi = require('../api/partner');
 
 var applicationUtility = class ApplicationUtility{
     constructor(apiBaseUrl, passport, passphrase) {
         this._passport = passport;
         this._applicationService = new _applicationApi.ApplicationApi(apiBaseUrl, passport, passphrase);
-        this._verificationPartnerService = new _verificationPartnerApi.VerificationPartnerApi(apiBaseUrl, passport, passphrase);
+        this._partnerService = new _partnerApi.PartnerApi(apiBaseUrl, passport, passphrase);
     }
 
-    async createApplication(verificationPartnerId){
-        return await this._applicationService.createApplication(verificationPartnerId);
+    async createApplication(partnerId){
+        return await this._applicationService.createApplication(partnerId);
     }
 
     async updatePaymentTransaction(applicationId, network, transactionId){

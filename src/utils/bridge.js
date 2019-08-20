@@ -23,6 +23,18 @@ var bridgeUtility = class BridgeUtility {
     async getBridgeNetworkFee(){
         return await this._bridgeService.getBridgeNetworkFee();
     }
+
+    async getBridgeNeoContractScriptHash(){
+        return await this._bridgeService.getBridgeNeoContractScriptHash();
+    }
+
+    async getBridgeNeoContractAddress(){
+        return await this._bridgeService.getBridgeNeoContractAddress();
+    }
+
+    async getBridgeNeoAddress(){
+        return await this._bridgeService.getBridgeNeoAddress();
+    }
 };
 
 exports.BridgeUtility = bridgeUtility;

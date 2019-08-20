@@ -51,7 +51,7 @@ async function VerifyAuthResponse(contextPassport, response)
     
     //Pass in the auth token we sent and the claim types we asked for along with the response to verify and get detail
     //On what the user provided us and whether or not its valid
-    return await authHelper.verifyPassportLoginChallengeResponse(response, _randomAuthToken, _requiredClaimTypes);
+    return await authHelper.verifyPassportLoginChallengeResponse(response, _randomAuthToken, _requiredClaimTypes, contextPassport.id);
 }
 
 async function GetAuthResponse(contextPassport, message){
