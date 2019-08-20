@@ -28,6 +28,16 @@ var verificationPartnerUtility = class VerificationPartnerUtility {
         return await this._verificationPartnerService.getPartners(partnerIds);
     }
 
+    getPartnerById(verificationPartners, id){
+        for(let i=0; i<verificationPartners.length; i++){
+            if(verificationPartners[i].id == id){
+                return verificationPartners[i];
+            }
+        }
+    
+        return null;
+    }
+
     async getPartner(partnerId) {
         if(!partnerId){
             throw new Error("partnerId not provided");

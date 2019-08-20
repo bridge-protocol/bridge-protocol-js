@@ -32,6 +32,24 @@ var bridgeApi = class BridgeApi
         var res = await api.callApi("GET", "fee", null);
         return res.networkFee;
     }
+
+    async getBridgeNeoContractScriptHash(){
+        var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
+        var res = await api.callApi("GET", "neocontractscripthash", null);
+        return res.scriptHash;
+    }
+
+    async getBridgeNeoContractAddress(){
+        var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
+        var res = await api.callApi("GET", "neocontractaddress", null);
+        return res.address;
+    }
+
+    async getBridgeNeoAddress(){
+        var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
+        var res = await api.callApi("GET", "neoaddress", null);
+        return res.address;
+    }
 };
 
 exports.BridgeApi = bridgeApi;
