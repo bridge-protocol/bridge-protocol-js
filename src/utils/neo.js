@@ -537,15 +537,15 @@ class NEOUtility {
     async verifySpendTransactionFromInfo(info, amount, recipient, identifier){
         if(!info){
             console.log("transaction info was null");
-            return false;
+            return { complete: true, success: false };
         }
         if(!Array.isArray(info.tx)){
             console.log("transaction values not found");
-            return false;
+            return { complete: true, success: false };;
         }
         if(!info.log.executions || !Array.isArray(info.log.executions)){
             console.log("log executions is null");
-            return false;
+            return { complete: true, success: false };
         }
 
         if(!recipient)
@@ -563,11 +563,11 @@ class NEOUtility {
             };
             if(remark == null){
                 console.log("remark not found on transaction");
-                return false;
+                return { complete: true, success: false };
             }
             if(!remark.includes(identifier)){
                 console.log("transaction remark does not match requested identifier");
-                return false;
+                return { complete: true, success: false };
             }
         }
           
@@ -586,7 +586,7 @@ class NEOUtility {
                             let amt = notify.values[4];
 
                             if(amt >= amount && to == recipient){
-                                return true;
+                                return { complete: true, success: true };
                             }
                         }
                         //Look for a straight nep5 transfer
@@ -596,7 +596,7 @@ class NEOUtility {
                             let amt = notify.values[3];
 
                             if(amt >= amount && to == recipient){
-                                return true;
+                                return { complete: true, success: true };
                             }
                         }
                     }
@@ -604,7 +604,7 @@ class NEOUtility {
             }
         }
 
-        return false;
+        return { complete: true, success: false };
     }
 
     async verifySpendTransaction(txid, amount, recipient, identifier)
@@ -613,7 +613,7 @@ class NEOUtility {
         let info = await this._getTransactionInfo(txid);
         if(info == null){
             console.log("transaction not found");
-            return false;
+            return { complete: false, success: false };
         }
         
         return await this.verifySpendTransactionFromInfo(info, amount, recipient, identifier);

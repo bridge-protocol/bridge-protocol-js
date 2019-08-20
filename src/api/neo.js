@@ -15,24 +15,6 @@ var neoApi = class NEOApi
         this._passphrase = passphrase;
     }
 
-    async getBridgeWallet(){
-        var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
-        var res = await api.callApi("GET", "wallet", null);
-        return res.address;
-    }
-
-    async getBridgeAddress(){
-        var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
-        var res = await api.callApi("GET", "address", null);
-        return res.address;
-    }
-
-    async getBridgeScriptHash(){
-        var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
-        var res = await api.callApi("GET", "scripthash", null);
-        return res.scriptHash;
-    }
-
     async verifyAndSignAddClaimTransaction(claim, transaction) {
         var obj = {
             claim,

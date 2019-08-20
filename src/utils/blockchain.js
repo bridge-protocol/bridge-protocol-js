@@ -51,9 +51,11 @@ var blockchainUtility = class BlockchainUtility {
             let info =  await this._neoHelper.sendSpendTokensTransaction(amount, paymentIdentifier, null, this._passport, this._passphrase, wait);
             console.log("Transaction complete: " + JSON.stringify(info));
             console.log("Verifying payment..");
-            let success = await this._neoHelper.verifySpendTransactionFromInfo(info, amount, null, paymentIdentifier);
-            console.log("Payment failed");
-            return success;
+            let res = await this._neoHelper.verifySpendTransactionFromInfo(info, amount, null, paymentIdentifier);
+            if(!res.success){
+                console.log("Payment failed");
+            }
+            return res.success;
         }
 
         return null;
