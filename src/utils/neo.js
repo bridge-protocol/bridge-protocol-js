@@ -140,7 +140,7 @@ class NEOUtility {
         return addressBalances;
     }
 
-    async sendPublishAddressTransaction(passport, passphrase, wait) {
+    async sendPublishAddressTransaction(passport, passphrase, address, wait) {
         let neo = this;
         return new Promise(async (resolve, reject) => {
             if (!passport) {
@@ -149,11 +149,17 @@ class NEOUtility {
             if (!passphrase) {
                 reject("passphrase not provided");
             }
+            if(!passport.publicKey){
+                reject("passport public key missing");
+            }
+            if(!address){
+                reject("address not provided");
+            }
 
             try {
                 //Create the transaction
                 let publicKeyHash = _crypto.CryptoUtility.getHash(passport.publicKey);
-                let addressScriptHash = this._getAddressScriptHash(passport.wallets[0].address);
+                let addressScriptHash = this._getAddressScriptHash(address);
                 let args = [
                     addressScriptHash,
                     passport.id,
@@ -166,6 +172,7 @@ class NEOUtility {
                 //key = bridge passport public key
                 //provider = the account paying the tokens for the action
                 let tx = await this._createAndSignTransaction(_bridgeContractHash, 'publish', args, passport, passphrase);
+                console.log(JSON.stringify(tx));
 
                 //Relay the transaction
                 if(wait)

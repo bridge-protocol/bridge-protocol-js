@@ -26,13 +26,16 @@ var blockchainUtility = class BlockchainUtility {
         return null;
     }
 
-    async addBlockchainAddress(network, wait) {
+    async addBlockchainAddress(network, address, wait) {
         if(!network){
             throw new Error("network not provided.");
         }
+        if(!address){
+            throw new Error("address not provided");
+        }
 
         if(network.toLowerCase() === "neo"){
-            return await this._neoHelper.sendPublishAddressTransaction(this._passport, this._passphrase, wait);
+            return await this._neoHelper.sendPublishAddressTransaction(this._passport, this._passphrase, address, wait);
         }
 
         return null;
