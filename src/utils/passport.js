@@ -34,7 +34,7 @@ var passportUtility = class PassportUtility {
         return await this._cryptoHelper.getPassportIdForPublicKey(publicKey);
     }
 
-    async createPassport(passphrase, neoKey) {
+    async createPassport(passphrase, neoWif, createNeoAddress) {
         if(!passphrase){
             throw new Error("passphrase not provided.");
         }
@@ -42,7 +42,8 @@ var passportUtility = class PassportUtility {
         let passport = null;
         let options = {
             passphrase,
-            neoKey
+            neoWif,
+            createNeoAddress
         };
 
         try {
