@@ -1,10 +1,9 @@
-//Utilities
+//Utils
+const _constants = require('../constants');
 const _cryptoUtility = require('../utils/crypto');
 //Services
 const _partnerApi = require('../api/partner');
 const _applicationApi = require('../api/application');
-//Models
-
 
 var partnerUtility = class PartnerUtility {
     constructor(apiBaseUrl, passport, passphrase) {
@@ -16,10 +15,28 @@ var partnerUtility = class PartnerUtility {
         this._applicationService = new _applicationApi.ApplicationApi(apiBaseUrl, passport, passphrase);
     }
 
-    async getAllPartners() {
-        return await this._partnerService.getAllPartners();
+    async getAllPartners(useApi) {
+        if(useApi){
+            return await this._partnerService.getAllPartners();
+        }
+        else{
+            return _constants.Constants.partners;
+        }
     }
 
+    async getPartner(partnerId, useApi) {
+        if(!partnerId){
+            throw new Error("partnerId not provided");
+        }
+
+        if(useApi){
+            return await this._partnerService.getPartner(partnerId);
+        }
+        else{
+            return this.getPartnerById(_constants.Constants.partners, partnerId);
+        }
+    }
+    
     getPartnerById(partners, id){
         for(let i=0; i<partners.length; i++){
             if(partners[i].id == id){
@@ -28,14 +45,6 @@ var partnerUtility = class PartnerUtility {
         }
     
         return null;
-    }
-
-    async getPartner(partnerId) {
-        if(!partnerId){
-            throw new Error("partnerId not provided");
-        }
-
-        return await this._partnerService.getPartner(partnerId);
     }
 };
 

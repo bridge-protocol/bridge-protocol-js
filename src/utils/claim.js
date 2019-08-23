@@ -1,6 +1,7 @@
 const _cryptoUtility = require('../utils/crypto');
 const _claimApi = require('../api/claim');
 const _claim = require('../models/claim');
+const _constants = require('../constants');
 
 var claimUtility = class ClaimUtility{
     constructor(apiBaseUrl, passport, passphrase) {
@@ -10,12 +11,32 @@ var claimUtility = class ClaimUtility{
         this._claimService = new _claimApi.ClaimApi(apiBaseUrl, passport, passphrase);
     }
 
-    async getAllClaimTypes(){
-        return await this._claimService.getAllTypes();
+    async getAllClaimTypes(useApi){
+        if(useApi)
+            return await this._claimService.getAllTypes();
+        else
+            return _constants.Constants.claimTypes;
     }
 
-    async getClaimType(claimTypeId){
-        return await this._claimService.getType(claimTypeId);
+    async getClaimType(claimTypeId, useApi){
+        if(!claimTypeId){
+            throw new Error("claimTypeId not provided");
+        }
+
+        if(useApi){
+            return await this._claimService.getType(claimTypeId);
+        }
+        else{
+            return this.getClaimTypeById(_constants.Constants.claimTypes, claimTypeId);
+        }
+    }
+
+    getClaimTypeById(claimTypes, claimTypeId){
+        for(let i=0; i<claimTypes.length; i++){
+            if(claimTypeId == claimTypes[i].id){
+                return claimTypes[i];
+            }
+        } 
     }
 
     getClaimObject(claim){

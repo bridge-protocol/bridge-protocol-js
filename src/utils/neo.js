@@ -1,15 +1,15 @@
+const _constants = require('../constants');
 const _fetch = require('node-fetch');
 const _neon = require('@cityofzion/neon-js');
 const _crypto = require('./crypto');
 const _neoscanUrl = "https://neoscan.io/api/main_net/v1";
 const _pollInterval = 15000;
 const _pollRetries = 20;
-const _bridgeContractHash = "0xe7692ab0005cda56121e4d5384e7647f97f3035d";
-const _bridgeContractAddress = "AS6suhfGBbj9temaLLHSQRZ363xdx8e94n";
-const _bridgeAddress = "ALEN8KC46GLaadRxaWdvYBUhdokT3RhxPC";
-const _brdgHash = "0xbac0d143a547dc66a1d6a2b7d66b06de42614971";
-const _neoHash = "0xc56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b";
-const _gasHash = "0x602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7";
+const _bridgeContractHash = _constants.Constants.bridgeContractHash;
+const _bridgeContractAddress = _constants.Constants.bridgeContractAddress;
+const _bridgeAddress = _constants.Constants.bridgeAddress;
+const _brdgHash = _constants.Constants.brdgHash;
+const _gasHash = _constants.Constants.gasHash;
 
 class NEOUtility {
     async getWifFromNep2Key(nep2Key, passphrase) {
