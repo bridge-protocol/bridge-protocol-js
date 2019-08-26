@@ -127,6 +127,14 @@ class NEOUtility {
         });
     }
 
+    async getLatestAddressToTransactions(address1, address2){
+        return await this._callNeoscan("get_address_to_address_abstracts", address1 + "/" + address2 + "/1");
+    }
+
+    async getLatestAddressTransactions(address){
+        return await this._callNeoscan("get_address_abstracts", address + "/1");
+    }
+
     async getAddressBalances(address) {
         let addressBalances = [];
         let balances = await this._callNeoscan("get_balance", address);
