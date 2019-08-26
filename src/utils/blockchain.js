@@ -119,7 +119,7 @@ var blockchainUtility = class BlockchainUtility {
 
             for (let i=0; i < res.entries.length; i++) {
                 if (res.entries[i].asset == _constants.Constants.brdgHash.replace("0x", "")) {
-                    tx.push(res);
+                    tx.push(res.entries[i]);
                 }
             }
 
@@ -138,7 +138,7 @@ var blockchainUtility = class BlockchainUtility {
 
             for (let i = 0; i < res.entries.length; i++) {
                 if (res.entries[i].asset == _constants.Constants.brdgHash.replace("0x", "")) {
-                    tx.push(res);
+                    tx.push(res.entries[i]);
                 }
             }
 
