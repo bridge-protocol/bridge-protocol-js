@@ -46,9 +46,15 @@ var paymentUtility = class PaymentUtility{
         return message;
     }
 
-    async createPaymentResponse(network, transactionId){
+    async createPaymentResponse(network, amount, address, identifier, transactionId){
         if(!network){
             throw new Error("network not provided");
+        }
+        if(!amount){
+            throw new Error("amount not provided");
+        }
+        if(!address){
+            throw new Error("address not provided");
         }
         if(!transactionId){
             throw new Error("transactionId not provided");
@@ -56,6 +62,9 @@ var paymentUtility = class PaymentUtility{
 
         let response = {
             network,
+            amount,
+            address,
+            identifier,
             transactionId
         };
 
