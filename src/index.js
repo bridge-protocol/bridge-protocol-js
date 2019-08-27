@@ -27,3 +27,6 @@ exports.Blockchain = _blockchain.BlockchainUtility;
 
 const _neo = require('./utils/neo');
 exports.NEOUtility = _neo.NEOUtility;
+
+const _payment = require("./utils/payment");
+exports.Payment = _payment.PaymentUtility;
