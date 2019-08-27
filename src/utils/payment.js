@@ -45,6 +45,37 @@ var paymentUtility = class PaymentUtility{
         message.payload.paymentRequest = JSON.parse(message.payload.paymentRequest);
         return message;
     }
+
+    async createPaymentResponse(network, transactionId){
+        if(!network){
+            throw new Error("network not provided");
+        }
+        if(!transactionId){
+            throw new Error("transactionId not provided");
+        }
+
+        let response = {
+            network,
+            transactionId
+        };
+
+        let payload = {
+            paymentResponse: await this._cryptoHelper.signMessage(JSON.stringify(response), this._passport.privateKey, this._passphrase, true),
+        };
+
+        return await this._messageHelper.createMessage(payload);
+    }
+
+    async verifyPaymentResponse(message){
+        if(!message){
+            throw new Error("message not provided");
+        }
+
+        message = await this._messageHelper.decryptMessage(message);
+        message.payload.paymentResponse = await this._cryptoHelper.verifySignedMessage(message.payload.paymentResponse, message.publicKey);
+        message.payload.paymentResponse = JSON.parse(message.payload.paymentResponse);
+        return message;
+    }
 };
 
 exports.PaymentUtility = paymentUtility;
