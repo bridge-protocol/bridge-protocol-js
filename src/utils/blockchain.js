@@ -43,7 +43,8 @@ var blockchainUtility = class BlockchainUtility {
     }
 
     //Amount is 100000000 = 1
-    async sendPayment(network, amount, paymentIdentifier, wait) {
+    async sendPayment(network, amount, recipient, paymentIdentifier, wait) {
+        //Recipient can be null, it will default to bridge contract address
         if (!network) {
             throw new Error("network not provided.");
         }
@@ -52,10 +53,10 @@ var blockchainUtility = class BlockchainUtility {
         }
 
         if (network.toLowerCase() === "neo") {
-            let info = await this._neoHelper.sendSpendTokensTransaction(amount, paymentIdentifier, null, this._passport, this._passphrase, wait);
+            let info = await this._neoHelper.sendSpendTokensTransaction(amount, paymentIdentifier, recipient, this._passport, this._passphrase, wait);
             console.log("Transaction complete: " + JSON.stringify(info));
             console.log("Verifying payment..");
-            let res = await this._neoHelper.verifySpendTransactionFromInfo(info, amount, null, paymentIdentifier);
+            let res = await this._neoHelper.verifySpendTransactionFromInfo(info, amount, recipient, paymentIdentifier);
             if (!res.success) {
                 console.log("Payment failed");
             }
