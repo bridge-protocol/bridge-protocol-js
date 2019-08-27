@@ -54,7 +54,9 @@ var blockchainUtility = class BlockchainUtility {
 
         if (network.toLowerCase() === "neo") {
             let info = await this._neoHelper.sendSpendTokensTransaction(amount, paymentIdentifier, recipient, this._passport, this._passphrase, wait);
-            console.log("Transaction complete: " + JSON.stringify(info));
+            if (!wait)
+                return info; //This will just be the tx hash
+
             console.log("Verifying payment..");
             let res = await this._neoHelper.verifySpendTransactionFromInfo(info, amount, recipient, paymentIdentifier);
             if (!res.success) {
@@ -118,7 +120,7 @@ var blockchainUtility = class BlockchainUtility {
             if (!res)
                 return null;
 
-            for (let i=0; i < res.entries.length; i++) {
+            for (let i = 0; i < res.entries.length; i++) {
                 if (res.entries[i].asset == _constants.Constants.brdgHash.replace("0x", "")) {
                     tx.push(res.entries[i]);
                 }

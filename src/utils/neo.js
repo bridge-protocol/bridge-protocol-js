@@ -550,6 +550,13 @@ class NEOUtility {
     }
 
     async verifySpendTransactionFromInfo(info, amount, recipient, identifier){
+        if(!recipient)
+            recipient = _bridgeContractAddress;
+        if(!amount)
+        {
+            throw new Error("amount not provided");
+        }
+
         if(!info){
             console.log("transaction info was null");
             return { complete: true, success: false };
@@ -562,10 +569,7 @@ class NEOUtility {
             console.log("log executions is null");
             return { complete: true, success: false };
         }
-
-        if(!recipient)
-            recipient = this._bridgeContractAddress;
-            
+        
         //If an identifier to match is specified, make sure it exists on the transaction
         if(identifier){
             //Find the remark and see if it matches
