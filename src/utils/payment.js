@@ -46,7 +46,7 @@ var paymentUtility = class PaymentUtility{
         return message;
     }
 
-    async createPaymentResponse(network, amount, address, identifier, transactionId){
+    async createPaymentResponse(network, amount, address, identifier, transactionId, publicKey){
         if(!network){
             throw new Error("network not provided");
         }
@@ -59,8 +59,12 @@ var paymentUtility = class PaymentUtility{
         if(!transactionId){
             throw new Error("transactionId not provided");
         }
+        if(!publicKey)
+        {
+            throw new Error("public key not provided");
+        }
 
-        let response = {
+        let payload = {
             network,
             amount,
             address,
@@ -68,22 +72,26 @@ var paymentUtility = class PaymentUtility{
             transactionId
         };
 
-        let payload = {
-            paymentResponse: await this._cryptoHelper.signMessage(JSON.stringify(response), this._passport.privateKey, this._passphrase, true),
-        };
-
-        return await this._messageHelper.createMessage(payload);
+        return await this._messageHelper.createMessage(payload, publicKey);
     }
 
-    async verifyPaymentResponse(message){
+    async verifyPaymentResponse(message, requestPassportId){
         if(!message){
             throw new Error("message not provided");
         }
+        if(!requestPassportId){
+            throw new Error("requestPassportId not provided");
+        }
 
-        message = await this._messageHelper.decryptMessage(message);
-        message.payload.paymentResponse = await this._cryptoHelper.verifySignedMessage(message.payload.paymentResponse, message.publicKey);
-        message.payload.paymentResponse = JSON.parse(message.payload.paymentResponse);
-        return message;
+        let res = await this._messageHelper.decryptMessage(message);
+        if(res.passportId === requestPassportId){
+            throw new Error("Invalid response.  Request and response passports cannot be the same.");
+        }
+
+        return{
+            paymentResponse: res.payload,
+            passportId: res.passportId
+        }
     }
 };
 
