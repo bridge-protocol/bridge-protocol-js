@@ -767,6 +767,20 @@ class NEOUtility {
         return null;
     }
 
+    async checkTransactionComplete(txid)
+    {
+        return new Promise(async (resolve, reject) => {
+            try{
+                await this._checkTransactionComplete(txid, function(res){
+                    resolve(res);
+                });
+            }
+            catch(err){
+                resolve(err);
+            }
+        });
+    }
+
     async _checkTransactionComplete(txid, callback, count) {
         let neo = this;
 

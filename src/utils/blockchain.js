@@ -61,8 +61,41 @@ var blockchainUtility = class BlockchainUtility {
             let verifyRes = await this._neoHelper.verifySpendTransactionFromInfo(spendRes.info, amount, recipient, paymentIdentifier);
             if (!verifyRes.success) {
                 console.log("Payment failed");
+                return null;
             }
             
+            if(verifyRes.success){
+                console.log("Payment successful");
+                return verifyRes.txid;
+            }
+        }
+
+        return null;
+    }
+
+    async waitTransactionStatus(network, txid, amount, recipient, paymentIdentifier){
+        if (!network) {
+            throw new Error("network not provided.");
+        }
+        if (!txid) {
+            throw new Error("txid not provided.");
+        }
+        if (!amount) {
+            throw new Error("amount not provided.");
+        }
+        if (!recipient) {
+            throw new Error("recipient not provided.");
+        }
+
+        if (network.toLowerCase() === "neo") {
+            let info = await this._neoHelper.checkTransactionComplete(txid);
+            console.log("Verifying payment..");
+            let verifyRes = await this._neoHelper.verifySpendTransactionFromInfo(info, amount, recipient, paymentIdentifier);
+            if (!verifyRes.success) {
+                console.log("Payment failed");
+                return null;
+            }
+
             if(verifyRes.success){
                 console.log("Payment successful");
                 return verifyRes.txid;
@@ -99,20 +132,6 @@ var blockchainUtility = class BlockchainUtility {
             return await this._neoHelper.getRegisteredAddressInfo(address);
         }
 
-        return null;
-    }
-
-    async getTransactionStatus(network, transactionId) {
-        if (!network) {
-            throw new Error("network not provided");
-        }
-        if (!transactionId) {
-            throw new Error("transactionId not provided");
-        }
-
-        if (network == "NEO") {
-            return await this._neoService.getTransactionStatus(transactionId);
-        }
         return null;
     }
 
