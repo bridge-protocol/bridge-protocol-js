@@ -30,3 +30,6 @@ exports.NEOUtility = _neo.NEOUtility;
 
 const _payment = require("./utils/payment");
 exports.Payment = _payment.PaymentUtility;
+
+const _constants = require('./utils/constants');
+exports.Constants = _constants.Constants;
