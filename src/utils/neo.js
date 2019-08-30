@@ -569,6 +569,16 @@ class NEOUtility {
             console.log("log executions is null");
             return { complete: true, success: false };
         }
+        if(!info.log.txid){
+            console.log("log does not contain the txid");
+            return {complete: true, success: false };
+        }
+
+        //get the txid
+        let txid = info.log.txid;
+        if(txid.startsWith("0x")){
+            txid = txid.slice(2);
+        }
         
         //If an identifier to match is specified, make sure it exists on the transaction
         if(identifier){
@@ -582,11 +592,11 @@ class NEOUtility {
             };
             if(remark == null){
                 console.log("remark not found on transaction");
-                return { complete: true, success: false };
+                return { complete: true, success: false, txid };
             }
             if(!remark.includes(identifier)){
                 console.log("transaction remark does not match requested identifier");
-                return { complete: true, success: false };
+                return { complete: true, success: false, txid };
             }
         }
           
@@ -605,7 +615,7 @@ class NEOUtility {
                             let amt = notify.values[4];
 
                             if(amt >= amount && to == recipient){
-                                return { complete: true, success: true };
+                                return { complete: true, success: true, txid };
                             }
                         }
                         //Look for a straight nep5 transfer
@@ -615,7 +625,7 @@ class NEOUtility {
                             let amt = notify.values[3];
 
                             if(amt >= amount && to == recipient){
-                                return { complete: true, success: true };
+                                return { complete: true, success: true, txid };
                             }
                         }
                     }
@@ -623,7 +633,7 @@ class NEOUtility {
             }
         }
 
-        return { complete: true, success: false };
+        return { complete: true, success: false, txid };
     }
 
     async verifySpendTransaction(txid, amount, recipient, identifier)
@@ -715,9 +725,9 @@ class NEOUtility {
         let neo = this;
         return new Promise(async (resolve, reject) => {
             neo._relayTransaction(tx)
-                .then(async txid => {
-                    neo._checkTransactionComplete(txid, function (info) {
-                        resolve(info);
+                .then(async res => {
+                    neo._checkTransactionComplete(res.txid, function (info) {
+                        resolve({txid: res.txid, info});
                     });
                 })
                 .catch(err => {
@@ -736,7 +746,7 @@ class NEOUtility {
                         throw new Error("Transaction relay failed.");
 
                     console.log("Transaction " + tx.hash + " relayed successfully.");
-                    resolve(tx.hash);
+                    resolve({txid: tx.hash});
                 })
                 .catch(err => {
                     reject(err);
