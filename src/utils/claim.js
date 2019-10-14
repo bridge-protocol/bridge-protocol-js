@@ -2,7 +2,7 @@ const _cryptoUtility = require('../utils/crypto');
 const _messageUtility = require('../utils/message');
 const _claimApi = require('../api/claim');
 const _claim = require('../models/claim');
-const _constants = require('../constants');
+const _constants = require('../utils/constants');
 
 var claimUtility = class ClaimUtility{
     constructor(apiBaseUrl, passport, passphrase) {

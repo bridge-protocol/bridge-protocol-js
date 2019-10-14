@@ -2,7 +2,7 @@ const _neo = require('../utils/neo');
 const _neoApi = require('../api/neo');
 const _claims = require('../utils/claim');
 const _crypto = require('../utils/crypto');
-const _constants = require('../constants');
+const _constants = require('../utils/constants');
 
 var blockchainUtility = class BlockchainUtility {
     constructor(apiBaseUrl, passport, passphrase) {

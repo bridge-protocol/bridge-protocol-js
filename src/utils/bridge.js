@@ -1,6 +1,6 @@
 const _cryptoUtility = require('./crypto');
 const _bridgeApi = require('../api/bridge');
-const _constants = require('../constants');
+const _constants = require('../utils/constants');
 
 var bridgeUtility = class BridgeUtility {
     constructor(apiBaseUrl, passport, passphrase)

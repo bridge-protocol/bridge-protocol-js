@@ -1,5 +1,5 @@
 const _profileApi = require('../api/profile');
-const _constants = require('../constants');
+const _constants = require('../utils/constants');
 
 var profileUtility = class ProfileUtility{
     constructor(apiBaseUrl, passport, passphrase) {

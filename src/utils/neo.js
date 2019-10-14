@@ -1,4 +1,4 @@
-const _constants = require('../constants');
+const _constants = require('../utils/constants');
 const _fetch = require('node-fetch');
 const _neon = require('@cityofzion/neon-js');
 const _crypto = require('./crypto');

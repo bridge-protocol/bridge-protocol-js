@@ -1,5 +1,5 @@
 //Utils
-const _constants = require('../constants');
+const _constants = require('../utils/constants');
 const _cryptoUtility = require('../utils/crypto');
 //Services
 const _partnerApi = require('../api/partner');
