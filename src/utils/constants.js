@@ -24,7 +24,9 @@ class Constants {
                 "verificationServices": [
                     "emailVerification",
                     "identityVerification",
-                    "watchlistSearch"
+                    "watchlistSearch",
+		    "visualWatchlistSearch",
+		    "accreditedInvestorVerification"
                 ],
                 "infoUrl": "https://bridgeprotocol.azurewebsites.net/verification"
             },
