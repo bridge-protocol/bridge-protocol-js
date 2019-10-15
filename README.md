@@ -9,4 +9,4 @@
 
 The Bridge Protocol SDK encompasses all functionality of the Bridge Passport, Bridge Protocol, and interaction with the Bridge Protocol Network API.
 
-<img src="./docs/bridge_overview.jpg">
+<img src="./docs/bridge_overview-v2.jpg">
