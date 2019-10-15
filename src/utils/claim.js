@@ -1,21 +1,44 @@
 const _cryptoUtility = require('../utils/crypto');
+const _messageUtility = require('../utils/message');
 const _claimApi = require('../api/claim');
 const _claim = require('../models/claim');
+const _constants = require('../utils/constants');
 
 var claimUtility = class ClaimUtility{
     constructor(apiBaseUrl, passport, passphrase) {
         this._passport = passport;
         this._passphrase = passphrase;
         this._cryptoHelper = _cryptoUtility.CryptoUtility;
+        this._messageHelper = new _messageUtility.MessageUtility(apiBaseUrl, passport, passphrase);
         this._claimService = new _claimApi.ClaimApi(apiBaseUrl, passport, passphrase);
     }
 
-    async getAllClaimTypes(){
-        return await this._claimService.getAllTypes();
+    async getAllClaimTypes(useApi){
+        if(useApi)
+            return await this._claimService.getAllTypes();
+        else
+            return _constants.Constants.claimTypes;
     }
 
-    async getClaimType(claimTypeId){
-        return await this._claimService.getType(claimTypeId);
+    async getClaimType(claimTypeId, useApi){
+        if(!claimTypeId){
+            throw new Error("claimTypeId not provided");
+        }
+
+        if(useApi){
+            return await this._claimService.getType(claimTypeId);
+        }
+        else{
+            return this.getClaimTypeById(_constants.Constants.claimTypes, claimTypeId);
+        }
+    }
+
+    getClaimTypeById(claimTypes, claimTypeId){
+        for(let i=0; i<claimTypes.length; i++){
+            if(claimTypeId == claimTypes[i].id){
+                return claimTypes[i];
+            }
+        } 
     }
 
     getClaimObject(claim){
@@ -163,6 +186,34 @@ var claimUtility = class ClaimUtility{
         }
 
         return false;
+    }
+
+    async createClaimsImportRequest(claims){
+        if(!claims || !Array.isArray(claims) || claims.length == 0)
+        {
+            throw new Error("claims not provided");
+        }
+
+        let request = {
+            claims
+        };
+
+        let payload = {
+            claimsImportRequest: await this._cryptoHelper.signMessage(JSON.stringify(request), this._passport.privateKey, this._passphrase, true),
+        };
+
+        return await this._messageHelper.createMessage(payload);
+    }
+
+    async verifyClaimsImportRequest(message){
+        if(!message){
+            throw new Error("message not provided");
+        }
+
+        message = await this._messageHelper.decryptMessage(message);
+        message.payload.claimsImportRequest = await this._cryptoHelper.verifySignedMessage(message.payload.claimsImportRequest, message.publicKey);
+        message.payload.claimsImportRequest = JSON.parse(message.payload.claimsImportRequest);
+        return message;
     }
 };
 

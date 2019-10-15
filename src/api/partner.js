@@ -1,6 +1,6 @@
 const _api = require('../utils/api');
 
-var verificationPartnerApi = class VerificationPartnerApi{
+var partnerApi = class PartnerApi{
     constructor(apiBaseUrl, passport, passphrase){
         if(!passport)
             throw new Error("No passport provided.");
@@ -9,7 +9,7 @@ var verificationPartnerApi = class VerificationPartnerApi{
         if(!apiBaseUrl)
             throw new Error("No base url provided.");
 
-        this._apiBaseUrl = apiBaseUrl + "verificationpartner/";
+        this._apiBaseUrl = apiBaseUrl + "partner/";
         this._passport = passport;
         this._passphrase = passphrase;
     }
@@ -20,12 +20,6 @@ var verificationPartnerApi = class VerificationPartnerApi{
         return res.partners;
     }
 
-    async getPartners(partnerIds){
-        var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
-        var res = await api.callApi("POST", "", partnerIds);
-        return res.partners;
-    }
-
     async getPartner(partnerId){
         var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
         var res = await api.callApi("GET", partnerId, null);
@@ -33,4 +27,4 @@ var verificationPartnerApi = class VerificationPartnerApi{
     }
 };
 
-exports.VerificationPartnerApi = verificationPartnerApi;
+exports.PartnerApi = partnerApi;
