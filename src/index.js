@@ -19,11 +19,17 @@ exports.Passport = _passport.PassportUtility;
 const _profile = require('./utils/profile');
 exports.Profile = _profile.ProfileUtility;
 
-const _verificationPartner = require('./utils/verificationpartner');
-exports.VerificationPartner = _verificationPartner.VerificationPartnerUtility;
+const _partner = require('./utils/partner');
+exports.Partner = _partner.PartnerUtility;
 
 const _blockchain = require('./utils/blockchain');
 exports.Blockchain = _blockchain.BlockchainUtility;
 
 const _neo = require('./utils/neo');
 exports.NEOUtility = _neo.NEOUtility;
+
+const _payment = require("./utils/payment");
+exports.Payment = _payment.PaymentUtility;
+
+const _constants = require('./utils/constants');
+exports.Constants = _constants.Constants;

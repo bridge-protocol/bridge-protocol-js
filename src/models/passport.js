@@ -19,10 +19,6 @@ var passport = class Passport
     }
 
     async create(createPassportOptions) {
-        let wallet = await _neo.NEOUtility.createNeoWallet(createPassportOptions.passphrase, createPassportOptions.neoKey);
-        if(wallet)
-            this.wallets.push(wallet);     
-
         //Generate the passport key
         var generatedKey = await _crypto.CryptoUtility.generateKey(createPassportOptions.passphrase);
     
@@ -33,6 +29,13 @@ var passport = class Passport
 
         this.id = generatedKey.passportId;
         this.version = _currentVersion;
+
+        //Include or create a neo key if requested
+        if(createPassportOptions.neoWif || createPassportOptions.createNeoAddress){
+            let wallet = await _neo.NEOUtility.createNeoWallet(createPassportOptions.passphrase, createPassportOptions.neoWif);
+            if(wallet)
+                this.wallets.push(wallet);     
+        }
     };
 
     async open(passportJson, passphrase){
