@@ -97,9 +97,10 @@ var authUtility = class AuthUtility{
             loginResponse: {
                 tokenVerified:  res.payload.token === verifyToken,
                 missingClaimTypes: await this.getMissingRequiredClaimTypes(claimTypeIds, verifiedClaims),
-                claims: verifiedClaims
-            },
-            passportId: res.passportId
+                claims: verifiedClaims,
+                passportId: res.passportId,
+                publicKey: res.publicKey
+            }
         }
     }
 
