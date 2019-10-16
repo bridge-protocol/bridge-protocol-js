@@ -122,8 +122,17 @@ class Constants {
             },
             {
                 "id": 2,
-                "name": "Basic KYC and AML Profile",
-                "description": "KYC Profile to verify the owner is over the age of 18, that they are not on any watchlists, and provides their country of origin.",
+                "name": "Basic KYC",
+                "description": "Verifies the owner is over 18 and provides their Country of origin.",
+                "claimTypes": [
+                    100001,
+                    100003
+                ]
+            },
+            {
+                "id": 3,
+                "name": "Basic KYC and AML",
+                "description": "Verifies the owner is over 18 and provides their Country of origin. Additionally, it confirms that they are not on any AML watchlists.",
                 "claimTypes": [
                     100001,
                     100003,
