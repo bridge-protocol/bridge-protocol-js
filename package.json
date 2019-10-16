@@ -1,6 +1,6 @@
 {
   "name": "@bridge-protocol/bridge-protocol-js",
-  "version": "2.0.11",
+  "version": "2.0.12",
   "description": "Bridge Protocol and Bridge Protocol Network SDK",
   "main": "./src/index.js",
   "scripts": {

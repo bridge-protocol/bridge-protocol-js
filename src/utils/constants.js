@@ -68,14 +68,6 @@ class Constants {
                 "defaultExpirationDays": 0
             },
             {
-                "id": 5,
-                "name": "Gender",
-                "description": "Owner gender",
-                "dataType": "string",
-                "scope": "private",
-                "defaultExpirationDays": 0
-            },
-            {
                 "id": 100001,
                 "name": "Over 18",
                 "description": "This claim verifies that the owner is over the age of 18 as verified by one or more official documents that comply with KYC and AML regulation.",
@@ -93,40 +85,24 @@ class Constants {
             },
             {
                 "id": 100003,
-                "name": "Accredited Investor",
-                "description": "This claim verifies that the owner is an accredited investor.",
-                "dataType": "boolean",
-                "scope": "public",
-                "defaultExpirationDays": 90
-            },
-            {
-                "id": 100004,
-                "name": "Nationality",
+                "name": "Country",
                 "description": "The verified country of origin for the owner",
                 "dataType": "string",
                 "scope": "public",
                 "defaultExpirationDays": 90
             },
             {
-                "id": 100005,
-                "name": "State / Province",
+                "id": 100004,
+                "name": "State or Province",
                 "description": "The verified state or province for the owner",
                 "dataType": "string",
                 "scope": "public",
                 "defaultExpirationDays": 90
             },
             {
-                "id": 100006,
+                "id": 100005,
                 "name": "Watchlist Clear",
                 "description": "This claim verifies that the owner was not found on any watchlists.",
-                "dataType": "boolean",
-                "scope": "public",
-                "defaultExpirationDays": 90
-            },
-            {
-                "id": 100007,
-                "name": "Visual Watchlist Clear",
-                "description": "This claim verifies that the owner was not found on any facial match watchlists.",
                 "dataType": "boolean",
                 "scope": "public",
                 "defaultExpirationDays": 90
@@ -146,19 +122,11 @@ class Constants {
             },
             {
                 "id": 2,
-                "name": "Age Verification Over 21",
-                "description": "Age Verification Profile for 21+",
-                "claimTypes": [
-                    100002
-                ]
-            },
-            {
-                "id": 3,
                 "name": "Basic KYC and AML Profile",
-                "description": "KYC Profile to verify the owner is over the age of 18, that they are not on any text watchlists, and provides their nationality.",
+                "description": "KYC Profile to verify the owner is over the age of 18, that they are not on any watchlists, and provides their country of origin.",
                 "claimTypes": [
                     100001,
-                    100004,
+                    100003,
                     100005
                 ]
             }
