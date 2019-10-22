@@ -127,11 +127,11 @@ class NEOUtility {
         });
     }
 
-    async getLatestAddressToTransactions(address1, address2){
+    async getLatestAddressToTransactions(address1, address2) {
         return await this._callNeoscan("get_address_to_address_abstracts", address1 + "/" + address2 + "/1");
     }
 
-    async getLatestAddressTransactions(address){
+    async getLatestAddressTransactions(address) {
         return await this._callNeoscan("get_address_abstracts", address + "/1");
     }
 
@@ -157,10 +157,10 @@ class NEOUtility {
             if (!passphrase) {
                 reject("passphrase not provided");
             }
-            if(!passport.publicKey){
+            if (!passport.publicKey) {
                 reject("passport public key missing");
             }
-            if(!address){
+            if (!address) {
                 reject("address not provided");
             }
 
@@ -183,7 +183,7 @@ class NEOUtility {
                 console.log(JSON.stringify(tx));
 
                 //Relay the transaction
-                if(wait)
+                if (wait)
                     resolve(await this._relayTransactionWaitStatus(tx));
                 else
                     resolve(this._relayTransaction(tx));
@@ -209,7 +209,7 @@ class NEOUtility {
                 reject("passphrase not provided");
             }
 
-            if(!recipient)
+            if (!recipient)
                 recipient = _bridgeContractAddress;
 
             try {
@@ -232,10 +232,10 @@ class NEOUtility {
                 let tx = await this._createAndSignTransaction(_bridgeContractHash, 'spend', args, passport, passphrase, paymentIdentifier);
 
                 //Relay the transaction
-                if(wait)
+                if (wait)
                     resolve(await this._relayTransactionWaitStatus(tx));
                 else
-                    resolve(this._relayTransaction(tx));     
+                    resolve(this._relayTransaction(tx));
             }
             catch (err) {
                 reject(err);
@@ -266,7 +266,7 @@ class NEOUtility {
                     addressScriptHash
                 ];
 
-                
+
                 //invoke <contracthash> "addhash" [address, identity, digest, provider]
                 //address = your public neo address being used to sign the invocation / tx
                 //identity = bridge passport id to deposit funds to
@@ -275,7 +275,7 @@ class NEOUtility {
                 let tx = await this._createAndSignTransaction(_bridgeContractHash, 'addhash', args, passport, passphrase);
 
                 //Relay the transaction
-                if(wait)
+                if (wait)
                     resolve(await this._relayTransactionWaitStatus(tx));
                 else
                     resolve(this._relayTransaction(tx));
@@ -307,7 +307,7 @@ class NEOUtility {
                     passport.id,
                     hash
                 ];
-        
+
                 //invoke <contracthash> "revokehash" [address, identity, digest]
                 //address = your public neo address being used to sign the invocation / tx
                 //identity = bridge passport id to deposit funds to
@@ -315,7 +315,7 @@ class NEOUtility {
                 let tx = await this._createAndSignTransaction(_bridgeContractHash, 'revokehash', args, passport, passphrase);
 
                 //Relay the transaction
-                if(wait)
+                if (wait)
                     resolve(await this._relayTransactionWaitStatus(tx));
                 else
                     resolve(this._relayTransaction(tx));
@@ -328,7 +328,7 @@ class NEOUtility {
     }
 
     //Need to get the transaction, send to bridge, then relay
-    async getAddClaimTransaction(claim, passport, passphrase) {
+    async getAddClaimTransaction(claim, passport, passphrase, secondaryPassportId, secondaryAddress) {
         let neo = this;
         return new Promise(async (resolve, reject) => {
             if (!claim) {
@@ -341,31 +341,111 @@ class NEOUtility {
                 reject("passphrase not provided");
             }
 
-            try {
-                let addressScriptHash = this._getAddressScriptHash(passport.wallets[0].address);
-                let args = [
-                    addressScriptHash,
-                    passport.id,
+            
+            let bridgeContractHash = _bridgeContractHash;
+            if (bridgeContractHash.startsWith("0x")) {
+                bridgeContractHash = bridgeContractHash.slice(2);
+            }
+            const address = passport.wallets[0].address;
+            const addressScriptHash = this._getAddressScriptHash(address);
+            const secondaryAddressScriptHash = this._getAddressScriptHash(secondaryAddress);
+            const privateKey = await this.getWifFromNep2Key(passport.wallets[0].key, passphrase);
+            const account = new _neon.wallet.Account(privateKey);
+
+            //invoke <contracthash> "addclaim" [address, identity, claimtypeid, claimvalue, createdon, provider]
+            //address
+            //identity
+            //claimtypeid
+            //claimvalue
+            //createdon
+            //provider = the account paying the tokens for the action
+            const props = {
+                scriptHash: bridgeContractHash,
+                operation: 'addclaim',
+                args: [
+                    secondaryAddressScriptHash,
+                    secondaryPassportId,
                     claim.claimTypeId,
                     _crypto.CryptoUtility.hexEncode(claim.claimValue),
                     claim.createdOn,
-                    addressScriptHash
-                ];
-        
-                //invoke <contracthash> "addclaim" [address, identity, claimtypeid, claimvalue, createdon, provider]
-                //address
-                //identity
-                //claimtypeid
-                //claimvalue
-                //createdon
-                //provider = the account paying the tokens for the action
-                let tx = await this._createAndSignTransaction(_bridgeContractHash, 'addclaim', args, passport, passphrase, null, _bridgeAddress);
-                resolve(tx);
+                    secondaryAddressScriptHash
+                ]
             }
-            catch (err) {
-                reject(err);
-                return;
-            }
+
+            const provider = new _neon.api.neoscan.instance("MainNet");
+            const gasFee = 0;
+            const additionalInvocationGas = 0;
+            const additionalIntents = [];
+            const script = _neon.sc.createScript(props);
+            const gas = additionalInvocationGas;
+            const intent = additionalIntents;
+            const config = {
+                api: provider,
+                account: account,
+                intents: intent,
+                script: script,
+                fees: gasFee,
+                gas: gas
+            };
+
+            _neon.api.fillSigningFunction(config)
+                .then(c => { return _neon.api.fillUrl(c) })
+                .then(c => { return _neon.api.fillBalance(c) })
+                .then(c => { return _neon.api.createInvocationTx(c) })
+                .then(c => {
+                    c.tx.addRemark(this._getRandom(5));
+                    c.tx.attributes.push(
+                        new _neon.tx.TransactionAttribute({
+                            usage: 32,
+                            data: addressScriptHash
+                        })
+                    );
+                    c.tx.attributes.push(
+                        new _neon.tx.TransactionAttribute({
+                            usage: 32,
+                            data: secondaryAddressScriptHash
+                        })
+                    );
+                    return c;
+                })
+                .then(c => { return _neon.api.signTx(c) })
+                .then(c => {
+                    resolve(c.tx);
+                })
+                .catch(c => {
+                    reject("Error getting add claim transaction");
+                });
+        });
+    }
+
+    //Secondary sign the add claim transaction
+    async secondarySignAddClaimTransaction(tx, passport, passphrase) {
+        return new Promise(async (resolve, reject) => {
+            const privateKey = await this.getWifFromNep2Key(passport.wallets[0].key, passphrase);
+            const account = new _neon.wallet.Account(privateKey);
+
+            const provider = new _neon.api.neoscan.instance("MainNet");
+            const script = tx.script;
+            const config = {
+                api: provider,
+                account: account,
+                intents: [],
+                script: script,
+                fees: 0,
+                gas: 0
+            };
+            config.tx = new _neon.tx.InvocationTransaction(tx);
+            config.signingFunction = _neon.api.signWithPrivateKey(privateKey);
+            config.account = account;
+            _neon.api.signTx(config)
+                .then(c => {
+                    //TODO: this may need to be sorted, something strange about witness order vs scripts order with NEO
+                    //c.tx.scripts.reverse();
+                    resolve(c.tx);
+                })
+                .catch(c => {
+                    reject(c);
+                });
         });
     }
 
@@ -380,7 +460,7 @@ class NEOUtility {
 
             try {
                 //Relay the transaction
-                if(wait)
+                if (wait)
                     resolve(await this._relayTransactionWaitStatus(tx));
                 else
                     resolve(this._relayTransaction(tx));
@@ -412,7 +492,7 @@ class NEOUtility {
                     passport.id,
                     claimTypeId
                 ];
-        
+
                 //invoke <contracthash> "revokeclaims" [address, identity, claims]
                 //address
                 //identity
@@ -420,7 +500,7 @@ class NEOUtility {
                 let tx = await this._createAndSignTransaction(_bridgeContractHash, 'revokeclaim', args, passport, passphrase);
 
                 //Relay the transaction
-                if(wait)
+                if (wait)
                     resolve(await this._relayTransactionWaitStatus(tx));
                 else
                     resolve(this._relayTransaction(tx));
@@ -432,9 +512,9 @@ class NEOUtility {
         });
     }
 
-    async getRegisteredPassportInfo(passportId){
+    async getRegisteredPassportInfo(passportId) {
         let storage = await this._getStorage(_bridgeContractHash, passportId);
-        if(!storage){
+        if (!storage) {
             console.log("Address not registered.");
             return null;
         }
@@ -445,7 +525,7 @@ class NEOUtility {
             publicKeyHash: deserialized[0],
             addresses: []
         };
-        
+
         // For each NEO address we are going to get the token balance
         let addresslist = deserialized[1];
         for (var scripthash in addresslist) {
@@ -457,16 +537,15 @@ class NEOUtility {
         return passport;
     }
 
-    async getRegisteredAddressInfo(address)
-    {    
+    async getRegisteredAddressInfo(address) {
         let addressScriptHash = this._getAddressScriptHash(address);
         let storage = await this._getStorage(_bridgeContractHash, addressScriptHash);
-        if(!storage){
+        if (!storage) {
             console.log("Address not registered.");
             return null;
         }
 
-        if(storage){
+        if (storage) {
             let balances = await this.getAddressBalances(address);
             return {
                 passportId: storage,
@@ -477,154 +556,126 @@ class NEOUtility {
         return null;
     }
 
-    async getHashForPassport(hash, passportId){
-        let storageKey = ( passportId + '3031' + hash );
+    async getHashForPassport(hash, passportId) {
+        let storageKey = (passportId + '3031' + hash);
         let storage = await this._getStorage(_bridgeContractHash, storageKey);
-        if(!storage || storage.length == 0)
+        if (!storage || storage.length == 0)
             return false;
 
         return await this._unhexlify(storage);
     }
 
-    async getHashForAddress(hash, address){
+    async getHashForAddress(hash, address) {
         let info = await this.getRegisteredAddressInfo(address);
-        if(!info || !info.passportId)
+        if (!info || !info.passportId)
             return null;
 
         return await this.getHashForPassport(hash, info.passportId);
     }
 
-    async getClaimForPassport(claimType, passportId){
+    async getClaimForPassport(claimType, passportId) {
         claimType = parseInt(claimType).toString(16);
 
         // We need a reverse hex, so we need an even number of characters in our hexstring
-        if (Math.abs(claimType.length % 2)) 
-        { 
-            claimType = '0' + claimType; 
+        if (Math.abs(claimType.length % 2)) {
+            claimType = '0' + claimType;
         }
         claimType = _neon.u.reverseHex(claimType);
 
-        let storageKey = ( passportId + '3032' + claimType );
+        let storageKey = (passportId + '3032' + claimType);
         let storage = await this._getStorage(_bridgeContractHash, storageKey);
-        if(!storage || storage.length == 0)
+        if (!storage || storage.length == 0)
             return null;
 
-        return await this._deserialize(storage);
+        let deserialized = await this._deserialize(storage);
+        let time = this._unhexlify(deserialized[1]);
+        let value = this._unhexlify(deserialized[0]);
+
+        return { time, value };
     }
 
-    async getClaimForAddress(claimType, address){
+    async getClaimForAddress(claimType, address) {
         let info = await this.getRegisteredAddressInfo(address);
-        if(!info || !info.passportId)
+        if (!info || !info.passportId)
             return null;
-        
+
         return await this.getClaimForPassport(claimType, info.passportId);
     }
 
-    secondarySignTransaction(transactionParameters, transaction, hash, wif) {
-        //The transaction we want to sign
-        let primaryTransaction = _neon.tx.Transaction.deserialize(transaction);
-
-        //Create a second transaction with the same properties
-        let secondaryTransaction = this._createTransaction(transactionParameters);
-
-        //Sign the transaction
-        var wallet = new _neon.wallet.Account(wif);
-        secondaryTransaction.sign(wallet.privateKey);
-
-        // Create a new unsigned transaction with the same properties
-        transaction = this._createTransaction(transactionParameters);
-
-        // Merge signatures from both signed transactions to the unsigned transaction
-        transaction.scripts = [primaryTransaction, secondaryTransaction].map(tx => tx.scripts[0]);
-
-        // Reverse the signature scripts
-        transaction.scripts.reverse();
-
-        // Get the transaction hash
-        hash = transaction.hash;
-
-        //Serialize the transaction
-        transaction = transaction.serialize();
-
-        return { hash, transaction };
-    }
-
-    async verifySpendTransactionFromInfo(info, amount, recipient, identifier){
-        if(!recipient)
+    async verifySpendTransactionFromInfo(info, amount, recipient, identifier) {
+        if (!recipient)
             recipient = _bridgeContractAddress;
-        if(!amount)
-        {
+        if (!amount) {
             throw new Error("amount not provided");
         }
 
-        if(!info){
+        if (!info) {
             console.log("transaction info was null");
             return { complete: true, success: false };
         }
-        if(!Array.isArray(info.tx)){
+        if (!Array.isArray(info.tx)) {
             console.log("transaction values not found");
             return { complete: true, success: false };;
         }
-        if(!info.log.executions || !Array.isArray(info.log.executions)){
+        if (!info.log.executions || !Array.isArray(info.log.executions)) {
             console.log("log executions is null");
             return { complete: true, success: false };
         }
-        if(!info.log.txid){
+        if (!info.log.txid) {
             console.log("log does not contain the txid");
-            return {complete: true, success: false };
+            return { complete: true, success: false };
         }
 
         //get the txid
         let txid = info.log.txid;
-        if(txid.startsWith("0x")){
+        if (txid.startsWith("0x")) {
             txid = txid.slice(2);
         }
-        
+
         //If an identifier to match is specified, make sure it exists on the transaction
-        if(identifier){
+        if (identifier) {
             //Find the remark and see if it matches
             let remark;
             for (let t in info.tx) {
                 let val = info.tx[t];
-                if(val.type && val.type == "Remark"){
+                if (val.type && val.type == "Remark") {
                     remark = val.value;
                 }
             };
-            if(remark == null){
+            if (remark == null) {
                 console.log("remark not found on transaction");
                 return { complete: true, success: false, txid };
             }
-            if(!remark.includes(identifier)){
+            if (!remark.includes(identifier)) {
                 console.log("transaction remark does not match requested identifier");
                 return { complete: true, success: false, txid };
             }
         }
-          
+
         //Get the notifications about the transaction
-        for(let e in info.log.executions){
+        for (let e in info.log.executions) {
             let execution = info.log.executions[e];
-            if(Array.isArray(execution.notifications)){
-                for(let n in execution.notifications){
+            if (Array.isArray(execution.notifications)) {
+                for (let n in execution.notifications) {
                     let notify = execution.notifications[n];
-                    if(notify.values && Array.isArray(notify.values)){
+                    if (notify.values && Array.isArray(notify.values)) {
                         //Look for spend tx to the smart contract
-                        if(notify.contract == _bridgeContractHash && notify.values[0] == "spend" && notify.values.length == 6)
-                        {
+                        if (notify.contract == _bridgeContractHash && notify.values[0] == "spend" && notify.values.length == 6) {
                             //let from = notify.values[1];
                             let to = notify.values[3];
                             let amt = notify.values[4];
 
-                            if(amt >= amount && to == recipient){
+                            if (amt >= amount && to == recipient) {
                                 return { complete: true, success: true, txid };
                             }
                         }
                         //Look for a straight nep5 transfer
-                        if(notify.contract == _brdgHash && notify.values[0] == "transfer" && notify.values.length == 4){
+                        if (notify.contract == _brdgHash && notify.values[0] == "transfer" && notify.values.length == 4) {
                             //let from = notify.values[1];
                             let to = notify.values[2];
                             let amt = notify.values[3];
 
-                            if(amt >= amount && to == recipient){
+                            if (amt >= amount && to == recipient) {
                                 return { complete: true, success: true, txid };
                             }
                         }
@@ -636,16 +687,23 @@ class NEOUtility {
         return { complete: true, success: false, txid };
     }
 
-    async verifySpendTransaction(txid, amount, recipient, identifier)
-    {
+    async verifySpendTransaction(txid, amount, recipient, identifier) {
         //Get the transaction info
         let info = await this._getTransactionInfo(txid);
-        if(info == null){
+        if (info == null) {
             console.log("transaction not found");
             return { complete: false, success: false };
         }
-        
+
         return await this.verifySpendTransactionFromInfo(info, amount, recipient, identifier);
+    }
+
+    deserializeTransaction(serializedTx){
+        return _neon.tx.Transaction.deserialize(serializedTx);
+    }
+
+    initInvocationTransaction(tx){
+        return tx instanceof _neon.tx.ContractTransaction;
     }
 
     _createTransaction(transactionParameters) {
@@ -655,14 +713,14 @@ class NEOUtility {
 
         let rand = this._getRandom(5);
         transaction.addRemark(transactionParameters.remark + "-" + rand); //Add randomness to the remark in case the identifier needs to be reused
-        transaction.addAttribute(32, _neon.u.reverseHex(_neon.wallet.getScriptHashFromAddress(transactionParameters.primaryAddress)));
-        if (transactionParameters.secondaryAddress) {
-            transaction.addAttribute(32, _neon.u.reverseHex(_neon.wallet.getScriptHashFromAddress(transactionParameters.secondaryAddress)));
-        }
+
+        let address = this._getAddressScriptHash(transactionParameters.primaryAddress);
+        transaction.addAttribute(32, address);
+
         return transaction;
     }
 
-    async _createAndSignTransaction(scriptHash, operation, args, passport, passphrase, remark, secondaryAddress) {
+    async _createAndSignTransaction(scriptHash, operation, args, passport, passphrase, remark) {
         if (!scriptHash) {
             throw new Error("scriptHash not provided");
         }
@@ -680,7 +738,7 @@ class NEOUtility {
         }
 
         //Sanitize the scripthash
-        if(scriptHash.startsWith("0x")){
+        if (scriptHash.startsWith("0x")) {
             scriptHash = scriptHash.slice(2);
         }
 
@@ -702,9 +760,6 @@ class NEOUtility {
             remark,
             primaryAddress
         };
-        if (secondaryAddress) {
-            transactionParameters.secondaryAddress = secondaryAddress;
-        }
 
         // Create the transaction
         let transaction = this._createTransaction(transactionParameters);
@@ -712,13 +767,16 @@ class NEOUtility {
         //User signs it
         transaction.sign(wallet.privateKey);
 
+        console.log(JSON.stringify(transaction));
+
         //Get the hash
         let hash = transaction.hash; //_neon.tx.getTransactionHash(transaction);
+        let deserialized = transaction;
 
         //Serialize
         transaction = transaction.serialize(); //_neon.tx.serializeTransaction(transaction);
 
-        return { hash, transaction, transactionParameters };
+        return { hash, transaction, transactionParameters, deserialized };
     }
 
     async _relayTransactionWaitStatus(tx) {
@@ -727,7 +785,7 @@ class NEOUtility {
             neo._relayTransaction(tx)
                 .then(async res => {
                     neo._checkTransactionComplete(res.txid, function (info) {
-                        resolve({txid: res.txid, info});
+                        resolve({ txid: res.txid, info });
                     });
                 })
                 .catch(err => {
@@ -742,11 +800,11 @@ class NEOUtility {
             let client = await this._getRpcClient();
             client.sendRawTransaction(tx.transaction)
                 .then(success => {
-                    if(!success)
+                    if (!success)
                         throw new Error("Transaction relay failed.");
 
                     console.log("Transaction " + tx.hash + " relayed successfully.");
-                    resolve({txid: tx.hash});
+                    resolve({ txid: tx.hash });
                 })
                 .catch(err => {
                     reject(err);
@@ -754,28 +812,27 @@ class NEOUtility {
         });
     }
 
-    async _getTransactionInfo(txid){
-        try{
+    async _getTransactionInfo(txid) {
+        try {
             let log = await this._getApplicationLog(txid);
             let tx = await this._getRawTransaction(txid);
             return { tx, log };
         }
-        catch(err){
-            
+        catch (err) {
+
         }
 
         return null;
     }
 
-    async checkTransactionComplete(txid)
-    {
+    async checkTransactionComplete(txid) {
         return new Promise(async (resolve, reject) => {
-            try{
-                await this._checkTransactionComplete(txid, function(res){
+            try {
+                await this._checkTransactionComplete(txid, function (res) {
                     resolve(res);
                 });
             }
-            catch(err){
+            catch (err) {
                 resolve(err);
             }
         });
@@ -792,7 +849,7 @@ class NEOUtility {
             callback(null);
         }
 
-        if(count == 0){
+        if (count == 0) {
             console.log("Waiting for completion.");
         }
 
@@ -803,7 +860,7 @@ class NEOUtility {
                 let log = await neo._getApplicationLog(txid);
                 let tx = await neo._getRawTransaction(txid);
                 console.log("Transaction found and complete");
-                callback({tx,log});
+                callback({ tx, log });
             }
             catch (err) {
                 console.log("Transaction not found or not complete, waiting and retrying...");
@@ -812,7 +869,7 @@ class NEOUtility {
         }, _pollInterval);
     }
 
-    async _invokeFunction(scriptHash, operation, params){
+    async _invokeFunction(scriptHash, operation, params) {
         return new Promise(async (resolve, reject) => {
             let client = await this._getRpcClient();
             client.invokeFunction(scriptHash, operation, params)
@@ -851,14 +908,14 @@ class NEOUtility {
         });
     }
 
-    _parseRawTransaction(raw){
+    _parseRawTransaction(raw) {
         let attributes = [];
         if (Array.isArray(raw.attributes)) {
             for (let a in raw.attributes) {
-                attributes.push( {
+                attributes.push({
                     type: raw.attributes[a].usage,
                     value: this._unhexlify(raw.attributes[a].data)
-                } );
+                });
             };
         };
         return attributes;
@@ -878,12 +935,12 @@ class NEOUtility {
         });
     }
 
-    _parseApplicationLog(log){
+    _parseApplicationLog(log) {
         let result = {};
         result.txid = log.result.txid;
         result.executions = [];
 
-        for(let e=0; e<log.result.executions.length; e++){
+        for (let e = 0; e < log.result.executions.length; e++) {
             let ex = log.result.executions[e];
             let execution = {
                 trigger: ex.trigger,
@@ -891,51 +948,51 @@ class NEOUtility {
                 vmstate: ex.vmstate,
                 gas_consumed: ex.gas_consumed,
                 stack: ex.stack,
-                notifications: []                
+                notifications: []
             };
 
-            if(Array.isArray(ex.notifications)){
-                for(let n=0; n<ex.notifications.length; n++){
+            if (Array.isArray(ex.notifications)) {
+                for (let n = 0; n < ex.notifications.length; n++) {
                     let no = ex.notifications[n];
                     let notification = {
                         contract: no.contract,
                         values: []
                     };
 
-                    if(Array.isArray(no.state.value)){
-                        for(let s=0; s<no.state.value.length; s++){
+                    if (Array.isArray(no.state.value)) {
+                        for (let s = 0; s < no.state.value.length; s++) {
                             let val = no.state.value[s];
                             let unhex = this._unhexlify(val.value);
-                            notification.values.push(unhex); 
+                            notification.values.push(unhex);
                         }
                     }
-                    else if(no.state.value){
+                    else if (no.state.value) {
                         let deserialized = this._deserialize(no.state.value);
-                        if(Array.isArray(deserialized)){
-                            for(let d=0; d<deserialized.length; d++){
+                        if (Array.isArray(deserialized)) {
+                            for (let d = 0; d < deserialized.length; d++) {
                                 let de = deserialized[d];
-                                if(Array.isArray(de)){
-                                    for(let d2=0; d2<de.length; d2++){
+                                if (Array.isArray(de)) {
+                                    for (let d2 = 0; d2 < de.length; d2++) {
                                         let dval = de[d2];
                                         let unhex = this._unhexlify(dval);
                                         //We have a passport ID we don't want to have converted to a NEO address
-                                        if(d2 == 1){
-                                            notification.values.push(dval); 
+                                        if (d2 == 1) {
+                                            notification.values.push(dval);
                                         }
-                                        else{
-                                            notification.values.push(unhex); 
-                                        }     
+                                        else {
+                                            notification.values.push(unhex);
+                                        }
                                     }
                                 }
-                                else{
+                                else {
                                     let unhex = this._unhexlify(de);
-                                    notification.values.push(unhex); 
+                                    notification.values.push(unhex);
                                 }
                             }
                         }
-                        else{
+                        else {
                             let unhex = this._unhexlify(deserialized);
-                            notification.values.push(unhex); 
+                            notification.values.push(unhex);
                         }
                     }
 
@@ -949,10 +1006,16 @@ class NEOUtility {
         return result;
     }
 
-    async _getRpcClient() {
+    async _getRpcClient(provider) {
         return new Promise((resolve, reject) => {
             try {
-                const provider = new _neon.api.neoscan.instance("MainNet");
+                //Test with a local running node
+                //let nodeUrl = "http://localhost:10332";
+                //let client = _neon.default.create.rpcClient(nodeUrl);
+                //resolve(client);
+                if(!provider)
+                    provider = new _neon.api.neoscan.instance("MainNet");
+
                 _neon.settings.httpsOnly = true;
                 provider.getRPCEndpoint().then(nodeUrl => {
                     let client = _neon.default.create.rpcClient(nodeUrl);
@@ -1004,7 +1067,7 @@ class NEOUtility {
         return _neon.u.reverseHex(_neon.wallet.getScriptHashFromAddress(address));
     }
 
-    _getAddressFromScriptHash(scripthash){
+    _getAddressFromScriptHash(scripthash) {
         return _neon.wallet.getAddressFromScriptHash(_neon.u.reverseHex(scripthash));
     }
 
@@ -1012,8 +1075,8 @@ class NEOUtility {
         let date = new Date();
         let str = _neon.u.sha256(_neon.u.str2hexstring(date.toISOString() + Math.random()));
 
-        if(len)
-            str = str.substring(0,len);
+        if (len)
+            str = str.substring(0, len);
 
         return str;
     }
@@ -1107,7 +1170,7 @@ class NEOUtility {
                 }
             }
             catch (error) {
-                
+
             }
 
             return hex;

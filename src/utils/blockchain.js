@@ -221,12 +221,13 @@ var blockchainUtility = class BlockchainUtility {
         }
 
         if (network.toLowerCase() === "neo") {
-            let transaction = await this._neoHelper.getAddClaimTransaction(claim, this._passport, this._passphrase, true);
-            let res = await this._neoService.verifyAndSignAddClaimTransaction(claim, transaction);
-            if (!res || !res.transaction)
-                return false;
-
-            return await this._neoHelper.sendAddClaimTransaction(res);
+            let tx = await this._neoService.getAddClaimTransaction(claim, this._passport.wallets[0].address);//  _neoHelper.getAddClaimTransaction(claim, this._passport, this._passphrase);
+            if(tx == null){
+                return null;
+            }
+            
+            let signed = await this._neoHelper.secondarySignAddClaimTransaction(tx, this._passport, this._passphrase);
+            return await this._neoHelper.sendAddClaimTransaction({ transaction: signed.serialize(), hash: signed.hash }, true);
         }
 
         return null;

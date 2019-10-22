@@ -15,16 +15,19 @@ var neoApi = class NEOApi
         this._passphrase = passphrase;
     }
 
-    async verifyAndSignAddClaimTransaction(claim, transaction) {
+    async getAddClaimTransaction(claim, address) {
         var obj = {
             claim,
-            transactionParameters: transaction.transactionParameters,
-            transaction: transaction.transaction,
-            hash: transaction.hash
+            address
         };
 
         var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
-        return await api.callApi("POST", "signclaimtransaction", obj);
+        let res = await api.callApi("POST", "getaddclaimtransaction", obj);
+
+        if(res == false)
+            res = null;
+
+        return res;
     }
 };
 
