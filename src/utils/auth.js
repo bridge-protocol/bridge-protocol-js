@@ -46,9 +46,19 @@ var authUtility = class AuthUtility{
             throw new Error("publicKey not provided");
         }
 
+        let blockchainAddresses = [];
+        for(let i=0; i<this._passport.wallets.length; i++){
+            let wallet = this._passport.wallets[i];
+            blockchainAddresses.push({
+                network: wallet.network,
+                address: wallet.address
+            });
+        }
+
         var payload = {
             token,
-            claims
+            claims,
+            blockchainAddresses
         };
 
         //Encrypt the message
@@ -99,7 +109,8 @@ var authUtility = class AuthUtility{
                 missingClaimTypes: await this.getMissingRequiredClaimTypes(claimTypeIds, verifiedClaims),
                 claims: verifiedClaims,
                 passportId: res.passportId,
-                publicKey: res.publicKey
+                publicKey: res.publicKey,
+                blockchainAddresses: res.payload.blockchainAddresses
             }
         }
     }
