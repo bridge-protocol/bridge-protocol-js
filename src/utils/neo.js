@@ -328,7 +328,7 @@ class NEOUtility {
     }
 
     //Need to get the transaction, send to bridge, then relay
-    async getAddClaimTransaction(claim, passport, passphrase, secondaryPassportId, secondaryAddress) {
+    async getAddClaimTransaction(claim, passport, passphrase, secondaryPassportId, secondaryAddress, hashOnly) {
         let neo = this;
         return new Promise(async (resolve, reject) => {
             if (!claim) {
@@ -352,6 +352,11 @@ class NEOUtility {
             const privateKey = await this.getWifFromNep2Key(passport.wallets[0].key, passphrase);
             const account = new _neon.wallet.Account(privateKey);
 
+            //Allow publishing the actual or hash value
+            let claimValue = claim.claimValue.toString();
+            if(hashOnly)
+                claimValue = _crypto.CryptoUtility.getHash(claimValue);
+
             //invoke <contracthash> "addclaim" [address, identity, claimtypeid, claimvalue, createdon, provider]
             //address
             //identity
@@ -365,8 +370,8 @@ class NEOUtility {
                 args: [
                     secondaryAddressScriptHash,
                     secondaryPassportId,
-                    claim.claimTypeId,
-                    _crypto.CryptoUtility.hexEncode(claim.claimValue),
+                    _crypto.CryptoUtility.hexEncode(claim.claimTypeId.toString()),
+                    _crypto.CryptoUtility.hexEncode(claimValue),
                     claim.createdOn,
                     secondaryAddressScriptHash
                 ]
@@ -490,7 +495,7 @@ class NEOUtility {
                 let args = [
                     addressScriptHash,
                     passport.id,
-                    claimTypeId
+                    _crypto.CryptoUtility.hexEncode(claimTypeId.toString())
                 ];
 
                 //invoke <contracthash> "revokeclaims" [address, identity, claims]
@@ -574,13 +579,7 @@ class NEOUtility {
     }
 
     async getClaimForPassport(claimType, passportId) {
-        claimType = parseInt(claimType).toString(16);
-
-        // We need a reverse hex, so we need an even number of characters in our hexstring
-        if (Math.abs(claimType.length % 2)) {
-            claimType = '0' + claimType;
-        }
-        claimType = _neon.u.reverseHex(claimType);
+        claimType = _crypto.CryptoUtility.hexEncode(claimType.toString());
 
         let storageKey = (passportId + '3032' + claimType);
         let storage = await this._getStorage(_bridgeContractHash, storageKey);

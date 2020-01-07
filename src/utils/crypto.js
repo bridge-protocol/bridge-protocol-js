@@ -64,6 +64,11 @@ class CryptoUtility {
         return hash.digest('hex');
     }
 
+    verifyHash(str, hash){
+        let hashed = this.getHash(str);
+        return hashed == hash;
+    }
+
     getToken(){
         var l = []; 
         var d0 = Math.random()*0xffffffff|0;

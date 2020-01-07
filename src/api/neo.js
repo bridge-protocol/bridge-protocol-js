@@ -15,10 +15,11 @@ var neoApi = class NEOApi
         this._passphrase = passphrase;
     }
 
-    async getAddClaimTransaction(claim, address) {
+    async getAddClaimTransaction(claim, address, hashOnly) {
         var obj = {
             claim,
-            address
+            address,
+            hashOnly
         };
 
         var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);

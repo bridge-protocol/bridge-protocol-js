@@ -212,7 +212,7 @@ var blockchainUtility = class BlockchainUtility {
         return null;
     }
 
-    async addClaim(network, claim) {
+    async addClaim(network, claim, hashOnly) {
         if (!network) {
             throw new Error("network not provided");
         }
@@ -221,7 +221,7 @@ var blockchainUtility = class BlockchainUtility {
         }
 
         if (network.toLowerCase() === "neo") {
-            let tx = await this._neoService.getAddClaimTransaction(claim, this._passport.wallets[0].address);//  _neoHelper.getAddClaimTransaction(claim, this._passport, this._passphrase);
+            let tx = await this._neoService.getAddClaimTransaction(claim, this._passport.wallets[0].address, hashOnly);//  _neoHelper.getAddClaimTransaction(claim, this._passport, this._passphrase);
             if(tx == null){
                 return null;
             }
