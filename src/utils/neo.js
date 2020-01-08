@@ -1132,7 +1132,6 @@ class NEOUtility {
         } else if (!this._isHex(hex)) {
             return false;
         } else {
-            let string = '';
             hex = hex.toString();
 
             // Try to convert the hex to an address
@@ -1149,29 +1148,30 @@ class NEOUtility {
                 };
             }
 
-            // Try to convert the hex to a string
-            for (var i = 0; (i < hex.length && hex.substr(i, 2) !== "00"); i += 2) {
-                string += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-            };
+            let string = _crypto.CryptoUtility.hexDecode(hex);
 
-            // Check if we have a valid string
-            if (string && /^[\x00-\x7F]*$/.test(string)) {
+            //We have a valid string value, just get it
+            let invalidChars = (/[\u0000-\u001F]/.test(string));
+            if(!invalidChars){
                 return string;
             }
+            else //The value is an integer
+            {
+                // Try to convert the hex to an integer
+                try {
+                    let reversed = _neon.u.reverseHex(hex);
+                    let number = parseInt(reversed, 16);
 
-            // Try to convert the hex to an integer
-            try {
-                let reversed = _neon.u.reverseHex(hex);
-                let number = parseInt(reversed, 16);
+                    if (!isNaN(parseFloat(number)) && isFinite(number)) {
+                        return parseInt(number);
+                    }
+                }
+                catch (error) {
 
-                if (!isNaN(parseFloat(number)) && isFinite(number)) {
-                    return parseInt(number);
                 }
             }
-            catch (error) {
 
-            }
-
+            //Just return the raw value if we don't know what to do with it
             return hex;
         };
     }
