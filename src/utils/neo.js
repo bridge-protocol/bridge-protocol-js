@@ -1137,14 +1137,11 @@ class NEOUtility {
             // Try to convert the hex to an address
             if (hex.length == 40) {
                 let reversed = _neon.u.reverseHex(hex);
-
                 // Try to get a NEO address from the parameter value
                 let address = _neon.wallet.getAddressFromScriptHash(reversed);
-
                 // Check if the value is a correct NEO address
                 if (_neon.wallet.isAddress(address)) {
-                    string = address;
-                    return string;
+                    return address;
                 };
             }
 
