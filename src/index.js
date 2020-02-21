@@ -33,3 +33,6 @@ exports.Payment = _payment.PaymentUtility;
 
 const _constants = require('./utils/constants');
 exports.Constants = _constants.Constants;
+
+const _ethereum = require('./utils/ethereum');
+exports.Ethereum = _ethereum.Ethereum;
