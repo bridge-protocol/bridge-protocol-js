@@ -1,6 +1,8 @@
 const _constants = require('../utils/constants');
 const Web3 = require("web3");
 const _tx = require("ethereumjs-tx").Transaction;
+const _wallet = require("ethereumjs-wallet");
+const _util = require("ethereumjs-util");
 const _abi = [{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"addApprovedOwner","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"string","name":"claimType","type":"string"},{"internalType":"uint256","name":"claimDate","type":"uint256"},{"internalType":"string","name":"claimValue","type":"string"}],"name":"approvePublishClaim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"claimType","type":"string"},{"internalType":"uint256","name":"claimDate","type":"uint256"},{"internalType":"string","name":"claimValue","type":"string"}],"name":"publishClaim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"passport","type":"string"}],"name":"publishPassport","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"removeApprovedOwner","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"claimType","type":"string"}],"name":"removeClaim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"takeOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"unpublishPassport","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"passport","type":"string"}],"name":"getAddressForPassport","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"string","name":"claimType","type":"string"}],"name":"getClaim","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"getPassportForAddress","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"}];
 
 var ethereum = class Ethereum {
@@ -12,6 +14,34 @@ var ethereum = class Ethereum {
         this._bridgeContractAddress = _constants.Constants.bridgeEthereumContractAddress;
         this._chain = _constants.Constants.bridgeEthereumChain;
         this._contract = new this._web3.eth.Contract(_abi, this._bridgeContractAddress);
+    }
+
+    createWallet(password){
+        let wallet = _wallet.generate();
+        return this._getWallet(wallet, password);
+    }
+
+    getWalletFromPrivateKey(privateKeyString, password){
+        const privateKeyBuffer = _util.toBuffer(privateKeyString);
+        let wallet = _wallet.fromPrivateKey(privateKeyBuffer);
+        return this._getWallet(wallet, password);
+    }
+
+    getWalletFromKeystore(keystore, password){
+        let wallet = _wallet.fromV3(keystore, password);
+        return this._getWallet(wallet, password, keystore);
+    }
+
+    _getWalletKeystore(wallet, password){
+        return wallet.toV3(password);
+    }
+
+    _getWallet(wallet, password, keystore){
+        return {
+            network: "ETH",
+            address: wallet.getAddressString(),
+            key: keystore != null ? keystore : this._getWalletKeystore(wallet, password)
+        };
     }
 
     async approvePublishClaim(account, claimType, claimDate, claimValue, nonce){
