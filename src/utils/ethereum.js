@@ -4,16 +4,21 @@ const _tx = require("ethereumjs-tx");
 const _wallet = require("ethereumjs-wallet");
 const _util = require("ethereumjs-util");
 const _abi = [{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"addApprovedOwner","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"string","name":"claimType","type":"string"},{"internalType":"uint256","name":"claimDate","type":"uint256"},{"internalType":"string","name":"claimValue","type":"string"}],"name":"approvePublishClaim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"claimType","type":"string"},{"internalType":"uint256","name":"claimDate","type":"uint256"},{"internalType":"string","name":"claimValue","type":"string"}],"name":"publishClaim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"passport","type":"string"}],"name":"publishPassport","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"removeApprovedOwner","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"claimType","type":"string"}],"name":"removeClaim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"takeOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"unpublishPassport","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"passport","type":"string"}],"name":"getAddressForPassport","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"string","name":"claimType","type":"string"}],"name":"getClaim","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"getPassportForAddress","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"}];
+const _tokenAbi = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}];
 const _pollInterval = 15000;
 const _pollRetries = 20;
+const _gasLimit = 2100000;
+const _gasPriceGwei = 6;
 
 var ethereum = class Ethereum {
     constructor(rpcUrl) {
         this._rpcUrl = rpcUrl;
         this._web3 = new Web3(new Web3.providers.HttpProvider(this._rpcUrl));
         this._bridgeContractAddress = _constants.Constants.bridgeEthereumContractAddress;
+        this._bridgeTokenContractAddress = _constants.Constants.bridgeEthereumERC20Address;
         this._chain = _constants.Constants.bridgeEthereumChain;
         this._contract = new this._web3.eth.Contract(_abi, this._bridgeContractAddress);
+        this._token = new this._web3.eth.Contract(_tokenAbi, this._bridgeTokenContractAddress);
     }
 
     createWallet(password){
@@ -40,12 +45,29 @@ var ethereum = class Ethereum {
         return wallet.toV3(password);
     }
 
-    _getWalletInfo(wallet, password, keystore){
+    _getWalletInfo(wallet, password){
         return {
             network: "ETH",
             address: wallet.getAddressString(),
             key: this._getWalletKeystore(wallet, password)
         };
+    }
+
+    async getEthBalance(address) {
+        let balance = await this._web3.eth.getBalance(address);
+        return this._web3.utils.fromWei(balance,"ether");
+    };
+
+    async getBrdgBalance(account){
+        return await this._token.methods.balanceOf(account).call();
+    }
+
+    async sendBrdg(wallet, recipient, amount, memo, nonce, wait){
+        const data = this._token.methods.transfer(recipient, amount).encodeABI();
+        if(wait)
+            return await this._broadcastTransactionWaitStatus(wallet, this._bridgeTokenContractAddress, data, nonce);
+        else
+            return await this._broadcastTransaction(wallet, this._bridgeTokenContractAddress, data, nonce);
     }
 
     async approvePublishClaim(wallet, account, claimType, claimDate, claimValue, nonce, wait){
@@ -59,9 +81,9 @@ var ethereum = class Ethereum {
         const data = this._contract.methods.approvePublishClaim(account, claimType, claimDate, claimValue).encodeABI();
 
         if(wait)
-            return await this._broadcastTransactionWaitStatus(wallet, data, nonce);
+            return await this._broadcastTransactionWaitStatus(wallet, this._bridgeContractAddress, data, nonce);
         else
-            return await this._broadcastTransaction(wallet, data, nonce);
+            return await this._broadcastTransaction(wallet, this._bridgeContractAddress, data, nonce);
     }
 
     async publishClaim(wallet, claimType, claimDate, claimValue, nonce, wait){
@@ -74,9 +96,9 @@ var ethereum = class Ethereum {
 
         const data = this._contract.methods.publishClaim(claimType, claimDate, claimValue).encodeABI();
         if(wait)
-            return await this._broadcastTransactionWaitStatus(wallet, data, nonce);
+            return await this._broadcastTransactionWaitStatus(wallet, this._bridgeContractAddress, data, nonce);
         else
-            return await this._broadcastTransaction(wallet, data, nonce);
+            return await this._broadcastTransaction(wallet, this._bridgeContractAddress, data, nonce);
     }
 
     async removeClaim(wallet, claimType, nonce, wait){
@@ -85,25 +107,25 @@ var ethereum = class Ethereum {
 
         const data = this._contract.methods.removeClaim(claimType).encodeABI();
         if(wait)
-            return await this._broadcastTransactionWaitStatus(wallet, data, nonce);
+            return await this._broadcastTransactionWaitStatus(wallet, this._bridgeContractAddress, data, nonce);
         else
-            return await this._broadcastTransaction(wallet, data, nonce);
+            return await this._broadcastTransaction(wallet, this._bridgeContractAddress, data, nonce);
     }
 
     async publishPassport(wallet, passport, nonce, wait){
         const data = this._contract.methods.publishPassport(passport).encodeABI();
         if(wait)
-            return await this._broadcastTransactionWaitStatus(wallet, data, nonce);
+            return await this._broadcastTransactionWaitStatus(wallet, this._bridgeContractAddress, data, nonce);
         else
-            return await this._broadcastTransaction(wallet, data, nonce);
+            return await this._broadcastTransaction(wallet, this._bridgeContractAddress, data, nonce);
     }
 
     async unpublishPassport(wallet, nonce, wait){
         const data = this._contract.methods.unpublishPassport().encodeABI();
         if(wait)
-            return await this._broadcastTransactionWaitStatus(wallet, data, nonce);
+            return await this._broadcastTransactionWaitStatus(wallet, this._bridgeContractAddress, data, nonce);
         else
-            return await this._broadcastTransaction(wallet, data, nonce);
+            return await this._broadcastTransaction(wallet, this._bridgeContractAddress, data, nonce);
     }
 
     async getClaimForAddress(account, claimType){
@@ -131,11 +153,6 @@ var ethereum = class Ethereum {
         return await this._contract.methods.getAddressForPassport(passport).call();
     }
 
-    async getbalance(address) {
-        let balance = await this._web3.eth.getBalance(address);
-        return this._web3.utils.fromWei(balance,"ether");
-    };
-
     async checkConnected(){
         return new Promise(async (resolve, reject) => {
             this._web3.eth.net.isListening()
@@ -152,10 +169,10 @@ var ethereum = class Ethereum {
         return null;
     }
 
-    async _broadcastTransactionWaitStatus(wallet, data, nonce) {
+    async _broadcastTransactionWaitStatus(wallet, contract, data, nonce) {
         let eth = this;
         return new Promise(async (resolve, reject) => {
-            eth._broadcastTransaction(wallet, data, nonce)
+            eth._broadcastTransaction(wallet, contract, data, nonce)
                 .then(async res => {
                     eth._checkTransactionComplete(res.hash, function (info) {
                         resolve({ hash: res.hash, nonce: res.nonce, info });
@@ -203,9 +220,15 @@ var ethereum = class Ethereum {
         return await this._web3.eth.getTransactionReceipt(hash);
     }
 
-    async _broadcastTransaction(wallet, data, nonce){
+    async _broadcastTransaction(wallet, contract, data, nonce){
         if(!wallet.wallet)
             throw new Error("Wallet is not unlocked.");
+
+        if(!contract)
+            throw new Error("Contract is not specified.");
+
+        if(!data)
+            throw new Error("No contract data provided.");
 
         let address = wallet.wallet.getAddressString();
         let privateKey = wallet.wallet.getPrivateKey();
@@ -217,10 +240,10 @@ var ethereum = class Ethereum {
                 // Build the transaction
                 const txObject = {
                     nonce:    this._web3.utils.toHex(nonce), 
-                    to:       this._bridgeContractAddress,
+                    to:       contract,
                     value:    this._web3.utils.toHex(this._web3.utils.toWei("0", "ether")),
-                    gasLimit: this._web3.utils.toHex(2100000),
-                    gasPrice: this._web3.utils.toHex(this._web3.utils.toWei("6", "gwei")),
+                    gasLimit: this._web3.utils.toHex(_gasLimit),
+                    gasPrice: this._web3.utils.toHex(this._web3.utils.toWei(_gasPriceGwei.toString(), "gwei")),
                     data: data  
                 }
                 // Sign the transaction
