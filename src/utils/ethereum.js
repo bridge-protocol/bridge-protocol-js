@@ -1,15 +1,15 @@
 const _constants = require('../utils/constants');
 const Web3 = require("web3");
-const _tx = require("ethereumjs-tx").Transaction;
+const _tx = require("ethereumjs-tx");
 const _wallet = require("ethereumjs-wallet");
 const _util = require("ethereumjs-util");
 const _abi = [{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"addApprovedOwner","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"string","name":"claimType","type":"string"},{"internalType":"uint256","name":"claimDate","type":"uint256"},{"internalType":"string","name":"claimValue","type":"string"}],"name":"approvePublishClaim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"claimType","type":"string"},{"internalType":"uint256","name":"claimDate","type":"uint256"},{"internalType":"string","name":"claimValue","type":"string"}],"name":"publishClaim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"passport","type":"string"}],"name":"publishPassport","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"removeApprovedOwner","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"claimType","type":"string"}],"name":"removeClaim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"takeOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"unpublishPassport","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"passport","type":"string"}],"name":"getAddressForPassport","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"string","name":"claimType","type":"string"}],"name":"getClaim","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"getPassportForAddress","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"}];
+const _pollInterval = 15000;
+const _pollRetries = 20;
 
 var ethereum = class Ethereum {
-    constructor(rpcUrl, account, privateKey) {
+    constructor(rpcUrl) {
         this._rpcUrl = rpcUrl;
-        this._account = account;
-        this._privatekey = Buffer.from(privateKey, "hex");
         this._web3 = new Web3(new Web3.providers.HttpProvider(this._rpcUrl));
         this._bridgeContractAddress = _constants.Constants.bridgeEthereumContractAddress;
         this._chain = _constants.Constants.bridgeEthereumChain;
@@ -18,33 +18,37 @@ var ethereum = class Ethereum {
 
     createWallet(password){
         let wallet = _wallet.generate();
-        return this._getWallet(wallet, password);
+        return this._getWalletInfo(wallet, password);
     }
 
     getWalletFromPrivateKey(privateKeyString, password){
         const privateKeyBuffer = _util.toBuffer(privateKeyString);
         let wallet = _wallet.fromPrivateKey(privateKeyBuffer);
-        return this._getWallet(wallet, password);
+        return this._getWalletInfo(wallet, password);
     }
 
     getWalletFromKeystore(keystore, password){
         let wallet = _wallet.fromV3(keystore, password);
-        return this._getWallet(wallet, password, keystore);
+        return this._getWalletInfo(wallet, password);
+    }
+
+    unlockWallet(walletInfo, password){
+        walletInfo.wallet = _wallet.fromV3(walletInfo.key, password);
     }
 
     _getWalletKeystore(wallet, password){
         return wallet.toV3(password);
     }
 
-    _getWallet(wallet, password, keystore){
+    _getWalletInfo(wallet, password, keystore){
         return {
             network: "ETH",
             address: wallet.getAddressString(),
-            key: keystore != null ? keystore : this._getWalletKeystore(wallet, password)
+            key: this._getWalletKeystore(wallet, password)
         };
     }
 
-    async approvePublishClaim(account, claimType, claimDate, claimValue, nonce){
+    async approvePublishClaim(wallet, account, claimType, claimDate, claimValue, nonce, wait){
         if(!claimType)
             throw new Error("Claim type is required.");
         if(!claimValue)
@@ -53,10 +57,14 @@ var ethereum = class Ethereum {
             throw new Error("Date must be an integer");
 
         const data = this._contract.methods.approvePublishClaim(account, claimType, claimDate, claimValue).encodeABI();
-        return await this._broadcastTransaction(data, nonce);
+
+        if(wait)
+            return await this._broadcastTransactionWaitStatus(wallet, data, nonce);
+        else
+            return await this._broadcastTransaction(wallet, data, nonce);
     }
 
-    async publishClaim(claimType, claimDate, claimValue, nonce){
+    async publishClaim(wallet, claimType, claimDate, claimValue, nonce, wait){
         if(!claimType)
             throw new Error("Claim type is required.");
         if(!claimValue)
@@ -65,25 +73,37 @@ var ethereum = class Ethereum {
             throw new Error("Date must be an integer");
 
         const data = this._contract.methods.publishClaim(claimType, claimDate, claimValue).encodeABI();
-        return await this._broadcastTransaction(data, nonce);
+        if(wait)
+            return await this._broadcastTransactionWaitStatus(wallet, data, nonce);
+        else
+            return await this._broadcastTransaction(wallet, data, nonce);
     }
 
-    async removeClaim(claimType, nonce){
+    async removeClaim(wallet, claimType, nonce, wait){
         if(!claimType)
             throw new Error("Claim type is required.");
 
         const data = this._contract.methods.removeClaim(claimType).encodeABI();
-        return await this._broadcastTransaction(data, nonce);
+        if(wait)
+            return await this._broadcastTransactionWaitStatus(wallet, data, nonce);
+        else
+            return await this._broadcastTransaction(wallet, data, nonce);
     }
 
-    async publishPassport(passport, nonce){
+    async publishPassport(wallet, passport, nonce, wait){
         const data = this._contract.methods.publishPassport(passport).encodeABI();
-        return await this._broadcastTransaction(data, nonce);
+        if(wait)
+            return await this._broadcastTransactionWaitStatus(wallet, data, nonce);
+        else
+            return await this._broadcastTransaction(wallet, data, nonce);
     }
 
-    async unpublishPassport(nonce){
+    async unpublishPassport(wallet, nonce, wait){
         const data = this._contract.methods.unpublishPassport().encodeABI();
-        return await this._broadcastTransaction(data, nonce);
+        if(wait)
+            return await this._broadcastTransactionWaitStatus(wallet, data, nonce);
+        else
+            return await this._broadcastTransaction(wallet, data, nonce);
     }
 
     async getClaimForAddress(account, claimType){
@@ -124,9 +144,73 @@ var ethereum = class Ethereum {
         });
     };
 
-    async _broadcastTransaction(data, nonce){
+    async checkTransactionSuccess(hash){
+        let res = await this._getTransactionStatus(hash);
+        if(res && res.status)
+            return res.status;
+
+        return null;
+    }
+
+    async _broadcastTransactionWaitStatus(wallet, data, nonce) {
+        let eth = this;
+        return new Promise(async (resolve, reject) => {
+            eth._broadcastTransaction(wallet, data, nonce)
+                .then(async res => {
+                    eth._checkTransactionComplete(res.hash, function (info) {
+                        resolve({ hash: res.hash, nonce: res.nonce, info });
+                    });
+                })
+                .catch(err => {
+                    reject(err);
+                });
+        });
+    }
+
+    async _checkTransactionComplete(hash, callback, count) {
+        let eth = this;
+
+        if (!count)
+            count = 0;
+
+        if (count >= _pollRetries) {
+            console.log("Retry count exceeded.");
+            callback(null);
+        }
+
+        if (count == 0) {
+            console.log("Waiting for completion.");
+        }
+
+        count++;
+        setTimeout(async function () {
+            console.log("Checking transaction complete for " + hash + " (" + count + ")");
+            let res = await eth._getTransactionInfo(hash);
+            if(res)
+            {
+                console.log("Transaction found and complete");
+                callback(res);
+            }  
+            else
+            {
+                console.log("Transaction not found or not complete, waiting and retrying...");
+                await eth._checkTransactionComplete(hash, callback, count);
+            }      
+        }, _pollInterval);
+    }
+
+    async _getTransactionInfo(hash){
+        return await this._web3.eth.getTransactionReceipt(hash);
+    }
+
+    async _broadcastTransaction(wallet, data, nonce){
+        if(!wallet.wallet)
+            throw new Error("Wallet is not unlocked.");
+
+        let address = wallet.wallet.getAddressString();
+        let privateKey = wallet.wallet.getPrivateKey();
         return new Promise((resolve,reject) => {
-            this._web3.eth.getTransactionCount(this._account, (err, txCount) => {
+            this._web3.eth.getTransactionCount(address, (err, txCount) => {
                 if(!nonce || txCount > nonce)
                     nonce = txCount;
 
@@ -141,13 +225,13 @@ var ethereum = class Ethereum {
                 }
                 // Sign the transaction
                 const tx = new _tx(txObject, {"chain":this._chain});
-                tx.sign(this._privatekey);
+                tx.sign(privateKey);
                 
                 const serializedTx = tx.serialize();
                 const raw = "0x" + serializedTx.toString("hex");
                 
                 // Broadcast the transaction
-                const transaction = this._web3.eth.sendSignedTransaction(raw, (err, hash) => {
+                this._web3.eth.sendSignedTransaction(raw, (err, hash) => {
                     if(err)
                         reject(err);
 
