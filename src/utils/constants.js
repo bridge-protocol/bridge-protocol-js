@@ -14,7 +14,7 @@ class Constants {
         this.claimTypes = this.getClaimTypes();
         this.profileTypes = this.getProfileTypes();
         this.bridgeEthereumContractAddress = "0x1D1F756dE9aCea82BFb61d84B14Aa01215B8F1c0";
-        this.bridgeEthereumERC20Address = "0xB7DbefA363ba81f563DF3370196b065EAe319785";
+        this.bridgeEthereumERC20Address = "0x9DDf7f5475A15fFC3FBD3906060BE0C0A47180d0";
         this.bridgeEthereumChain = "rinkeby";
     }
 
