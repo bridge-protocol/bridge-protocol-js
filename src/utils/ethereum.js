@@ -71,13 +71,19 @@ var ethereum = class Ethereum {
     }
 
     
-    getMemoFromLogs(logs){
-        for(let i=0; i<logs.length; i++){
-            let log = logs[i];
+    async verifyTransactionMemo(hash, memo){
+        let res = await this._getTransactionInfo(hash);
+        if(!res)
+            return false;
+
+        for(let i=0; i<res.logs.length; i++){
+            let log = res.logs[i];
             if(log.topics[0] == "0xb0734c6ca9ae9b7406dd80224cb0488aed0928eef358da7449505fa59b8d7a2a"){
-                return this._web3.utils.hexToAscii(log.data).trim();
+                return this._web3.utils.hexToUtf8(log.data).includes(memo);
             }
         }
+        
+        return false;
     }
 
     async approvePublishClaim(wallet, account, claimType, claimDate, claimValue, nonce, wait){
