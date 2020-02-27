@@ -68,12 +68,12 @@ var ethereum = class Ethereum {
         return await this._broadcastTransaction(wallet, this._bridgeTokenContractAddress, data, nonce);
     }
 
-    async verifyTransactionMemo(hash, memo){
+    async verifyTransferWithMemoTransaction(hash, from, to, amount, memo){
         let info = await this._getTransactionInfo(hash);
         if(!info)
             return false;
 
-        return this._verifyTransactionLogMemo(info, memo);
+        return this._verifyTransferWithMemoTransaction(info, from, to, amount, memo);
     }
 
     async approvePublishClaim(wallet, account, claimType, claimDate, claimValue, nonce){
@@ -160,16 +160,47 @@ var ethereum = class Ethereum {
         return await this._web3.eth.getTransactionReceipt(hash);
     }
 
-    async _verifyTransactionLogMemo(info, memo){
+    async _verifyTransferWithMemoTransaction(info, from, to, amount, memo){
+        let senderValid = false;
+        let recipientValid = false;
+        let amountValid = false;
+        let memoValid = false;
+
+        if(!info.logs || info.logs.length == 0)
+            return false;
+
         for(let i=0; i<info.logs.length; i++){
             let log = info.logs[i];
-            if(log.topics[0] == "0xb0734c6ca9ae9b7406dd80224cb0488aed0928eef358da7449505fa59b8d7a2a"){
-                return this._web3.utils.hexToUtf8(log.data).includes(memo);
+            if(log.topics != null && log.topics[0] == "0xb0734c6ca9ae9b7406dd80224cb0488aed0928eef358da7449505fa59b8d7a2a"){
+                memoValid = this._web3.utils.hexToUtf8(log.data).includes(memo);
+            }
+            else if(log.topics != null && log.topics.length == 3){
+                let amountTopic = this._web3.utils.hexToNumber(log.data);
+                let senderTopic = this._removeHexBytes(log.topics[1],12);
+                let recipientTopic = this._removeHexBytes(log.topics[2],12);
+
+                //Set the flags
+                senderValid = from.toLowerCase() == senderTopic; 
+                recipientValid = to.toLowerCase() == recipientTopic;
+                amountValid = amount == amountTopic;
             }
         }
 
-        return false;
+        return senderValid && recipientValid && amountValid && memoValid;
     };
+
+    _removeHexBytes(hex, startIdx){
+        if(!startIdx)
+            startIdx = 0;
+
+        let bytes = this._web3.utils.hexToBytes(hex);
+        let b = [];
+        for(let i=startIdx; i<bytes.length; i++){
+            b.push(bytes[i]);
+        }
+
+        return this._web3.utils.bytesToHex(b);
+    }
 
     async _broadcastTransaction(wallet, contract, data, nonce){
         if(!wallet.wallet)
