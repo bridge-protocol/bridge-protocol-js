@@ -1,5 +1,6 @@
 class Constants {
     constructor() {
+        this.passportVersion = 1.1;
         this.bridgeApiUrl = "https://bridgeprotocol.azurewebsites.net/api/";
         this.bridgeExplorerUrl = "https://bridgeprotocol.azurewebsites.net/explorer/";
         this.bridgePassportId = "d7bc3488073454a6ce32b13a1e8cda6a8bddf16d";
@@ -13,10 +14,15 @@ class Constants {
         this.partners = this.getPartners();
         this.claimTypes = this.getClaimTypes();
         this.profileTypes = this.getProfileTypes();
+        this.neoscanApiUrl = "https://neoscan.io/api/main_net/v1";
+        this.neoscanPollInterval = 15000;
+        this.neoscanPollRetries = 20;
         this.bridgeEthereumContractAddress = "0x1D1F756dE9aCea82BFb61d84B14Aa01215B8F1c0";
         this.bridgeEthereumERC20Address = "0x9DDf7f5475A15fFC3FBD3906060BE0C0A47180d0";
         this.bridgeEthereumChain = "rinkeby";
-        this.jsonRpcUrl = "https://rinkeby.infura.io/v3/abb847143b1346b7bff7277bdf8d160f";
+        this.defaultEthereumGasLimit = 3000000;
+        this.defaultEthereumGasPriceGwei = 6;
+        this.ethereumJsonRpcUrl = "https://rinkeby.infura.io/v3/abb847143b1346b7bff7277bdf8d160f";
         this.etherscanUrl = "https://rinkeby.etherscan.io";
         this.etherscanApiUrl = "http://api-rinkeby.etherscan.io/api?apikey=WTPNVNH25I8GWVXJMFHRYDJ8BCSAS18FRF";
     }

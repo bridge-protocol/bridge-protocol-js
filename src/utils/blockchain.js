@@ -1,30 +1,90 @@
-const _neo = require('../utils/neo');
+const _neo = require('../utils/neo').NEO;
+const _eth = require('../utils/ethereum').Ethereum;
 const _neoApi = require('../api/neo');
-const _claims = require('../utils/claim');
-const _crypto = require('../utils/crypto');
-const _constants = require('../utils/constants');
+const _constants = require('../utils/constants').Constants;
 
-var blockchainUtility = class BlockchainUtility {
-    constructor(apiBaseUrl, passport, passphrase) {
+var blockchain = class Blockchain {
+    constructor(passport, passphrase) {
         this._passport = passport;
         this._passphrase = passphrase;
-        this._neoHelper = _neo.NEOUtility;
-        this._neoService = new _neoApi.NEOApi(apiBaseUrl, passport, passphrase);
+        this._neoService = new _neoApi.NEOApi(passport, passphrase);
     }
 
-    getPrivateKey(network, key) {
+    async getPrivateKey(network) {
         if (!network) {
-            throw new Error("network not provided");
-        }
-        if (!key) {
-            throw new Error("key not provided");
+            throw new Error("network not provided for publish.");
         }
 
-        if (network == "NEO") {
-            return this._neoHelper.getWifFromNep2Key(key, this._passphrase);
+        let walletInfo = this._passport.getWalletForNetwork(network);
+        if(!walletInfo.wallet)
+            throw new Error("Wallet not unlocked");
+        
+        if (network.toLowerCase() == "neo") {
+            return await _neo.getPrivateKey(walletInfo, this._passphrase);
+        }
+        else if(network.toLowerCase() == "eth"){
+            return _ethereum.getPrivateKey(walletInfo, this._passphrase);
+        }
+        return null;
+    }
+
+    async publishPassport(walletInfo)
+    {
+        if (!walletInfo)
+            throw new Error("wallet not provided for publish.");
+        if(!walletInfo.wallet)
+            throw new Error("wallet not unlocked");
+
+        if (walletInfo.network.toLowerCase() === "neo") {
+            return await _neo.publishPassport(walletInfo, this._passport);
+        }
+        else if(walletInfo.network.toLowerCase() === "eth"){
+            return await _eth.publishPassport(walletInfo, this._passport.id);
         }
 
         return null;
+    }
+
+    async getPassportForAddress(network, address){
+        if(!network)
+            throw new Error("network not provided");
+        if(!address)
+            throw new Error("address not provided");
+
+        if(network.toLowerCase() === "neo"){
+            return await _neo.getPassportForAddress(address);
+        }
+        else if(network.toLowerCase() === "eth"){
+            return await _eth.getPassportForAddress(address);
+        }
+    }
+
+    async getAddressForPassport(network, passportId){
+        if(!network)
+            throw new Error("network not provided");
+        if(!passportId)
+            throw new Error("passportId not provided");
+            
+        if(network.toLowerCase() === "neo"){
+            return await _neo.getAddressForPassport(passportId);
+        }
+        else if(network.toLowerCase() === "eth"){
+            return await _eth.getAddressForPassport(passportId);
+        }
+    }
+
+    async unpublishPassport(walletInfo){
+        if(!walletInfo)
+            throw new Error("walletInfo not provided");
+        if(!walletInfo.wallet)
+            throw new Error("Wallet not unlocked");
+
+        if(network.toLowerCase() === "neo"){
+            return await _neo.unpublishPassport(walletInfo, this._passport);
+        }
+        else if(network.toLowerCase() === "eth"){
+            return await _eth.unpublishPassport(walletInfo);
+        }
     }
 
     async addBlockchainAddress(network, address, wait) {
@@ -35,11 +95,8 @@ var blockchainUtility = class BlockchainUtility {
             throw new Error("address not provided");
         }
 
-        if (network.toLowerCase() === "neo") {
-            return await this._neoHelper.sendPublishAddressTransaction(this._passport, this._passphrase, address, wait);
-        }
+        let wallet = this._getWalletForNetwork(network);
 
-        return null;
     }
 
     //Amount is 100000000 = 1
@@ -53,12 +110,12 @@ var blockchainUtility = class BlockchainUtility {
         }
 
         if (network.toLowerCase() === "neo") {
-            let spendRes = await this._neoHelper.sendSpendTokensTransaction(amount, paymentIdentifier, recipient, this._passport, this._passphrase, wait);
+            let spendRes = await _neo.sendSpendTokensTransaction(amount, paymentIdentifier, recipient, this._passport, this._passphrase, wait);
             if (!wait)
                 return spendRes.txid; 
 
             console.log("Verifying payment..");
-            let verifyRes = await this._neoHelper.verifySpendTransactionFromInfo(spendRes.info, amount, recipient, paymentIdentifier);
+            let verifyRes = await _neo.verifySpendTransactionFromInfo(spendRes.info, amount, recipient, paymentIdentifier);
             if (!verifyRes.success) {
                 console.log("Payment failed");
                 return null;
@@ -88,9 +145,9 @@ var blockchainUtility = class BlockchainUtility {
         }
 
         if (network.toLowerCase() === "neo") {
-            let info = await this._neoHelper.checkTransactionComplete(txid);
+            let info = await _neo.checkTransactionComplete(txid);
             console.log("Verifying payment..");
-            let verifyRes = await this._neoHelper.verifySpendTransactionFromInfo(info, amount, recipient, paymentIdentifier);
+            let verifyRes = await _neo.verifySpendTransactionFromInfo(info, amount, recipient, paymentIdentifier);
             if (!verifyRes.success) {
                 console.log("Payment failed");
                 return null;
@@ -114,7 +171,7 @@ var blockchainUtility = class BlockchainUtility {
         }
 
         if (network == "NEO") {
-            return await this._neoHelper.getRegisteredPassportInfo(passportId);
+            return await _neo.getRegisteredPassportInfo(passportId);
         }
 
         return null;
@@ -129,7 +186,7 @@ var blockchainUtility = class BlockchainUtility {
         }
 
         if (network == "NEO") {
-            return await this._neoHelper.getRegisteredAddressInfo(address);
+            return await _neo.getRegisteredAddressInfo(address);
         }
 
         return null;
@@ -138,13 +195,13 @@ var blockchainUtility = class BlockchainUtility {
     async getRecentTransactions(network, address) {
         if (network == "NEO") {
             let tx = [];
-            let res = await this._neoHelper.getLatestAddressTransactions(address);
+            let res = await _neo.getLatestAddressTransactions(address);
 
             if (!res)
                 return null;
 
             for (let i = 0; i < res.entries.length; i++) {
-                if (res.entries[i].asset == _constants.Constants.brdgHash.replace("0x", "")) {
+                if (res.entries[i].asset == _constants.brdgHash.replace("0x", "")) {
                     tx.push(res.entries[i]);
                 }
             }
@@ -158,12 +215,12 @@ var blockchainUtility = class BlockchainUtility {
     async getRecentToTransactions(network, address, addressTo) {
         if (network == "NEO") {
             let tx = [];
-            let res = await this._neoHelper.getLatestAddressToTransactions(address, addressTo);
+            let res = await _neo.getLatestAddressToTransactions(address, addressTo);
             if (!res)
                 return null;
 
             for (let i = 0; i < res.entries.length; i++) {
-                if (res.entries[i].asset == _constants.Constants.brdgHash.replace("0x", "")) {
+                if (res.entries[i].asset == _constants.brdgHash.replace("0x", "")) {
                     tx.push(res.entries[i]);
                 }
             }
@@ -191,13 +248,13 @@ var blockchainUtility = class BlockchainUtility {
 
     async getBalances(network) {
         if (network.toLowerCase() === "neo") {
-            return await this._neoHelper.getAddressBalances(this._passport.wallets[0].address);
+            return await _neo.getAddressBalances(this._passport.wallets[0].address);
         }
     }
 
     async addHash(network, hash) {
         if (network.toLowerCase() === "neo") {
-            return this._neoHelper.sendAddHashTransaction(hash, this._passport, this._passphrase, true);
+            return _neo.sendAddHashTransaction(hash, this._passport, this._passphrase, true);
             //TODO: Validate response
         }
         return null;
@@ -205,7 +262,7 @@ var blockchainUtility = class BlockchainUtility {
 
     async removeHash(network, hash) {
         if (network.toLowerCase() === "neo") {
-            return this._neoHelper.sendRemoveHashTransaction(hash, this._passport, this._passphrase, true);
+            return _neo.sendRemoveHashTransaction(hash, this._passport, this._passphrase, true);
             //TODO: Validate response
         }
 
@@ -226,8 +283,8 @@ var blockchainUtility = class BlockchainUtility {
                 return null;
             }
             
-            let signed = await this._neoHelper.secondarySignAddClaimTransaction(tx, this._passport, this._passphrase);
-            return await this._neoHelper.sendAddClaimTransaction({ transaction: signed.serialize(), hash: signed.hash }, true);
+            let signed = await _neo.secondarySignAddClaimTransaction(tx, this._passport, this._passphrase);
+            return await _neo.sendAddClaimTransaction({ transaction: signed.serialize(), hash: signed.hash }, true);
         }
 
         return null;
@@ -242,28 +299,24 @@ var blockchainUtility = class BlockchainUtility {
         }
 
         if (network.toLowerCase() === "neo") {
-            return this._neoHelper.sendRemoveClaimTransaction(claimTypeId, this._passport, this._passphrase, true);
+            return _neo.sendRemoveClaimTransaction(claimTypeId, this._passport, this._passphrase, true);
             //TODO: Validate response
         }
 
         return null;
     }
 
-    //Public check hash for any address
-    async checkHash(network, address, hash) {
-        if (network.toLowerCase() === "neo") {
-            return await this._neoHelper.getHashForAddress(hash, address);
-        }
-        return false;
-    }
-
     //Public get claim for any address
     async getClaim(network, claimTypeId, address) {
         if (network.toLowerCase() === "neo") {
-            return await this._neoHelper.getClaimForAddress(claimTypeId, address);
+            return await _neo.getClaimForAddress(address, claimTypeId);
         }
+        else if(network.toLowerCase() === "eth"){
+            return await _eth.getClaimForAddress(address, claimTypeId);
+        }
+
         return null;
     }
 };
 
-exports.BlockchainUtility = blockchainUtility;
+exports.Blockchain = blockchain;

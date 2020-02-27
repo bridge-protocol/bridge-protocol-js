@@ -2,11 +2,7 @@ const _pgp = require('./pgp').PgpUtility;
 const _neon = require('@cityofzion/neon-js');
 const _crypto = require('crypto'); //NodeJS crypto npm
 
-class CryptoUtility {
-    constructor(){
-       
-    }
-
+class Crypto {
     isHex(text){
         if(!text){
             throw new Error("text not provided");
@@ -263,7 +259,6 @@ class CryptoUtility {
         let decrypted = null;
 
         try{
-			//decrypted = await _pgp.decrypt(encryptedAttachment, publicKey, privateKey, passphrase);
 			let result = await _pgp.decryptAndVerify({
 				message: encryptedAttachment,
 				publicKey,
@@ -281,4 +276,4 @@ class CryptoUtility {
 	}
 };
 
-exports.CryptoUtility = new CryptoUtility();
+exports.Crypto = new Crypto();

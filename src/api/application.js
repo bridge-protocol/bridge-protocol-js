@@ -1,22 +1,21 @@
+const _constants = require("../utils/constants").Constants;
 const _api = require('../utils/api');
+const _apiBaseUrl = _constants.bridgeApiUrl + "application/";
 
 var applicationApi = class ApplicationApi
 {
-    constructor(apiBaseUrl, passport, passphrase){
+    constructor(passport, passphrase){
         if(!passport)
             throw new Error("No passport provided.");
         if(!passphrase)
             throw new Error("No passphrase provided.");
-        if(!apiBaseUrl)
-            throw new Error("No base url provided.");
 
-        this._apiBaseUrl = apiBaseUrl + "application/";
         this._passport = passport;
         this._passphrase = passphrase;
     }
 
     async getActiveApplications(){
-        var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
+        var api = new _api.APIUtility(_apiBaseUrl, this._passport, this._passphrase);
         var res = await api.callApi("GET", "true", null);
 
         if(res.applications){
@@ -27,7 +26,7 @@ var applicationApi = class ApplicationApi
     }
 
     async getAllApplications(){
-        var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
+        var api = new _api.APIUtility(_apiBaseUrl, this._passport, this._passphrase);
         var res = await api.callApi("GET", "false", null);
 
         if(res.applications){
@@ -38,7 +37,7 @@ var applicationApi = class ApplicationApi
     }
 
     async getApplication(applicationId){
-        var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
+        var api = new _api.APIUtility(_apiBaseUrl, this._passport, this._passphrase);
         var res = await api.callApi("GET", applicationId + "/details", null);
 
         if(res.application){
@@ -52,7 +51,7 @@ var applicationApi = class ApplicationApi
         var obj = {
             partner
         };
-        var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
+        var api = new _api.APIUtility(_apiBaseUrl, this._passport, this._passphrase);
         var res = await api.callApi("POST", "create/", obj);
 
         if(res.application){
@@ -68,7 +67,7 @@ var applicationApi = class ApplicationApi
             network,
             transactionId
         };
-        var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
+        var api = new _api.APIUtility(_apiBaseUrl, this._passport, this._passphrase);
         var res = await api.callApi("POST", "updatetransaction/", obj);
 
         if(res.application){
@@ -79,7 +78,7 @@ var applicationApi = class ApplicationApi
     }
 
     async retrySend(applicationId){
-        var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
+        var api = new _api.APIUtility(_apiBaseUrl, this._passport, this._passphrase);
         var res = await api.callApi("GET", applicationId + "/retry/", null);
         
         if(res.application){
@@ -90,7 +89,7 @@ var applicationApi = class ApplicationApi
     }
 
     async getStatus(applicationId){
-        var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
+        var api = new _api.APIUtility(_apiBaseUrl, this._passport, this._passphrase);
         var res = await api.callApi("GET", applicationId + "/status/", null);
 
         if(res.status){
@@ -105,7 +104,7 @@ var applicationApi = class ApplicationApi
         if(isPublic == true)
             scope = "public";
 
-        var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
+        var api = new _api.APIUtility(_apiBaseUrl, this._passport, this._passphrase);
         var res = await api.callApi("GET", applicationId + "/claims/" + scope, null);
 
         if(res.claims){
@@ -116,17 +115,17 @@ var applicationApi = class ApplicationApi
     }
 
     async removeClaims(applicationId){
-        var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
+        var api = new _api.APIUtility(_apiBaseUrl, this._passport, this._passphrase);
         await api.callApi("GET", applicationId + "/claims/remove", null);
     }
 
     async setApplicationStatus(applicationId, status){
-        var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
+        var api = new _api.APIUtility(_apiBaseUrl, this._passport, this._passphrase);
         await api.callApi("POST", applicationId + "/status/", status);
     }
 
     async addClaimPackagesToApplication(applicationId, claimPackages){
-        var api = new _api.APIUtility(this._apiBaseUrl, this._passport, this._passphrase);
+        var api = new _api.APIUtility(_apiBaseUrl, this._passport, this._passphrase);
         await api.callApi("POST", applicationId + "/claims/", claimPackages);
     }
 };

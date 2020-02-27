@@ -1,8 +1,5 @@
-const _currentVersion = 1.1;
-const _crypto = require('../utils/crypto');
-const _neo = require('../utils/neo');
-//const _claim = require('./claim');
-//const _profile = require('./profile');
+const _constants = require('../utils/constants').Constants;
+const _crypto = require('../utils/crypto').Crypto;
 
 var passport = class Passport
 {
@@ -18,9 +15,12 @@ var passport = class Passport
         return this.key.private;
     }
 
-    async create(createPassportOptions) {
+    async create(password) {
+        if(!password)
+            throw new Error("password not specified.");
+            
         //Generate the passport key
-        var generatedKey = await _crypto.CryptoUtility.generateKey(createPassportOptions.passphrase);
+        var generatedKey = await _crypto.generateKey(password);
     
         this.key = {
             public: generatedKey.public,
@@ -28,35 +28,39 @@ var passport = class Passport
         };
 
         this.id = generatedKey.passportId;
-        this.version = _currentVersion;
-
-        //Include or create a neo key if requested
-        if(createPassportOptions.neoWif || createPassportOptions.createNeoAddress){
-            let wallet = await _neo.NEOUtility.createNeoWallet(createPassportOptions.passphrase, createPassportOptions.neoWif);
-            if(wallet)
-                this.wallets.push(wallet);     
-        }
+        this.version = _constants.passportVersion;
     };
 
-    async open(passportJson, passphrase){
-
+    async open(passportJson, passphrase)
+    {
         if(!this._load(passportJson)){
             throw new Error("Could not open Bridge Passport: Invalid or corrupted file");
         }
 
-        let key;
-        let wif;
-
         try{
-            key = await _crypto.CryptoUtility.decryptPrivateKey(this.key.private, passphrase);
-            wif = await _neo.NEOUtility.getWifFromNep2Key(this.wallets[0].key, passphrase);
+            let key = await _crypto.decryptPrivateKey(this.key.private, passphrase);
         }
         catch(err){
             throw new Error("Invalid passphrase");
         }
 
-        return key && wif;
+        return true;
     };
+
+    getWalletForNetwork(network){
+        if(!network)
+            throw new Error("Network not provided.");
+        if(!this.wallets || this.wallets.length == 0)
+            throw new Error("Wallet not found for " + network);
+
+        for(let i=0; i<this.wallets.length; i++){
+            let wallet = this.wallets[i];
+            if(wallet.network.toLowerCase() === network.toLowerCase())
+                return wallet;
+        }
+
+        return null;
+    }
 
     getClaimsPackagesByType(claimTypeIds){
         let claimPackages = new Array();

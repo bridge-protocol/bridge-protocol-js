@@ -1,11 +1,9 @@
-const _cryptoUtility = require('./crypto');
-const _passportApi = require('../api/passport');
+const _crypto = require('./crypto').Crypto;
 
-var messageUtility = class MessageUtility {
-    constructor(apiBaseUrl, passport, passphrase) {
+var message = class Message {
+    constructor(passport, passphrase) {
         this._passport = passport;
         this._passphrase = passphrase;
-        this._cryptoHelper = _cryptoUtility.CryptoUtility;
     }
 
     async createMessage(payload, publicKey) {
@@ -15,7 +13,7 @@ var messageUtility = class MessageUtility {
 
         //If public key is provided, we are encrypting
         if (publicKey) {
-            payload = await this._cryptoHelper.encryptMessage(JSON.stringify(payload), publicKey, this._passport.privateKey, this._passphrase, true)
+            payload = await _crypto.encryptMessage(JSON.stringify(payload), publicKey, this._passport.privateKey, this._passphrase, true)
         }
 
         let message = {
@@ -33,7 +31,7 @@ var messageUtility = class MessageUtility {
 
         message = await this._decrypt(message);
 
-        let passportId = await this._cryptoHelper.getPassportIdForPublicKey(message.publicKey);
+        let passportId = await _crypto.getPassportIdForPublicKey(message.publicKey);
 
         return {
             passportId,
@@ -52,8 +50,8 @@ var messageUtility = class MessageUtility {
 
         //Message format is always publicKey, payload.  If it's not encrypted, the payload should be json
         //Try and decrypt the payload if it's hex.  If that fails, and it's still hex, let's decode it.
-        if (this._cryptoHelper.isHex(message.payload)) {
-            let decrypted = await this._cryptoHelper.decryptMessage(message.payload, message.publicKey, this._passport.privateKey, this._passphrase);
+        if (_crypto.isHex(message.payload)) {
+            let decrypted = await _crypto.decryptMessage(message.payload, message.publicKey, this._passport.privateKey, this._passphrase);
             message.payload = JSON.parse(decrypted);
         }
 
@@ -71,7 +69,7 @@ var messageUtility = class MessageUtility {
         message = JSON.stringify(message);
 
         if (hex) {
-            message = this._cryptoHelper.hexEncode(message, true);
+            message = _crypto.hexEncode(message, true);
         }
 
         return message;
@@ -83,12 +81,12 @@ var messageUtility = class MessageUtility {
         }
         
         //If we've transmitted with hex only, let's decode it
-        if (this._cryptoHelper.isHex(message))
-            message = this._cryptoHelper.hexDecode(message, true);
+        if (_crypto.isHex(message))
+            message = _crypto.hexDecode(message, true);
 
         //Deserialize to object
         return JSON.parse(message);
     }
 };
 
-exports.MessageUtility = messageUtility;
+exports.Message = message;

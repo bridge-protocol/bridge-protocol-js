@@ -3,10 +3,10 @@ const _messageUtility = require('../utils/message');
 const _cryptoUtility = require('../utils/crypto');
 
 var paymentUtility = class PaymentUtility{
-    constructor(apiBaseUrl, passport, passphrase) {
+    constructor(passport, passphrase) {
         this._passport = passport;
         this._passphrase = passphrase;
-        this._messageHelper = new _messageUtility.MessageUtility(apiBaseUrl, passport, passphrase);
+        this._messageHelper = new _messageUtility.MessageUtility(passport, passphrase);
         this._cryptoHelper = _cryptoUtility.CryptoUtility;
     }
 

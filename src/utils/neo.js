@@ -1,107 +1,80 @@
-const _constants = require('../utils/constants');
+const _constants = require('../utils/constants').Constants;
 const _fetch = require('node-fetch');
 const _neon = require('@cityofzion/neon-js');
-const _crypto = require('./crypto');
-const _neoscanUrl = "https://neoscan.io/api/main_net/v1";
-const _pollInterval = 15000;
-const _pollRetries = 20;
-const _bridgeContractHash = _constants.Constants.bridgeContractHash;
-const _bridgeContractAddress = _constants.Constants.bridgeContractAddress;
-const _bridgeAddress = _constants.Constants.bridgeAddress;
-const _brdgHash = _constants.Constants.brdgHash;
-const _gasHash = _constants.Constants.gasHash;
+const _crypto = require('./crypto').Crypto;
+const _neoscanUrl = _constants.neoscanApiUrl;
+const _pollInterval = _constants.neoscanPollInterval;
+const _pollRetries = _constants.neoscanPollRetries;
+const _bridgeContractHash = _constants.bridgeContractHash;
+const _bridgeContractAddress = _constants.bridgeContractAddress;
+const _brdgHash = _constants.brdgHash;
+const _gasHash = _constants.gasHash;
 
-class NEOUtility {
-    async getWifFromNep2Key(nep2Key, passphrase) {
-        if (!nep2Key) {
-            throw new Error("nep2Key not provided");
-        }
+class NEO {
+    //Wallet management functions
+    async createWallet(passphrase, wif) {
         if (!passphrase) {
             throw new Error("passphrase not provided");
         }
 
-        return await _neon.wallet.decrypt(nep2Key, passphrase);
-    };
-
-    getNeoAccountFromWif(wif) {
-        if (!wif) {
-            throw new Error("wif not provided");
-        }
-
-        return new _neon.wallet.Account(wif);
-    };
-
-    async createNep2Key(passphrase) {
-        if (!passphrase) {
-            throw new Error("passphrase not provided");
-        }
-
-        let privateKey = _neon.wallet.generatePrivateKey();
-        let wif = _neon.wallet.getWIFFromPrivateKey(privateKey);
-        return await _neon.wallet.encrypt(wif, passphrase);
+        let account = new _neon.wallet.Account(wif);
+        return await this._getWalletInfo(account, passphrase);
     }
 
-    async createNep2KeyFromWif(wif, passphrase) {
-        if (!wif) {
-            throw new Error("wif not provided");
-        }
-        if (!passphrase) {
-            throw new Error("passphrase not provided");
-        }
-
-        return await _neon.wallet.encrypt(wif, passphrase);
+    async getWalletFromPrivateKey(wif, password){
+        let account = new _neon.wallet.Account(wif);
+        return await this._getWalletInfo(account, password);
     }
 
-    async createNeoWallet(passphrase, wif) {
-        if (!passphrase) {
-            throw new Error("passphrase not provided");
-        }
-
-        let nep2Key;
-        if (wif) {
-            nep2Key = await this.createNep2KeyFromWif(wif, passphrase);
-        }
-        else {
-            nep2Key = await this.createNep2Key(passphrase);
-        }
-
-        return this.getNeoWallet(nep2Key, passphrase);
+    async getWalletFromEncryptedKey(nep2, password){
+        return this._decryptWallet(nep2, password);
     }
 
-    async getNeoAccountFromNep2Key(nep2Key, passphrase) {
-        if (!nep2Key) {
-            throw new Error("nep2Key not provided");
-        }
-        if (!passphrase) {
-            throw new Error("passphrase not provided");
-        }
-
-        try {
-            let wif = await this.getWifFromNep2Key(nep2Key, passphrase);
-            return this.getNeoAccountFromWif(wif);
-        }
-        catch (error) {
-            console.log(error);
-            return null;
-        }
+    async unlockWallet(walletInfo, password){
+        if(!walletInfo || !walletInfo.key)
+            throw new Error("No key provided to unlock");
+        if(!password)
+            throw new Error("No password provided");
+        
+        walletInfo.wallet = await this._decryptWallet(walletInfo.key, password);
+        return walletInfo;
     }
 
-    async getNeoWallet(nep2Key, passphrase) {
-        if (!nep2Key) {
-            throw new Error("messageText not provided");
-        }
-        if (!passphrase) {
-            throw new Error("passphrase not provided");
-        }
+    async getPrivateKey(walletInfo, password){
+        if(!walletInfo || !walletInfo.key)
+            throw new Error("No key provided to unlock");
+        if(!password)
+            throw new Error("No password provided");
 
-        let account = await this.getNeoAccountFromNep2Key(nep2Key, passphrase);
+        let account = walletInfo.wallet;
+        if(!walletInfo.wallet){
+            account = await this._decryptWallet(walletInfo.key, password);
+        }
+        return account.WIF;
+    }
+
+    async _getWalletInfo(account, password){
+        if (!account)
+            throw new Error("account not provided");
+        if(!password)
+            throw new Error("password not provided");
+
+        let encryptedKey = await _neon.wallet.encrypt(account.WIF, password);
         return {
             network: "NEO",
             address: account.address,
-            key: nep2Key
+            key: encryptedKey
         };
     }
 
+    async _decryptWallet(key, password){
+        let wif = await _neon.wallet.decrypt(key, password);
+        return new _neon.wallet.Account(wif);
+    }
+    //End wallet management functions
+
+
+    //Asset and transaction management functions
     async getGasBalance(address) {
         return new Promise((resolve, reject) => {
             const provider = new _neon.api.neoscan.instance("MainNet");
@@ -147,27 +120,23 @@ class NEOUtility {
         }
         return addressBalances;
     }
+    //End asset and transaction management functions
 
-    async sendPublishAddressTransaction(passport, passphrase, address, wait) {
+    //Smart contract for passport and claims management
+    async publishPassport(walletInfo, passport){
         let neo = this;
         return new Promise(async (resolve, reject) => {
+            if (!walletInfo) {
+                reject("walletInfo not provided");
+            }
             if (!passport) {
                 reject("passport not provided");
-            }
-            if (!passphrase) {
-                reject("passphrase not provided");
-            }
-            if (!passport.publicKey) {
-                reject("passport public key missing");
-            }
-            if (!address) {
-                reject("address not provided");
             }
 
             try {
                 //Create the transaction
-                let publicKeyHash = _crypto.CryptoUtility.getHash(passport.publicKey);
-                let addressScriptHash = this._getAddressScriptHash(address);
+                let publicKeyHash = _crypto.getHash(passport.publicKey);
+                let addressScriptHash = this._getAddressScriptHash(walletInfo.address);
                 let args = [
                     addressScriptHash,
                     passport.id,
@@ -179,14 +148,70 @@ class NEOUtility {
                 //identity = bridge passport id
                 //key = bridge passport public key
                 //provider = the account paying the tokens for the action
-                let tx = await this._createAndSignTransaction(_bridgeContractHash, 'publish', args, passport, passphrase);
+                let tx = await this._createAndSignTransaction(walletInfo, _bridgeContractHash, 'publish', args);
                 console.log(JSON.stringify(tx));
 
                 //Relay the transaction
-                if (wait)
-                    resolve(await this._relayTransactionWaitStatus(tx));
-                else
-                    resolve(this._relayTransaction(tx));
+                resolve(await this._relayTransactionWaitStatus(tx));
+            }
+            catch (err) {
+                reject(err);
+                return;
+            }
+        });
+    }
+
+    async getAddressForPassport(passportId) {
+        let storage = await this._getStorage(_bridgeContractHash, passportId);
+        if (!storage) {
+            console.log("Address not registered.");
+            return null;
+        }
+        var deserialized = this._deserialize(storage);
+        let addresslist = deserialized[1];
+        let address = null;
+        for (var scripthash in addresslist)
+            address = this._getAddressFromScriptHash(addresslist[scripthash]);
+        return address;
+    }
+
+    async getPassportForAddress(address) {
+        let addressScriptHash = this._getAddressScriptHash(address);
+        let storage = await this._getStorage(_bridgeContractHash, addressScriptHash);
+        if (!storage) {
+            console.log("Address not registered.");
+            return null;
+        }
+        return storage;
+    }
+
+    async unpublishPassport(walletInfo, passport){
+        let neo = this;
+        return new Promise(async (resolve, reject) => {
+            if (!walletInfo) {
+                reject("walletInfo not provided");
+            }
+            if (!passport) {
+                reject("passport not provided");
+            }
+
+            try {
+                //Create the transaction
+                let addressScriptHash = this._getAddressScriptHash(walletInfo.address);
+                let args = [
+                    addressScriptHash,
+                    passport.id,
+                    addressScriptHash
+                ];
+                //invoke <contracthash> "revoke" [address, identity, userr]
+                //address = your public neo address being used to sign the invocation / tx
+                //identity = bridge passport id
+                //user = the address to remove
+                let tx = await this._createAndSignTransaction(walletInfo, _bridgeContractHash, 'revoke', args);
+                console.log(JSON.stringify(tx));
+
+                //Relay the transaction
+                resolve(await this._relayTransactionWaitStatus(tx));
             }
             catch (err) {
                 reject(err);
@@ -244,89 +269,6 @@ class NEOUtility {
         });
     }
 
-    async sendAddHashTransaction(hash, passport, passphrase, wait) {
-        let neo = this;
-        return new Promise(async (resolve, reject) => {
-            if (!hash) {
-                reject("hash not provided");
-            }
-            if (!passport) {
-                reject("passport not provided");
-            }
-            if (!passphrase) {
-                reject("passphrase not provided");
-            }
-
-            try {
-                let addressScriptHash = this._getAddressScriptHash(passport.wallets[0].address);
-                let args = [
-                    addressScriptHash,
-                    passport.id,
-                    hash,
-                    addressScriptHash
-                ];
-
-
-                //invoke <contracthash> "addhash" [address, identity, digest, provider]
-                //address = your public neo address being used to sign the invocation / tx
-                //identity = bridge passport id to deposit funds to
-                //digest = SHA256 hash payload
-                //provider = the account paying the tokens for the action
-                let tx = await this._createAndSignTransaction(_bridgeContractHash, 'addhash', args, passport, passphrase);
-
-                //Relay the transaction
-                if (wait)
-                    resolve(await this._relayTransactionWaitStatus(tx));
-                else
-                    resolve(this._relayTransaction(tx));
-            }
-            catch (err) {
-                reject(err);
-                return;
-            }
-        });
-    }
-
-    async sendRemoveHashTransaction(hash, passport, passphrase, wait) {
-        let neo = this;
-        return new Promise(async (resolve, reject) => {
-            if (!hash) {
-                reject("hash not provided");
-            }
-            if (!passport) {
-                reject("passport not provided");
-            }
-            if (!passphrase) {
-                reject("passphrase not provided");
-            }
-
-            try {
-                let addressScriptHash = this._getAddressScriptHash(passport.wallets[0].address);
-                let args = [
-                    addressScriptHash,
-                    passport.id,
-                    hash
-                ];
-
-                //invoke <contracthash> "revokehash" [address, identity, digest]
-                //address = your public neo address being used to sign the invocation / tx
-                //identity = bridge passport id to deposit funds to
-                //digest = SHA256 hash payload
-                let tx = await this._createAndSignTransaction(_bridgeContractHash, 'revokehash', args, passport, passphrase);
-
-                //Relay the transaction
-                if (wait)
-                    resolve(await this._relayTransactionWaitStatus(tx));
-                else
-                    resolve(this._relayTransaction(tx));
-            }
-            catch (err) {
-                reject(err);
-                return;
-            }
-        });
-    }
-
     //Need to get the transaction, send to bridge, then relay
     async getAddClaimTransaction(claim, passport, passphrase, secondaryPassportId, secondaryAddress, hashOnly) {
         let neo = this;
@@ -355,7 +297,7 @@ class NEOUtility {
             //Allow publishing the actual or hash value
             let claimValue = claim.claimValue.toString();
             if(hashOnly)
-                claimValue = _crypto.CryptoUtility.getHash(claimValue);
+                claimValue = _crypto.getHash(claimValue);
 
             //invoke <contracthash> "addclaim" [address, identity, claimtypeid, claimvalue, createdon, provider]
             //address
@@ -370,8 +312,8 @@ class NEOUtility {
                 args: [
                     secondaryAddressScriptHash,
                     secondaryPassportId,
-                    _crypto.CryptoUtility.hexEncode(claim.claimTypeId.toString()),
-                    _crypto.CryptoUtility.hexEncode(claimValue),
+                    _crypto.hexEncode(claim.claimTypeId.toString()),
+                    _crypto.hexEncode(claimValue),
                     claim.createdOn,
                     secondaryAddressScriptHash
                 ]
@@ -495,7 +437,7 @@ class NEOUtility {
                 let args = [
                     addressScriptHash,
                     passport.id,
-                    _crypto.CryptoUtility.hexEncode(claimTypeId.toString())
+                    _crypto.hexEncode(claimTypeId.toString())
                 ];
 
                 //invoke <contracthash> "revokeclaims" [address, identity, claims]
@@ -517,69 +459,9 @@ class NEOUtility {
         });
     }
 
-    async getRegisteredPassportInfo(passportId) {
-        let storage = await this._getStorage(_bridgeContractHash, passportId);
-        if (!storage) {
-            console.log("Address not registered.");
-            return null;
-        }
-
-        var deserialized = this._deserialize(storage);
-        var passport = {
-            passportId,
-            publicKeyHash: deserialized[0],
-            addresses: []
-        };
-
-        // For each NEO address we are going to get the token balance
-        let addresslist = deserialized[1];
-        for (var scripthash in addresslist) {
-            let address = this._getAddressFromScriptHash(addresslist[scripthash]);
-            let balances = await this.getAddressBalances(address);
-            passport.addresses.push({ address, balances })
-        }
-
-        return passport;
-    }
-
-    async getRegisteredAddressInfo(address) {
-        let addressScriptHash = this._getAddressScriptHash(address);
-        let storage = await this._getStorage(_bridgeContractHash, addressScriptHash);
-        if (!storage) {
-            console.log("Address not registered.");
-            return null;
-        }
-
-        if (storage) {
-            let balances = await this.getAddressBalances(address);
-            return {
-                passportId: storage,
-                balances
-            }
-        }
-
-        return null;
-    }
-
-    async getHashForPassport(hash, passportId) {
-        let storageKey = (passportId + '3031' + hash);
-        let storage = await this._getStorage(_bridgeContractHash, storageKey);
-        if (!storage || storage.length == 0)
-            return false;
-
-        return await this._unhexlify(storage);
-    }
-
-    async getHashForAddress(hash, address) {
-        let info = await this.getRegisteredAddressInfo(address);
-        if (!info || !info.passportId)
-            return null;
-
-        return await this.getHashForPassport(hash, info.passportId);
-    }
 
     async getClaimForPassport(claimType, passportId) {
-        claimType = _crypto.CryptoUtility.hexEncode(claimType.toString());
+        claimType = _crypto.hexEncode(claimType.toString());
 
         let storageKey = (passportId + '3032' + claimType);
         let storage = await this._getStorage(_bridgeContractHash, storageKey);
@@ -593,7 +475,7 @@ class NEOUtility {
         return { time, value };
     }
 
-    async getClaimForAddress(claimType, address) {
+    async getClaimForAddress(address, claimType) {
         let info = await this.getRegisteredAddressInfo(address);
         if (!info || !info.passportId)
             return null;
@@ -696,13 +578,74 @@ class NEOUtility {
 
         return await this.verifySpendTransactionFromInfo(info, amount, recipient, identifier);
     }
+    //End smart contract for passport and claims management
 
-    deserializeTransaction(serializedTx){
-        return _neon.tx.Transaction.deserialize(serializedTx);
+
+    async _createAndSignTransaction(walletInfo, scriptHash, operation, args, remark) {
+        if (!walletInfo) {
+            throw new Error("wallet not provided");
+        }
+        if(!walletInfo.wallet){
+            throw new Error("wallet not unlicked");
+        }
+        if (!scriptHash) {
+            throw new Error("scriptHash not provided");
+        }
+        if (!operation) {
+            throw new Error("operation not provided");
+        }
+        if (!args) {
+            throw new Error("args not provided");
+        }
+
+        //Sanitize the scripthash
+        if (scriptHash.startsWith("0x")) {
+            scriptHash = scriptHash.slice(2);
+        }
+
+        //Ensure remark for uniqueness
+        if (!remark) {
+            remark = this._getRandom();
+        }
+
+        // Create a transaction script and parameters
+        let primaryAddress = walletInfo.address;
+        let scriptParams = { scriptHash, operation, args };
+        let transactionParameters = {
+            scriptParams,
+            remark,
+            primaryAddress
+        };
+
+        // Create the transaction
+        let transaction = this._createTransaction(transactionParameters);
+
+        //User signs it
+        transaction.sign(walletInfo.wallet.privateKey);
+
+        console.log(JSON.stringify(transaction));
+
+        //Get the hash
+        let hash = transaction.hash; //_neon.tx.getTransactionHash(transaction);
+        let deserialized = transaction;
+
+        //Serialize
+        transaction = transaction.serialize(); //_neon.tx.serializeTransaction(transaction);
+
+        return { hash, transaction, transactionParameters, deserialized };
     }
 
-    initInvocationTransaction(tx){
-        return tx instanceof _neon.tx.ContractTransaction;
+    async checkTransactionComplete(txid) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                await this._checkTransactionComplete(txid, function (res) {
+                    resolve(res);
+                });
+            }
+            catch (err) {
+                resolve(err);
+            }
+        });
     }
 
     _createTransaction(transactionParameters) {
@@ -717,65 +660,6 @@ class NEOUtility {
         transaction.addAttribute(32, address);
 
         return transaction;
-    }
-
-    async _createAndSignTransaction(scriptHash, operation, args, passport, passphrase, remark) {
-        if (!scriptHash) {
-            throw new Error("scriptHash not provided");
-        }
-        if (!operation) {
-            throw new Error("operation not provided");
-        }
-        if (!args) {
-            throw new Error("args not provided");
-        }
-        if (!passport) {
-            throw new Error("passport not provided");
-        }
-        if (!passphrase) {
-            throw new Error("passphrase not provided");
-        }
-
-        //Sanitize the scripthash
-        if (scriptHash.startsWith("0x")) {
-            scriptHash = scriptHash.slice(2);
-        }
-
-        //The user's address and unlocked wallet for signing
-        let primaryAddress = passport.wallets[0].address;
-        let wallet = await this.getNeoAccountFromNep2Key(passport.wallets[0].key, passphrase);
-        if (!wallet) {
-            throw new Error("could not open wallet for signing");
-        }
-
-        if (!remark) {
-            remark = this._getRandom();
-        }
-
-        // Create a transaction script and parameters
-        let scriptParams = { scriptHash, operation, args };
-        let transactionParameters = {
-            scriptParams,
-            remark,
-            primaryAddress
-        };
-
-        // Create the transaction
-        let transaction = this._createTransaction(transactionParameters);
-
-        //User signs it
-        transaction.sign(wallet.privateKey);
-
-        console.log(JSON.stringify(transaction));
-
-        //Get the hash
-        let hash = transaction.hash; //_neon.tx.getTransactionHash(transaction);
-        let deserialized = transaction;
-
-        //Serialize
-        transaction = transaction.serialize(); //_neon.tx.serializeTransaction(transaction);
-
-        return { hash, transaction, transactionParameters, deserialized };
     }
 
     async _relayTransactionWaitStatus(tx) {
@@ -822,19 +706,6 @@ class NEOUtility {
         }
 
         return null;
-    }
-
-    async checkTransactionComplete(txid) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                await this._checkTransactionComplete(txid, function (res) {
-                    resolve(res);
-                });
-            }
-            catch (err) {
-                resolve(err);
-            }
-        });
     }
 
     async _checkTransactionComplete(txid, callback, count) {
@@ -1145,7 +1016,7 @@ class NEOUtility {
                 };
             }
 
-            let string = _crypto.CryptoUtility.hexDecode(hex);
+            let string = _crypto.hexDecode(hex);
 
             //We have a valid string value, just get it
             let invalidChars = (/[\u0000-\u001F]/.test(string));
@@ -1174,4 +1045,4 @@ class NEOUtility {
     }
 };
 
-exports.NEOUtility = new NEOUtility();
+exports.NEO = new NEO();
