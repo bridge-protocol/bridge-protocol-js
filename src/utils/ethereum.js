@@ -62,31 +62,21 @@ var ethereum = class Ethereum {
         return await this._token.methods.balanceOf(account).call();
     }
 
-    async sendBrdg(wallet, recipient, amount, memo, nonce, wait){
+    async sendBrdg(wallet, recipient, amount, memo, nonce){
         const data = this._token.methods.transferWithMemo(recipient, amount, memo).encodeABI();
-        if(wait)
-            return await this._broadcastTransactionWaitStatus(wallet, this._bridgeTokenContractAddress, data, nonce); 
-        else
-            return await this._broadcastTransaction(wallet, this._bridgeTokenContractAddress, data, nonce);
+        console.log("Creating BRDG-ERC20.sendBrdg transaction");
+        return await this._broadcastTransaction(wallet, this._bridgeTokenContractAddress, data, nonce);
     }
 
-    
     async verifyTransactionMemo(hash, memo){
-        let res = await this._getTransactionInfo(hash);
-        if(!res)
+        let info = await this._getTransactionInfo(hash);
+        if(!info)
             return false;
 
-        for(let i=0; i<res.logs.length; i++){
-            let log = res.logs[i];
-            if(log.topics[0] == "0xb0734c6ca9ae9b7406dd80224cb0488aed0928eef358da7449505fa59b8d7a2a"){
-                return this._web3.utils.hexToUtf8(log.data).includes(memo);
-            }
-        }
-        
-        return false;
+        return this._verifyTransactionLogMemo(info, memo);
     }
 
-    async approvePublishClaim(wallet, account, claimType, claimDate, claimValue, nonce, wait){
+    async approvePublishClaim(wallet, account, claimType, claimDate, claimValue, nonce){
         if(!claimType)
             throw new Error("Claim type is required.");
         if(!claimValue)
@@ -95,14 +85,11 @@ var ethereum = class Ethereum {
             throw new Error("Date must be an integer");
 
         const data = this._contract.methods.approvePublishClaim(account, claimType, claimDate, claimValue).encodeABI();
-
-        if(wait)
-            return await this._broadcastTransactionWaitStatus(wallet, this._bridgeContractAddress, data, nonce);
-        else
-            return await this._broadcastTransaction(wallet, this._bridgeContractAddress, data, nonce);
+        console.log("Creating BridgeProtocol.approvePublishClaim transaction");
+        return await this._broadcastTransaction(wallet, this._bridgeContractAddress, data, nonce);
     }
 
-    async publishClaim(wallet, claimType, claimDate, claimValue, nonce, wait){
+    async publishClaim(wallet, claimType, claimDate, claimValue, nonce){
         if(!claimType)
             throw new Error("Claim type is required.");
         if(!claimValue)
@@ -111,37 +98,29 @@ var ethereum = class Ethereum {
             throw new Error("Date must be an integer");
 
         const data = this._contract.methods.publishClaim(claimType, claimDate, claimValue).encodeABI();
-        if(wait)
-            return await this._broadcastTransactionWaitStatus(wallet, this._bridgeContractAddress, data, nonce);
-        else
-            return await this._broadcastTransaction(wallet, this._bridgeContractAddress, data, nonce);
+        console.log("Creating BridgeProtocol.publishClaim transaction");
+        return await this._broadcastTransaction(wallet, this._bridgeContractAddress, data, nonce);
     }
 
-    async removeClaim(wallet, claimType, nonce, wait){
+    async removeClaim(wallet, claimType, nonce){
         if(!claimType)
             throw new Error("Claim type is required.");
 
         const data = this._contract.methods.removeClaim(claimType).encodeABI();
-        if(wait)
-            return await this._broadcastTransactionWaitStatus(wallet, this._bridgeContractAddress, data, nonce);
-        else
-            return await this._broadcastTransaction(wallet, this._bridgeContractAddress, data, nonce);
+        console.log("Creating BridgeProtocol.removeClaim transaction");
+        return await this._broadcastTransaction(wallet, this._bridgeContractAddress, data, nonce);
     }
 
-    async publishPassport(wallet, passport, nonce, wait){
+    async publishPassport(wallet, passport, nonce){
         const data = this._contract.methods.publishPassport(passport).encodeABI();
-        if(wait)
-            return await this._broadcastTransactionWaitStatus(wallet, this._bridgeContractAddress, data, nonce);
-        else
-            return await this._broadcastTransaction(wallet, this._bridgeContractAddress, data, nonce);
+        console.log("Creating BridgeProtocol.publishPassport transaction");
+        return await this._broadcastTransaction(wallet, this._bridgeContractAddress, data, nonce);
     }
 
-    async unpublishPassport(wallet, nonce, wait){
+    async unpublishPassport(wallet, nonce){
         const data = this._contract.methods.unpublishPassport().encodeABI();
-        if(wait)
-            return await this._broadcastTransactionWaitStatus(wallet, this._bridgeContractAddress, data, nonce);
-        else
-            return await this._broadcastTransaction(wallet, this._bridgeContractAddress, data, nonce);
+        console.log("Creating BridgeProtocol.unpublishPassport transaction");
+        return await this._broadcastTransaction(wallet, this._bridgeContractAddress, data, nonce);
     }
 
     async getClaimForAddress(account, claimType){
@@ -177,64 +156,20 @@ var ethereum = class Ethereum {
         });
     };
 
-    async checkTransactionSuccess(hash){
-        let res = await this._getTransactionStatus(hash);
-        if(res && res.status)
-            return res.status;
-
-        return null;
-    }
-
-    async _broadcastTransactionWaitStatus(wallet, contract, data, nonce) {
-        let eth = this;
-        return new Promise(async (resolve, reject) => {
-            eth._broadcastTransaction(wallet, contract, data, nonce)
-                .then(async res => {
-                    eth._checkTransactionComplete(res.hash, function (info) {
-                        resolve({ hash: res.hash, nonce: res.nonce, info });
-                    });
-                })
-                .catch(err => {
-                    reject(err);
-                });
-        });
-    }
-
-    async _checkTransactionComplete(hash, callback, count) {
-        let eth = this;
-
-        if (!count)
-            count = 0;
-
-        if (count >= _pollRetries) {
-            console.log("Retry count exceeded.");
-            callback(null);
-        }
-
-        if (count == 0) {
-            console.log("Waiting for completion.");
-        }
-
-        count++;
-        setTimeout(async function () {
-            console.log("Checking transaction complete for " + hash + " (" + count + ")");
-            let res = await eth._getTransactionInfo(hash);
-            if(res)
-            {
-                console.log("Transaction found and complete");
-                callback(res);
-            }  
-            else
-            {
-                console.log("Transaction not found or not complete, waiting and retrying...");
-                await eth._checkTransactionComplete(hash, callback, count);
-            }      
-        }, _pollInterval);
-    }
-
     async _getTransactionInfo(hash){
         return await this._web3.eth.getTransactionReceipt(hash);
     }
+
+    async _verifyTransactionLogMemo(info, memo){
+        for(let i=0; i<info.logs.length; i++){
+            let log = info.logs[i];
+            if(log.topics[0] == "0xb0734c6ca9ae9b7406dd80224cb0488aed0928eef358da7449505fa59b8d7a2a"){
+                return this._web3.utils.hexToUtf8(log.data).includes(memo);
+            }
+        }
+
+        return false;
+    };
 
     async _broadcastTransaction(wallet, contract, data, nonce){
         if(!wallet.wallet)
@@ -248,6 +183,7 @@ var ethereum = class Ethereum {
 
         let address = wallet.wallet.getAddressString();
         let privateKey = wallet.wallet.getPrivateKey();
+
         return new Promise((resolve,reject) => {
             this._web3.eth.getTransactionCount(address, (err, txCount) => {
                 if(!nonce || txCount > nonce)
@@ -270,12 +206,16 @@ var ethereum = class Ethereum {
                 const raw = "0x" + serializedTx.toString("hex");
                 
                 // Broadcast the transaction
-                this._web3.eth.sendSignedTransaction(raw, (err, hash) => {
-                    if(err)
-                        reject(err);
-
-                    resolve({ hash, nonce });
-                });
+                this._web3.eth.sendSignedTransaction(raw)
+                    .on('transactionHash',(hash) => console.log("Transaction " + hash + " sent.  Waiting for completion."))
+                    .on('receipt', (info) => {
+                        console.log("Transaction confirmed.");
+                        resolve(info);
+                    })
+                    .catch((err) => { 
+                        console.log(err); 
+                        resolve(null); 
+                    });
             });
         });
     }
