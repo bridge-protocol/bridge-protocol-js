@@ -16,6 +16,9 @@ class Constants {
         this.bridgeEthereumContractAddress = "0x1D1F756dE9aCea82BFb61d84B14Aa01215B8F1c0";
         this.bridgeEthereumERC20Address = "0x9DDf7f5475A15fFC3FBD3906060BE0C0A47180d0";
         this.bridgeEthereumChain = "rinkeby";
+        this.jsonRpcUrl = "https://rinkeby.infura.io/v3/abb847143b1346b7bff7277bdf8d160f";
+        this.etherscanUrl = "https://rinkeby.etherscan.io";
+        this.etherscanApiUrl = "http://api-rinkeby.etherscan.io/api?apikey=WTPNVNH25I8GWVXJMFHRYDJ8BCSAS18FRF";
     }
 
     getPartners() {

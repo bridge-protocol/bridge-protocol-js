@@ -1,5 +1,6 @@
 const _constants = require('../utils/constants');
 const Web3 = require("web3");
+const _fetch = require('node-fetch');
 const _tx = require("ethereumjs-tx");
 const _wallet = require("ethereumjs-wallet");
 const _util = require("ethereumjs-util");
@@ -11,8 +12,10 @@ const _gasLimit = 2100000;
 const _gasPriceGwei = 6;
 
 var ethereum = class Ethereum {
-    constructor(rpcUrl) {
-        this._rpcUrl = rpcUrl;
+    constructor(jsonRpcUrl, etherscanApiUrl, etherscanUrl) {
+        this._rpcUrl = jsonRpcUrl;
+        this._etherscanApiUrl = etherscanApiUrl;
+        this._etherscanUrl = etherscanUrl;
         this._web3 = new Web3(new Web3.providers.HttpProvider(this._rpcUrl));
         this._bridgeContractAddress = _constants.Constants.bridgeEthereumContractAddress;
         this._bridgeTokenContractAddress = _constants.Constants.bridgeEthereumERC20Address;
@@ -41,25 +44,58 @@ var ethereum = class Ethereum {
         walletInfo.wallet = _wallet.fromV3(walletInfo.key, password);
     }
 
-    _getWalletKeystore(wallet, password){
-        return wallet.toV3(password);
-    }
+    getPrivateKey(walletInfo){
+        if(!walletInfo.wallet){
+            throw new Error("Wallet is not unlocked.");
+        }
 
-    _getWalletInfo(wallet, password){
-        return {
-            network: "ETH",
-            address: wallet.getAddressString(),
-            key: this._getWalletKeystore(wallet, password)
-        };
+        return walletInfo.wallet.getPrivateKeyString();
     }
 
     async getEthBalance(address) {
-        let balance = await this._web3.eth.getBalance(address);
-        return this._web3.utils.fromWei(balance,"ether");
+        console.log("Retrieving ETH balance");
+        let res = await this._callEtherscan("&module=account&action=balance&address=" + address + "&tag=latest");
+        if(!res || res.status != "1"){
+            console.log("Error getting balance.");
+            return 0;
+        }
+
+        return this._web3.utils.fromWei(res.result,"ether");
     };
 
-    async getBrdgBalance(account){
-        return await this._token.methods.balanceOf(account).call();
+    async getBrdgBalance(address){
+        console.log("Retrieving BRDG balance")
+        let res = await this._callEtherscan("&module=account&action=tokenbalance&contractaddress=" + this._bridgeTokenContractAddress + "&address=" + address + "&tag=latest");
+        if(!res || res.status != "1"){
+            console.log("Error getting balance.");
+            return 0;
+        }
+
+        return res.result;
+    }
+
+    async getBrdgTransactions(address){
+        console.log("Retrieving transactions");
+        let res = await this._callEtherscan("&module=account&action=tokentx&contractaddress=" + this._bridgeTokenContractAddress + "&address=" + address + "&startblock=0&endblock=999999999&sort=desc");
+        if(!res || res.status != "1"){
+            console.log("Error getting transactions.");
+            return null;
+        }
+
+        let txs = [];
+        for(let i=0; i<res.result.length; i++){
+            let tx = res.result[i];
+            txs.push({
+                hash: tx.hash,
+                timeStamp: tx.timeStamp,
+                amount: tx.value,
+                from: tx.from,
+                to: tx.to,
+                url: this._etherscanUrl + "/tx/" + tx.hash
+            });
+        }
+            
+        return txs;
     }
 
     async sendBrdg(wallet, recipient, amount, memo, nonce){
@@ -69,9 +105,12 @@ var ethereum = class Ethereum {
     }
 
     async verifyTransferWithMemoTransaction(hash, from, to, amount, memo){
+        console.log("Retrieving transaction info for " + hash);
         let info = await this._getTransactionInfo(hash);
-        if(!info)
+        if(!info){
+            console.log("Unable to retrieve transaction info for " + hash);
             return false;
+        }
 
         return this._verifyTransferWithMemoTransaction(info, from, to, amount, memo);
     }
@@ -97,8 +136,8 @@ var ethereum = class Ethereum {
         if(!Number.isInteger(claimDate) || claimDate <= 0)
             throw new Error("Date must be an integer");
 
-        const data = this._contract.methods.publishClaim(claimType, claimDate, claimValue).encodeABI();
         console.log("Creating BridgeProtocol.publishClaim transaction");
+        const data = this._contract.methods.publishClaim(claimType, claimDate, claimValue).encodeABI();
         return await this._broadcastTransaction(wallet, this._bridgeContractAddress, data, nonce);
     }
 
@@ -106,24 +145,25 @@ var ethereum = class Ethereum {
         if(!claimType)
             throw new Error("Claim type is required.");
 
-        const data = this._contract.methods.removeClaim(claimType).encodeABI();
         console.log("Creating BridgeProtocol.removeClaim transaction");
+        const data = this._contract.methods.removeClaim(claimType).encodeABI();
         return await this._broadcastTransaction(wallet, this._bridgeContractAddress, data, nonce);
     }
 
     async publishPassport(wallet, passport, nonce){
-        const data = this._contract.methods.publishPassport(passport).encodeABI();
         console.log("Creating BridgeProtocol.publishPassport transaction");
+        const data = this._contract.methods.publishPassport(passport).encodeABI();
         return await this._broadcastTransaction(wallet, this._bridgeContractAddress, data, nonce);
     }
 
     async unpublishPassport(wallet, nonce){
-        const data = this._contract.methods.unpublishPassport().encodeABI();
         console.log("Creating BridgeProtocol.unpublishPassport transaction");
+        const data = this._contract.methods.unpublishPassport().encodeABI();
         return await this._broadcastTransaction(wallet, this._bridgeContractAddress, data, nonce);
     }
 
     async getClaimForAddress(account, claimType){
+        console.log("Calling BridgeProtocol.getClaim");
         let res = await this._contract.methods.getClaim(account, claimType.toString()).call();
         if(res.length == 0)
             return null;
@@ -141,14 +181,17 @@ var ethereum = class Ethereum {
     };
 
     async getPassportForAddress(account){
+        console.log("Calling BridgeProtocol.getPassportForAddress");
         return await this._contract.methods.getPassportForAddress(account).call();
     }
 
     async getAddressForPassport(passport){
+        console.log("Calling BridgeProtocol.getAddressForPassport");
         return await this._contract.methods.getAddressForPassport(passport).call();
     }
 
     async checkConnected(){
+        console.log("Checking JSON RPC connection");
         return new Promise(async (resolve, reject) => {
             this._web3.eth.net.isListening()
             .then(() => resolve(true))
@@ -156,11 +199,24 @@ var ethereum = class Ethereum {
         });
     };
 
+    _getWalletKeystore(wallet, password){
+        return wallet.toV3(password);
+    }
+
+    _getWalletInfo(wallet, password){
+        return {
+            network: "ETH",
+            address: wallet.getAddressString(),
+            key: this._getWalletKeystore(wallet, password)
+        };
+    }
+
     async _getTransactionInfo(hash){
         return await this._web3.eth.getTransactionReceipt(hash);
     }
 
     async _verifyTransferWithMemoTransaction(info, from, to, amount, memo){
+        console.log("Verifying BRDG-ERC20.transferWithMemo transaction");
         let senderValid = false;
         let recipientValid = false;
         let amountValid = false;
@@ -244,6 +300,37 @@ var ethereum = class Ethereum {
                     });
             });
         });
+    }
+
+    async _callEtherscan(params) {
+        let options = {
+            method: 'GET'
+        };
+
+        let url = this._etherscanApiUrl + params;
+        const response = await _fetch(url, options);
+
+        if (response.ok) {
+            let text = await response.text();
+            if (text.length > 0)
+                return JSON.parse(text);
+            else
+                return true;
+        }
+        else {
+            var error = response.statusText;
+            let text = await response.text();
+            if (text) {
+                var res = JSON.parse(text);
+                if (res && res.message)
+                    error = res.message;
+            }
+            else
+                text = response.statusText;
+
+            console.log(error);
+            return {};
+        }
     }
 };
 
