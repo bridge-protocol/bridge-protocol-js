@@ -194,12 +194,7 @@ var ethereum = class Ethereum {
             startIdx = 0;
 
         let bytes = this._web3.utils.hexToBytes(hex);
-        let b = [];
-        for(let i=startIdx; i<bytes.length; i++){
-            b.push(bytes[i]);
-        }
-
-        return this._web3.utils.bytesToHex(b);
+        return this._web3.utils.bytesToHex(bytes.slice(startIdx,bytes.length));
     }
 
     async _broadcastTransaction(wallet, contract, data, nonce){
