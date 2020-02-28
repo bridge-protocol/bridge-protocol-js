@@ -1,7 +1,7 @@
+const _constants = require('../utils/constants').Constants;
 const _neo = require('../utils/neo').NEO;
 const _eth = require('../utils/ethereum').Ethereum;
 const _neoApi = require('../api/neo');
-const _constants = require('../utils/constants').Constants;
 
 var blockchain = class Blockchain {
     constructor(passport, passphrase) {
@@ -10,20 +10,19 @@ var blockchain = class Blockchain {
         this._neoService = new _neoApi.NEOApi(passport, passphrase);
     }
 
-    async getPrivateKey(network) {
-        if (!network) {
-            throw new Error("network not provided for publish.");
+    async getPrivateKey(walletInfo) {
+        if (!walletInfo) {
+            throw new Error("walletInfo not provided");
         }
 
-        let walletInfo = this._passport.getWalletForNetwork(network);
         if(!walletInfo.wallet)
             throw new Error("Wallet not unlocked");
         
-        if (network.toLowerCase() == "neo") {
+        if (walletInfo.network.toLowerCase() == "neo") {
             return await _neo.getPrivateKey(walletInfo, this._passphrase);
         }
-        else if(network.toLowerCase() == "eth"){
-            return _ethereum.getPrivateKey(walletInfo, this._passphrase);
+        else if(walletInfo.network.toLowerCase() == "eth"){
+            return _eth.getPrivateKey(walletInfo, this._passphrase);
         }
         return null;
     }
@@ -79,10 +78,10 @@ var blockchain = class Blockchain {
         if(!walletInfo.wallet)
             throw new Error("Wallet not unlocked");
 
-        if(network.toLowerCase() === "neo"){
+        if(walletInfo.network.toLowerCase() === "neo"){
             return await _neo.unpublishPassport(walletInfo, this._passport);
         }
-        else if(network.toLowerCase() === "eth"){
+        else if(walletInfo.network.toLowerCase() === "eth"){
             return await _eth.unpublishPassport(walletInfo);
         }
     }

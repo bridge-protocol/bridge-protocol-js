@@ -20,20 +20,16 @@ const _token = new _web3.eth.Contract(_tokenAbi, _bridgeTokenContractAddress);
 
 class Ethereum {
     //Wallet Management Functions
-    createWallet(password, privateKey){
+    createWallet(password, privateKeyString){
         let wallet;
         
-        if(!privateKey)
+        if(!privateKeyString)
             wallet = _wallet.generate();
-        else
-            wallet = this.getWalletFromPrivateKey(privateKey);
+        else{
+            const privateKeyBuffer = _util.toBuffer(privateKeyString);
+            wallet = _wallet.fromPrivateKey(privateKeyBuffer);
+        }
 
-        return this._getWalletInfo(wallet, password);
-    }
-
-    getWalletFromPrivateKey(privateKeyString, password){
-        const privateKeyBuffer = _util.toBuffer(privateKeyString);
-        let wallet = _wallet.fromPrivateKey(privateKeyBuffer);
         return this._getWalletInfo(wallet, password);
     }
 
@@ -92,7 +88,6 @@ class Ethereum {
     }
 
     async getEthBalance(address) {
-        console.log("Retrieving ETH balance");
         let res = await this._callEtherscan("&module=account&action=balance&address=" + address + "&tag=latest");
         if(!res || res.status != "1"){
             console.log("Error getting balance.");
@@ -103,7 +98,6 @@ class Ethereum {
     };
 
     async getBrdgBalance(address){
-        console.log("Retrieving BRDG balance")
         let res = await this._callEtherscan("&module=account&action=tokenbalance&contractaddress=" + _bridgeTokenContractAddress + "&address=" + address + "&tag=latest");
         if(!res || res.status != "1"){
             console.log("Error getting balance.");
@@ -114,7 +108,6 @@ class Ethereum {
     }
 
     async getBrdgTransactions(address){
-        console.log("Retrieving transactions");
         let res = await this._callEtherscan("&module=account&action=tokentx&contractaddress=" + _bridgeTokenContractAddress + "&address=" + address + "&startblock=0&endblock=999999999&sort=desc");
         if(!res || res.status != "1"){
             console.log("Error getting transactions.");
@@ -139,12 +132,10 @@ class Ethereum {
 
     async sendBrdg(wallet, recipient, amount, memo, nonce){
         const data = _token.methods.transferWithMemo(recipient, amount, memo).encodeABI();
-        console.log("Creating BRDG-ERC20.sendBrdg transaction");
         return await this._broadcastTransaction(wallet, _bridgeTokenContractAddress, data, nonce);
     }
 
     async verifyTransferWithMemoTransaction(hash, from, to, amount, memo){
-        console.log("Retrieving transaction info for " + hash);
         let info = await this._getTransactionInfo(hash);
         if(!info){
             console.log("Unable to retrieve transaction info for " + hash);
@@ -155,7 +146,6 @@ class Ethereum {
     }
 
     async _verifyTransferWithMemoTransaction(info, from, to, amount, memo){
-        console.log("Verifying BRDG-ERC20.transferWithMemo transaction");
         let senderValid = false;
         let recipientValid = false;
         let amountValid = false;
@@ -195,7 +185,6 @@ class Ethereum {
             throw new Error("Date must be an integer");
 
         const data = _contract.methods.approvePublishClaim(account, claimType, claimDate, claimValue).encodeABI();
-        console.log("Creating BridgeProtocol.approvePublishClaim transaction");
         return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, nonce);
     }
 
@@ -207,7 +196,6 @@ class Ethereum {
         if(!Number.isInteger(claimDate) || claimDate <= 0)
             throw new Error("Date must be an integer");
 
-        console.log("Creating BridgeProtocol.publishClaim transaction");
         const data = _contract.methods.publishClaim(claimType, claimDate, claimValue).encodeABI();
         return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, nonce);
     }
@@ -216,36 +204,30 @@ class Ethereum {
         if(!claimType)
             throw new Error("Claim type is required.");
 
-        console.log("Creating BridgeProtocol.removeClaim transaction");
         const data = _contract.methods.removeClaim(claimType).encodeABI();
         return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, nonce);
     }
 
     async publishPassport(walletInfo, passport, nonce){
-        console.log("Creating BridgeProtocol.publishPassport transaction");
         const data = _contract.methods.publishPassport(passport).encodeABI();
         return await this._broadcastTransaction(walletInfo, _bridgeContractAddress, data, nonce);
     }
 
     async getPassportForAddress(address){
-        console.log("Calling BridgeProtocol.getPassportForAddress");
         let account = address;
         return await _contract.methods.getPassportForAddress(account).call();
     }
 
     async getAddressForPassport(passport){
-        console.log("Calling BridgeProtocol.getAddressForPassport");
         return await _contract.methods.getAddressForPassport(passport).call();
     }
 
     async unpublishPassport(wallet, nonce){
-        console.log("Creating BridgeProtocol.unpublishPassport transaction");
         const data = _contract.methods.unpublishPassport().encodeABI();
         return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, nonce);
     }
 
     async getClaimForAddress(address, claimType){
-        console.log("Calling BridgeProtocol.getClaim");
         let account = address;
         let res = await _contract.methods.getClaim(account, claimType.toString()).call();
         if(res.length == 0)
@@ -265,7 +247,6 @@ class Ethereum {
     //End smart contract for passport and claims management
 
     async checkConnected(){
-        console.log("Checking JSON RPC connection");
         return new Promise(async (resolve, reject) => {
             _web3.eth.net.isListening()
             .then(() => resolve(true))
