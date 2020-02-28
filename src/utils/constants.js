@@ -14,6 +14,7 @@ class Constants {
         this.partners = this.getPartners();
         this.claimTypes = this.getClaimTypes();
         this.profileTypes = this.getProfileTypes();
+        this.neoscanUrl = "https://neoscan.io/";
         this.neoscanApiUrl = "https://neoscan.io/api/main_net/v1";
         this.neoscanPollInterval = 15000;
         this.neoscanPollRetries = 20;

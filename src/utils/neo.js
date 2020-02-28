@@ -2,7 +2,8 @@ const _constants = require('../utils/constants').Constants;
 const _fetch = require('node-fetch');
 const _neon = require('@cityofzion/neon-js');
 const _crypto = require('./crypto').Crypto;
-const _neoscanUrl = _constants.neoscanApiUrl;
+const _neoscanUrl = _constants.neoscanUrl;
+const _neoscanApiUrl = _constants.neoscanApiUrl;
 const _pollInterval = _constants.neoscanPollInterval;
 const _pollRetries = _constants.neoscanPollRetries;
 const _bridgeContractHash = _constants.bridgeContractHash;
@@ -76,7 +77,25 @@ class NEO {
 
     //Asset and transaction management functions
     async getLatestAddressTransactions(address) {
-        return await this._callNeoscan("get_address_abstracts", address + "/1");
+        let res = await this._callNeoscan("get_address_abstracts", address + "/1");
+        if(!res || !res.entries || res.entries.length == 0)
+            return null;
+
+        let transactions = [];
+        res.entries.forEach((tx) => {
+            if(tx.asset === _brdgHash.replace("0x","")){
+                transactions.push({
+                    hash: tx.txid,
+                    timmeStamp: tx.time,
+                    amount: tx.amount,
+                    from: tx.address_from,
+                    to: tx.address_to,
+                    url: _neoscanUrl + "transaction/" + tx.txid
+                });
+            }
+        });
+
+        return transactions;
     }
 
     async getAddressBalances(address) {
@@ -874,7 +893,7 @@ class NEO {
             method: 'GET'
         };
 
-        let url = _neoscanUrl + "/" + endpoint + "/" + param;
+        let url = _neoscanApiUrl + "/" + endpoint + "/" + param;
         const response = await _fetch(url, options);
 
         if (response.ok) {

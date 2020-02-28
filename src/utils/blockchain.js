@@ -96,20 +96,8 @@ var blockchain = class Blockchain {
     }
 
     async getRecentTransactions(network, address) {
-        //TODO: Normalize the output
         if (network.toLowerCase() === "neo") {
-            let tx = [];
-            let res = await _neo.getLatestAddressTransactions(address);
-            if (!res)
-                return null;
-                
-            for (let i = 0; i < res.entries.length; i++) {
-                if (res.entries[i].asset == _constants.brdgHash.replace("0x", "")) {
-                    tx.push(res.entries[i]);
-                }
-            }
-
-            return tx;
+            return await _neo.getLatestAddressTransactions(address);
         }
         else if(network.toLowerCase() === "eth"){
             return await _eth.getBrdgTransactions(address);
@@ -144,6 +132,9 @@ var blockchain = class Blockchain {
                 console.log("Payment successful");
                 return verifyRes.txid;
             }
+        }
+        else if(network.toLowerCase() === "eth"){
+            _eth.sendBrdg(wallet, recipient, amount, paymentIdentifier);
         }
 
         return null;
