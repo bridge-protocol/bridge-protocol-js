@@ -1,36 +1,40 @@
 const _crypto = require('./crypto').Crypto;
 
-var message = class Message {
-    constructor(passport, passphrase) {
-        this._passport = passport;
-        this._passphrase = passphrase;
+class Message {
+    async createEncryptedMessage(payload, targetPublicKey, passportPrivateKey, passportPublicKey, password) {
+        if(!payload)
+            throw new Error("payload not provided");
+        if(!targetPublicKey)
+            throw new Error("target public key not provided");
+        if(!passportPrivateKey)
+            throw new Errorr("passport private key not provided");
+        if(!passportPublicKey)
+            throw new Error("passport public key not provided");
+        if(!password)
+            throw new Error("password not provided");
+
+        payload = await _crypto.encryptMessage(JSON.stringify(payload), targetPublicKey, passportPrivateKey, password, true)
+        return this.createMessage(payload, passportPublicKey);
     }
 
-    async createMessage(payload, publicKey) {
-        if(!payload){
+    async createMessage(payload, passportPublicKey){
+        if(!payload)
             throw new Error("payload not provided");
-        }
-
-        //If public key is provided, we are encrypting
-        if (publicKey) {
-            payload = await _crypto.encryptMessage(JSON.stringify(payload), publicKey, this._passport.privateKey, this._passphrase, true)
-        }
+        if(!passportPublicKey)
+            throw new Error("passport public key not provided");
 
         let message = {
             payload: payload,
-            publicKey: this._passport.publicKey
+            publicKey: passportPublicKey
         };
-
         return this._serialize(message, true);
     }
 
     async decryptMessage(message) {
-        if(!message){
+        if(!message)
             throw new Error("message not provided");
-        }
 
         message = await this._decrypt(message);
-
         let passportId = await _crypto.getPassportIdForPublicKey(message.publicKey);
 
         return {
@@ -89,4 +93,4 @@ var message = class Message {
     }
 };
 
-exports.Message = message;
+exports.Message = new Message();

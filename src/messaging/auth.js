@@ -1,13 +1,11 @@
 const _crypto = require('../utils/crypto').Crypto;
-const _claim = require('../utils/claim');
-const _message = require('../utils/message');
+const _message = require('../utils/message').Message;
+const _claim = require('../models/claim');
 
 var auth = class Auth{
     constructor(passport, passphrase) {
         this._passport = passport;
         this._passphrase = passphrase;
-        this._claim = new _claim.Claim(passport, passphrase);
-        this._message = new _message.Message(passport, passphrase);
     }
 
     async createPassportLoginChallengeRequest(token, claimTypes) {
@@ -20,7 +18,7 @@ var auth = class Auth{
             claimTypes
         };
 
-        return await this._message.createMessage(payload);
+        return await _message.createMessage(payload, this._passport.publicKey);
     }
 
     async verifyPassportLoginChallengeRequest(message) {
@@ -28,12 +26,12 @@ var auth = class Auth{
             throw new Error("message not provided");
         }
 
-        message = await this._message.decryptMessage(message);
+        message = await _message.decryptMessage(message);
         message.payload.token = await _crypto.verifySignedMessage(message.payload.token, message.publicKey);
         return message;
     }
 
-    async createPassportLoginChallengeResponse(token, claims, publicKey) {
+    async createPassportLoginChallengeResponse(token, claims, publicKey, networks) {
         if(!token){
             throw new Error("token not provided");
         }
@@ -41,13 +39,16 @@ var auth = class Auth{
             throw new Error("publicKey not provided");
         }
 
+        //Get the blockchain addresses to be included
         let blockchainAddresses = [];
-        for(let i=0; i<this._passport.wallets.length; i++){
-            let wallet = this._passport.wallets[i];
-            blockchainAddresses.push({
-                network: wallet.network,
-                address: wallet.address
-            });
+        for(var network in networks){
+            let wallet = this._passport.getWalletForNetwork(network);
+            if(wallet){
+                blockchainAddresses.push({
+                    network: wallet.network,
+                    address: wallet.address
+                });
+            }
         }
 
         var payload = {
@@ -76,18 +77,18 @@ var auth = class Auth{
             throw new Error("Invalid response.  Request and response passports cannot be the same.");
         }
 
-        if(!res.payload.claims){
+        if(!res.payload.claims)
             res.payload.claims = new Array();
-        }
 
         //We want to go through and only include claims that have verified signatures
         let verifiedClaims = new Array();
-        for (let i = 0; i < res.payload.claims.length; i++) {
+        for(var c in res.payload.claims){
             try{
-                let verifiedSignature = await this._claim.verifyClaimSignature(res.payload.claims[i], res.passportId);
-                if (verifiedSignature) {
-                    res.payload.claims[i].signedById = await _crypto.getPassportIdForPublicKey(res.payload.claims[i].signedByKey);
-                    verifiedClaims.push(res.payload.claims[i]);
+                let claim = new _claim.Claim(c);
+                let passportId = res.passportId;
+                if (claim.verifySignature(passportId)) {
+                    claim.signedById = await _crypto.getPassportIdForPublicKey(claim.signedByKey);
+                    verifiedClaims.push(claim);
                 }
                 else{
                     console.log("Claim signature invalid, skipping.");
@@ -101,7 +102,7 @@ var auth = class Auth{
         return{
             loginResponse: {
                 tokenVerified:  res.payload.token === verifyToken,
-                missingClaimTypes: await this.getMissingRequiredClaimTypes(claimTypeIds, verifiedClaims),
+                missingClaimTypes: await this._getMissingRequiredClaimTypes(claimTypeIds, verifiedClaims),
                 claims: verifiedClaims,
                 passportId: res.passportId,
                 publicKey: res.publicKey,
@@ -110,25 +111,27 @@ var auth = class Auth{
         }
     }
 
-    async getMissingRequiredClaimTypes(claimTypeIds, claims){
+    async _getMissingRequiredClaimTypes(claimTypeIds, claims){
         let missingClaimTypeIds = new Array();
-        let claimTypes = new Array();
-        
-        if(claimTypeIds){
-            for(let i=0; i<claimTypeIds.length; i++){
-                claimTypes.push(claimTypeIds[i]);
+
+        if(claimTypeIds && claimTypeIds.length > 0){
+            for(var claimTypeId in claimTypeIds){
+                if(!this._checkClaimTypeExists(claimTypeId,claims)){
+                    missingClaimTypeIds.push(claimTypesId);
+                }
             }
         }
 
-        for(let i=0; i<claimTypes.length; i++){
-            let claimTypeId = claimTypes[i];
-            if(!this._claim.checkClaimTypeExists(claimTypeId,claims)){
-                missingClaimTypeIds.push(claimTypes[i]);
-            }   
-        }
-
         return missingClaimTypeIds;
-    }    
+    }
+
+    async _checkClaimTypeExists(claimTypeId,claimPackages){
+        for(var claimPackage in claimPackages){
+            if(claimPackage.typeId === claimTypeId || claimPackage.claimTypeId === claimTypeId)
+                return true;
+        }
+        return false;
+    }
 };
 
 exports.Auth = auth;

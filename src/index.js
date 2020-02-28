@@ -1,22 +1,17 @@
-const _constants = require('./utils/constants');
-exports.Constants = _constants.Constants;
-
-const _crypto = require('./utils/crypto');
-exports.Crypto = _crypto.Crypto;
-
-const _passport = require('./utils/passport');
-exports.Passport = _passport.Passport;
-
-const _payment = require("./utils/payment");
-exports.Payment = _payment.Payment;
-
-const _claim = require('./utils/claim');
-exports.Claim = _claim.Claim;
-
-const _auth = require('./utils/auth');
-exports.Auth = _auth.Auth;
-
-const _blockchain = require('./utils/blockchain');
-exports.Blockchain = _blockchain.Blockchain;
-
-
+exports.Constants = require('./constants').Constants;
+exports.Crypto = require('./utils/crypto').Crypto;
+exports.Passport = require('./models/passport').Passport;
+exports.Messaging = {
+    Auth: require('./messaging/auth').Auth,
+    Claim: require('./messaging/claim').Claim,
+    Payment: require('./messaging/payment').PaymentUtility
+};
+exports.Services = {
+    Application: require('./services/application').ApplicationApi,
+    Blockchain: require('./services/blockchain').Blockchain,
+    Bridge: require('./services/bridge').BridgeApi,
+    Claim: require('./services/claim').ClaimApi,
+    Partner: require('./services/partner').PartnerApi,
+    Passport: require('./services/passport').PassportApi,
+    Profile: require('./services/profile').ProfileApi
+}

@@ -1,7 +1,7 @@
-const _constants = require('../utils/constants').Constants;
+const _constants = require('../constants').Constants;
 const _neo = require('../utils/neo').NEO;
 const _eth = require('../utils/ethereum').Ethereum;
-const _neoApi = require('../api/neo');
+const _neoApi = require('./neo');
 
 var blockchain = class Blockchain {
     constructor(passport, passphrase) {
@@ -10,35 +10,18 @@ var blockchain = class Blockchain {
         this._neoService = new _neoApi.NEOApi(passport, passphrase);
     }
 
-    async getPrivateKey(walletInfo) {
-        if (!walletInfo) {
-            throw new Error("walletInfo not provided");
-        }
-
-        if(!walletInfo.wallet)
-            throw new Error("Wallet not unlocked");
-        
-        if (walletInfo.network.toLowerCase() == "neo") {
-            return await _neo.getPrivateKey(walletInfo, this._passphrase);
-        }
-        else if(walletInfo.network.toLowerCase() == "eth"){
-            return _eth.getPrivateKey(walletInfo, this._passphrase);
-        }
-        return null;
-    }
-
-    async publishPassport(walletInfo)
+    async publishPassport(wallet, passport)
     {
-        if (!walletInfo)
+        if (!wallet)
             throw new Error("wallet not provided for publish.");
-        if(!walletInfo.wallet)
+        if(!wallet.unlocked)
             throw new Error("wallet not unlocked");
 
-        if (walletInfo.network.toLowerCase() === "neo") {
-            return await _neo.publishPassport(walletInfo, this._passport);
+        if (wallet.network.toLowerCase() === "neo") {
+            return await _neo.publishPassport(wallet, passport);
         }
-        else if(walletInfo.network.toLowerCase() === "eth"){
-            return await _eth.publishPassport(walletInfo, this._passport.id);
+        else if(wallet.network.toLowerCase() === "eth"){
+            return await _eth.publishPassport(wallet, passport.id);
         }
 
         return null;
@@ -72,17 +55,17 @@ var blockchain = class Blockchain {
         }
     }
 
-    async unpublishPassport(walletInfo){
-        if(!walletInfo)
+    async unpublishPassport(wallet){
+        if(!wallet)
             throw new Error("walletInfo not provided");
-        if(!walletInfo.wallet)
+        if(!wallet.unlocked)
             throw new Error("Wallet not unlocked");
 
-        if(walletInfo.network.toLowerCase() === "neo"){
-            return await _neo.unpublishPassport(walletInfo, this._passport);
+        if(wallet.network.toLowerCase() === "neo"){
+            return await _neo.unpublishPassport(wallet, this._passport);
         }
-        else if(walletInfo.network.toLowerCase() === "eth"){
-            return await _eth.unpublishPassport(walletInfo);
+        else if(wallet.network.toLowerCase() === "eth"){
+            return await _eth.unpublishPassport(wallet);
         }
     }
 
@@ -106,7 +89,7 @@ var blockchain = class Blockchain {
         return null;
     }
 
-    //Amount is 100000000 = 1
+    //Amount is 100000000 = 1 for NEO
     async sendPayment(network, amount, recipient, paymentIdentifier, wait) {
         //Recipient can be null, it will default to bridge contract address
         if (!network) {
@@ -134,7 +117,9 @@ var blockchain = class Blockchain {
             }
         }
         else if(network.toLowerCase() === "eth"){
-            _eth.sendBrdg(wallet, recipient, amount, paymentIdentifier);
+            amount = (amount / 100000000);
+            let info = await _eth.sendBrdg(wallet, recipient, amount, paymentIdentifier);
+            verifyTransferWithMemoTransaction(info, wallet.address, recipient, amount, paymentIdentifier);
         }
 
         return null;

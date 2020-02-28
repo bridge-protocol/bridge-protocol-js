@@ -1,4 +1,4 @@
-const _constants = require('../utils/constants').Constants;
+const _constants = require('../constants').Constants;
 const _fetch = require('node-fetch');
 const _neon = require('@cityofzion/neon-js');
 const _crypto = require('./crypto').Crypto;
@@ -9,7 +9,6 @@ const _pollRetries = _constants.neoscanPollRetries;
 const _bridgeContractHash = _constants.bridgeContractHash;
 const _bridgeContractAddress = _constants.bridgeContractAddress;
 const _brdgHash = _constants.brdgHash;
-const _gasHash = _constants.gasHash;
 
 class NEO {
     //Wallet management functions
@@ -31,27 +30,13 @@ class NEO {
         return this._decryptWallet(nep2, password);
     }
 
-    async unlockWallet(walletInfo, password){
-        if(!walletInfo || !walletInfo.key)
+    async unlockWallet(wallet, password){
+        if(!wallet || !wallet.key)
             throw new Error("No key provided to unlock");
         if(!password)
             throw new Error("No password provided");
         
-        walletInfo.wallet = await this._decryptWallet(walletInfo.key, password);
-        return walletInfo;
-    }
-
-    async getPrivateKey(walletInfo, password){
-        if(!walletInfo || !walletInfo.key)
-            throw new Error("No key provided to unlock");
-        if(!password)
-            throw new Error("No password provided");
-
-        let account = walletInfo.wallet;
-        if(!walletInfo.wallet){
-            account = await this._decryptWallet(walletInfo.key, password);
-        }
-        return account.WIF;
+        return await this._decryptWallet(wallet.key, password);
     }
 
     async _getWalletInfo(account, password){

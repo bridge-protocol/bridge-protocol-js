@@ -1,13 +1,11 @@
 //Utilities
-const _messageUtility = require('../utils/message');
-const _cryptoUtility = require('../utils/crypto');
+const _message = require('../utils/message').Message;
+const _crypto = require('../utils/crypto').Crypto;
 
 var paymentUtility = class PaymentUtility{
     constructor(passport, passphrase) {
         this._passport = passport;
         this._passphrase = passphrase;
-        this._messageHelper = new _messageUtility.MessageUtility(passport, passphrase);
-        this._cryptoHelper = _cryptoUtility.CryptoUtility;
     }
 
     async createPaymentRequest(network, amount, address, identifier) {
@@ -29,10 +27,10 @@ var paymentUtility = class PaymentUtility{
         };
 
         let payload = {
-            paymentRequest: await this._cryptoHelper.signMessage(JSON.stringify(request), this._passport.privateKey, this._passphrase, true),
+            paymentRequest: await _crypto.signMessage(JSON.stringify(request), this._passport.privateKey, this._passphrase, true),
         };
 
-        return await this._messageHelper.createMessage(payload);
+        return await _message.createMessage(payload);
     }
 
     async verifyPaymentRequest(message) {
@@ -40,8 +38,8 @@ var paymentUtility = class PaymentUtility{
             throw new Error("message not provided");
         }
 
-        message = await this._messageHelper.decryptMessage(message);
-        message.payload.paymentRequest = await this._cryptoHelper.verifySignedMessage(message.payload.paymentRequest, message.publicKey);
+        message = await _message.decryptMessage(message);
+        message.payload.paymentRequest = await _crypto.verifySignedMessage(message.payload.paymentRequest, message.publicKey);
         message.payload.paymentRequest = JSON.parse(message.payload.paymentRequest);
         return message;
     }
@@ -72,7 +70,7 @@ var paymentUtility = class PaymentUtility{
             transactionId
         };
 
-        return await this._messageHelper.createMessage(payload, publicKey);
+        return await _message.createMessage(payload, publicKey);
     }
 
     async verifyPaymentResponse(message, requestPassportId){
@@ -83,7 +81,7 @@ var paymentUtility = class PaymentUtility{
             throw new Error("requestPassportId not provided");
         }
 
-        let res = await this._messageHelper.decryptMessage(message);
+        let res = await _message.decryptMessage(message);
         if(res.passportId === requestPassportId){
             throw new Error("Invalid response.  Request and response passports cannot be the same.");
         }

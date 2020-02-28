@@ -1,5 +1,8 @@
-const _constants = require('../utils/constants').Constants;
+const _fs = require('fs');
+const _constants = require('../constants').Constants;
 const _crypto = require('../utils/crypto').Crypto;
+const _wallet = require('./wallet');
+const _claimPackage = require('./claimPackage');
 
 var passport = class Passport
 {
@@ -31,6 +34,15 @@ var passport = class Passport
         this.version = _constants.passportVersion;
     };
 
+    async openFile(filePath){
+        if(!filePath)
+            throw new Error("filePath not provided");
+
+        var buffer = _fs.readFileSync(filePath);
+        var content = buffer.toString();
+        return await this.open(content, passphrase);
+    }
+
     async open(passportJson, passphrase)
     {
         if(!this._load(passportJson)){
@@ -47,6 +59,52 @@ var passport = class Passport
         return true;
     };
 
+    async save(filePath){
+        if(!filePath)
+            throw new Error("filePath not provided");
+
+        let passport = this.export();
+        if(!passport)
+            throw new Error("error serializing passport");
+
+        try {
+            _fs.writeFileSync(filePath, JSON.stringify(passport));
+            return true;
+        }
+        catch (err) {
+            console.log("Could not save passport to file " + filePath + ": " + err.message);
+        }
+        return false;
+    }
+
+    export(){
+        //Copy the object
+        let serialized = JSON.stringify(this);
+        let exp = JSON.parse(serialized);
+        //Sanitize the wallets and keys
+        for(var wallet in exp.wallets){
+            wallet = new _wallet.Wallet(wallet.network, wallet.address, wallet.key).export();
+        }
+        return JSON.stringify(exp);
+    }
+
+    async addWallet(network, password, privateKey)
+    {
+        if(!network)
+            throw new Error("network not provided");
+        if(!password)
+            throw new Error("password not provided");
+
+        let wallet = new _wallet.Wallet(network);
+        wallet.create(password, privateKey);
+
+        if(!wallet.key)
+            return false;
+
+        this.wallets.push(wallet);
+        return true;
+    }
+
     getWalletForNetwork(network){
         if(!network)
             throw new Error("Network not provided.");
@@ -62,34 +120,47 @@ var passport = class Passport
         return null;
     }
 
-    getClaimsPackagesByType(claimTypeIds){
-        let claimPackages = new Array();
-
+    async getDecryptedClaims(password, claimTypeIds){
+        let claimPackages;
         if(!claimTypeIds)
+            claimPackages = this.claims;
+        else
+            claimPackages = this.getClaimPackages(claimTypeIds);
+        
+        if(!claimPackages || claimPackages.length == 0)
             return null;
 
-        for(let i=0; i<claimTypeIds.length; i++){
-            let claimType = claimTypeIds[i];
-            let claimPackage = this.getClaimPackageByType(claimType);
-            if(claimPackage)
-            {
-                claimPackages.push(claimPackage);
-            }
+        let claims = [];
+        for(var claimPackage in claimPackages){
+            let claim = await claimPackage.decrypt(this.privateKey, password);
+            claims.push(claim);
         }
+        return claims;
+    }
 
+    getClaimPackages(claimTypeIds){
+        if(!claimTypeIds)
+            throw new Error("no claimTypeIds specified");
+
+        let claimPackages = new Array();
+        for(var claimTypeId in claimTypeIds){
+            let claimPackage = this.getClaimPackageByType(claimTypeId);
+            if(claimPackage != null)
+                claimPackages.push(claimPackage);
+        }
         return claimPackages;
     }
 
-    getClaimPackageByType(claimTypeId){
+    getClaimPackage(claimTypeId){
         if(!claimTypeId)
             return null;
 
-        for(let i=0; i<this.claims.length; i++){
-            let claimPackage = this.claims[i];
-            if(claimPackage.typeId == claimTypeId){
+        for(var claimPackage in this.claims){
+            if(claimPackage.typeId == claimTypeId)
                 return claimPackage;
-            }
         }
+
+        return null;
     }
 
     _reset(){
@@ -122,8 +193,12 @@ var passport = class Passport
         this.id = passport.id;
         this.version = passport.version;
         this.key = passport.key;
-        this.wallets = passport.wallets;
-        this.claims = passport.claims;
+
+        for(var wallet in passport.wallets)
+            this.wallets.push(new _wallet.Wallet(wallet));
+
+        for(var claim in passport.claims)
+            this.claims.push(new _claimPackage.ClaimPackage(claim));
 
         return true;
     }

@@ -1,5 +1,5 @@
 const Web3 = require("web3");
-const _constants = require('../utils/constants').Constants;
+const _constants = require('../constants').Constants;
 const _fetch = require('node-fetch');
 const _tx = require("ethereumjs-tx");
 const _wallet = require("ethereumjs-wallet");
@@ -30,38 +30,24 @@ class Ethereum {
             wallet = _wallet.fromPrivateKey(privateKeyBuffer);
         }
 
-        return this._getWalletInfo(wallet, password);
+        return this._getwallet(wallet, password);
     }
 
     getWalletFromKeystore(keystore, password){
         let wallet = _wallet.fromV3(keystore, password);
-        return this._getWalletInfo(wallet, password);
+        return this._getwallet(wallet, password);
     }
 
-    async unlockWallet(walletInfo, password){
-        if(!walletInfo || !walletInfo.key)
+    async unlockWallet(wallet, password){
+        if(!wallet || !wallet.key)
             throw new Error("No key provided to unlock");
         if(!password)
             throw new Error("No password provided");
 
-        walletInfo.wallet = this._decryptWallet(walletInfo.key, password);
-        return walletInfo;
+        return this._decryptWallet(wallet.key, password);
     }
     
-    async getPrivateKey(walletInfo, password){
-        if(!walletInfo || !walletInfo.key)
-            throw new Error("No key provided to unlock");
-        if(!password)
-            throw new Error("No password provided");
-
-        let wallet = walletInfo.wallet;
-        if(!wallet){
-            wallet = this._decryptWallet(walletInfo.key, password);
-        }
-        return wallet.getPrivateKeyString();
-    }
-
-    _getWalletInfo(wallet, password){
+    _getwallet(wallet, password){
         if(!wallet)
             throw new Error("no wallet specified");
         if(!password)
@@ -135,17 +121,17 @@ class Ethereum {
         return await this._broadcastTransaction(wallet, _bridgeTokenContractAddress, data, nonce);
     }
 
-    async verifyTransferWithMemoTransaction(hash, from, to, amount, memo){
+    async verifyTransferWithMemoTransactionFromHash(hash, from, to, amount, memo){
         let info = await this._getTransactionInfo(hash);
         if(!info){
             console.log("Unable to retrieve transaction info for " + hash);
             return false;
         }
 
-        return this._verifyTransferWithMemoTransaction(info, from, to, amount, memo);
+        return this.verifyTransferWithMemoTransaction(info, from, to, amount, memo);
     }
 
-    async _verifyTransferWithMemoTransaction(info, from, to, amount, memo){
+    async verifyTransferWithMemoTransaction(info, from, to, amount, memo){
         let senderValid = false;
         let recipientValid = false;
         let amountValid = false;
@@ -208,9 +194,9 @@ class Ethereum {
         return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, nonce);
     }
 
-    async publishPassport(walletInfo, passport, nonce){
+    async publishPassport(wallet, passport, nonce){
         const data = _contract.methods.publishPassport(passport).encodeABI();
-        return await this._broadcastTransaction(walletInfo, _bridgeContractAddress, data, nonce);
+        return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, nonce);
     }
 
     async getPassportForAddress(address){
@@ -254,8 +240,8 @@ class Ethereum {
         });
     };
 
-    async _broadcastTransaction(walletInfo, contract, data, nonce){
-        if(!walletInfo.wallet)
+    async _broadcastTransaction(wallet, contract, data, nonce){
+        if(!wallet.unlocked)
             throw new Error("Wallet is not unlocked.");
 
         if(!contract)
@@ -264,8 +250,8 @@ class Ethereum {
         if(!data)
             throw new Error("No contract data provided.");
 
-        let address = walletInfo.wallet.getAddressString();
-        let privateKey = walletInfo.wallet.getPrivateKey();
+        let address = wallet.unlocked.getAddressString();
+        let privateKey = wallet.unlocked.getPrivateKey();
         return new Promise((resolve,reject) => {
             _web3.eth.getTransactionCount(address, (err, txCount) => {
                 if(!nonce || txCount > nonce)

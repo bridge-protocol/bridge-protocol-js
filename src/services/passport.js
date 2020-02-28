@@ -1,4 +1,4 @@
-const _constants = require("../utils/constants").Constants;
+const _constants = require("../constants").Constants;
 const _api = require('../utils/api');
 const _apiBaseUrl = _constants.bridgeApiUrl + "passport/";
 
@@ -13,8 +13,8 @@ var passportApi = class PassportApi {
         this._passphrase = passphrase;
     }
 
-    async getDetails(passportId) {
-        var api = new _api.APIUtility(_apiBaseUrl, this._passport, this._passphrase);
+    async getDetails(passport, passphrase, passportId) {
+        var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
         var res = await api.callApi("GET", passportId + "/details", null);
         return res.details;
     }

@@ -1,21 +1,11 @@
-const _constants = require("../utils/constants").Constants;
+const _constants = require("../constants").Constants;
 const _api = require('../utils/api');
 const _apiBaseUrl = _constants.bridgeApiUrl + "partner/";
 
-var partnerApi = class PartnerApi{
-    constructor(passport, passphrase){
-        if(!passport)
-            throw new Error("No passport provided.");
-        if(!passphrase)
-            throw new Error("No passphrase provided.");
-
-        this._passport = passport;
-        this._passphrase = passphrase;
-    }
-
-    async getAllPartners(useApi) {
+class PartnerApi{
+    async getAllPartners(useApi, passport, passphrase) {
         if(useApi){
-            var api = new _api.APIUtility(_apiBaseUrl, this._passport, this._passphrase);
+            var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
             var res = await api.callApi("GET", "", null);
             return res.partners;
         }
@@ -24,13 +14,13 @@ var partnerApi = class PartnerApi{
         }
     }
 
-    async getPartner(partnerId, useApi) {
+    async getPartner(partnerId, useApi, passport, passphrase) {
         if(!partnerId){
             throw new Error("partnerId not provided");
         }
 
         if(useApi){
-            var api = new _api.APIUtility(_apiBaseUrl, this._passport, this._passphrase);
+            var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
             var res = await api.callApi("GET", partnerId, null);
             return res.partner;
         }
@@ -50,4 +40,4 @@ var partnerApi = class PartnerApi{
     }
 };
 
-exports.PartnerApi = partnerApi;
+exports.PartnerApi = new PartnerApi();
