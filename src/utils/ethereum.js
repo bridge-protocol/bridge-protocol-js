@@ -83,7 +83,7 @@ class Ethereum {
    //Asset and transaction management functions
     async getAddressBalances(address){
         let eth = await this.getEthBalance(address);
-        let brdg = await this.getBrdgTransactions(address);
+        let brdg = await this.getBrdgBalance(address);
         return [{asset:"ETH", balance: eth}, {asset: "BRDG", balance: brdg}];
     }
 

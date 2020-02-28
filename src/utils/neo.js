@@ -75,35 +75,6 @@ class NEO {
 
 
     //Asset and transaction management functions
-    async getGasBalance(address) {
-        return new Promise((resolve, reject) => {
-            const provider = new _neon.api.neoscan.instance("MainNet");
-            _neon.settings.httpsOnly = true;
-
-            // Get an RPC Endpoint (Neo Node)
-            provider.getRPCEndpoint().then(nodeUrl => {
-                let client = _neon.default.create.rpcClient(nodeUrl);
-                client.getAccountState(address).then(response => {
-                    let gasBalance = -1;
-                    for (let i = 0; i < response.balances.length; i++) {
-                        let balance = response.balances[i];
-                        if (balance.asset == _gasHash) {
-                            gasBalance = balance.value;
-                        }
-                    }
-                    if (gasBalance >= 0)
-                        resolve(gasBalance);
-                    else
-                        reject("Could not get GAS balance");
-                });
-            });
-        });
-    }
-
-    async getLatestAddressToTransactions(address1, address2) {
-        return await this._callNeoscan("get_address_to_address_abstracts", address1 + "/" + address2 + "/1");
-    }
-
     async getLatestAddressTransactions(address) {
         return await this._callNeoscan("get_address_abstracts", address + "/1");
     }

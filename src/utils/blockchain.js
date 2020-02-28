@@ -86,16 +86,36 @@ var blockchain = class Blockchain {
         }
     }
 
-    async addBlockchainAddress(network, address, wait) {
-        if (!network) {
-            throw new Error("network not provided.");
+    async getBalances(network, address) {
+        if (network.toLowerCase() === "neo") {
+            return await _neo.getAddressBalances(address);
         }
-        if (!address) {
-            throw new Error("address not provided");
+        else if(network.toLowerCase() === "eth"){
+            return await _eth.getAddressBalances(address);
+        }
+    }
+
+    async getRecentTransactions(network, address) {
+        //TODO: Normalize the output
+        if (network.toLowerCase() === "neo") {
+            let tx = [];
+            let res = await _neo.getLatestAddressTransactions(address);
+            if (!res)
+                return null;
+                
+            for (let i = 0; i < res.entries.length; i++) {
+                if (res.entries[i].asset == _constants.brdgHash.replace("0x", "")) {
+                    tx.push(res.entries[i]);
+                }
+            }
+
+            return tx;
+        }
+        else if(network.toLowerCase() === "eth"){
+            return await _eth.getBrdgTransactions(address);
         }
 
-        let wallet = this._getWalletForNetwork(network);
-
+        return null;
     }
 
     //Amount is 100000000 = 1
@@ -161,75 +181,6 @@ var blockchain = class Blockchain {
         return null;
     }
 
-    async getPassportStatus(network, passportId) {
-        if (!network) {
-            throw new Error("network not provided");
-        }
-        if (!passportId) {
-            throw new Error("passportId not provided");
-        }
-
-        if (network == "NEO") {
-            return await _neo.getRegisteredPassportInfo(passportId);
-        }
-
-        return null;
-    }
-
-    async getAddressStatus(network, address) {
-        if (!network) {
-            throw new Error("network not provided");
-        }
-        if (!address) {
-            throw new Error("address not provided");
-        }
-
-        if (network == "NEO") {
-            return await _neo.getRegisteredAddressInfo(address);
-        }
-
-        return null;
-    }
-
-    async getRecentTransactions(network, address) {
-        if (network == "NEO") {
-            let tx = [];
-            let res = await _neo.getLatestAddressTransactions(address);
-
-            if (!res)
-                return null;
-
-            for (let i = 0; i < res.entries.length; i++) {
-                if (res.entries[i].asset == _constants.brdgHash.replace("0x", "")) {
-                    tx.push(res.entries[i]);
-                }
-            }
-
-            return tx;
-        }
-
-        return null;
-    }
-
-    async getRecentToTransactions(network, address, addressTo) {
-        if (network == "NEO") {
-            let tx = [];
-            let res = await _neo.getLatestAddressToTransactions(address, addressTo);
-            if (!res)
-                return null;
-
-            for (let i = 0; i < res.entries.length; i++) {
-                if (res.entries[i].asset == _constants.brdgHash.replace("0x", "")) {
-                    tx.push(res.entries[i]);
-                }
-            }
-
-            return tx;
-        }
-
-        return null;
-    }
-
     async checkTransactionComplete(network, transactionId) {
         if (!network) {
             throw new Error("network not provided");
@@ -244,30 +195,7 @@ var blockchain = class Blockchain {
 
         return false;
     }
-
-    async getBalances(network) {
-        if (network.toLowerCase() === "neo") {
-            return await _neo.getAddressBalances(this._passport.wallets[0].address);
-        }
-    }
-
-    async addHash(network, hash) {
-        if (network.toLowerCase() === "neo") {
-            return _neo.sendAddHashTransaction(hash, this._passport, this._passphrase, true);
-            //TODO: Validate response
-        }
-        return null;
-    }
-
-    async removeHash(network, hash) {
-        if (network.toLowerCase() === "neo") {
-            return _neo.sendRemoveHashTransaction(hash, this._passport, this._passphrase, true);
-            //TODO: Validate response
-        }
-
-        return null;
-    }
-
+    
     async addClaim(network, claim, hashOnly) {
         if (!network) {
             throw new Error("network not provided");
