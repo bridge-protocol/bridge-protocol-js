@@ -2,6 +2,7 @@ const _fs = require('fs');
 const _constants = require('../constants').Constants;
 const _crypto = require('../utils/crypto').Crypto;
 const _wallet = require('./wallet');
+const _claim = require('./claim');
 const _claimPackage = require('./claimPackage');
 
 var passport = class Passport
@@ -34,23 +35,23 @@ var passport = class Passport
         this.version = _constants.passportVersion;
     };
 
-    async openFile(filePath){
+    async openFile(filePath, password){
         if(!filePath)
             throw new Error("filePath not provided");
 
         var buffer = _fs.readFileSync(filePath);
         var content = buffer.toString();
-        return await this.open(content, passphrase);
+        return await this.open(content, password);
     }
 
-    async open(passportJson, passphrase)
+    async open(passportJson, password)
     {
-        if(!this._load(passportJson)){
+        if(!await this._load(passportJson, password)){
             throw new Error("Could not open Bridge Passport: Invalid or corrupted file");
         }
 
         try{
-            let key = await _crypto.decryptPrivateKey(this.key.private, passphrase);
+            let key = await _crypto.decryptPrivateKey(this.key.private, password);
         }
         catch(err){
             throw new Error("Invalid passphrase");
@@ -77,14 +78,23 @@ var passport = class Passport
         return false;
     }
 
-    export(){
+    async export(password){
         //Copy the object
         let serialized = JSON.stringify(this);
         let exp = JSON.parse(serialized);
+
         //Sanitize the wallets and keys
-        for(var wallet in exp.wallets){
-            wallet = new _wallet.Wallet(wallet.network, wallet.address, wallet.key).export();
+        for(let i=0; i<exp.wallets.length; i++){
+            let wallet = exp.wallets[i];
+            exp.wallets[i] = new _wallet.Wallet(wallet.network, wallet.address, wallet.key).export();
         }
+
+        //Create claim packages for secure export
+        for(let i=0; i<exp.claims.length; i++){
+            let claim = new _claim.Claim(exp.claims[i]);
+            exp.claims[i] = await claim.toClaimPackage(this.publicKey, this.publicKey, this.privateKey, password);
+        }
+
         return JSON.stringify(exp);
     }
 
@@ -174,7 +184,7 @@ var passport = class Passport
         this.claims = new Array();
     }
 
-    _load(json){
+    async _load(json, password){
         let passport = JSON.parse(json);
 
         if(!passport)
@@ -194,13 +204,40 @@ var passport = class Passport
         this.version = passport.version;
         this.key = passport.key;
 
-        for(var wallet in passport.wallets)
-            this.wallets.push(new _wallet.Wallet(wallet));
-
-        for(var claim in passport.claims)
-            this.claims.push(new _claimPackage.ClaimPackage(claim));
-
+        this.wallets = await this._initWallets(passport.wallets, password);
+        this.claims = await this._initClaims(passport.claims, password);
+        
         return true;
+    }
+
+    async _initClaims(claimPackages, password){
+        let claims = [];
+        if(!claimPackages || claimPackages.length == 0)
+            return claims;
+
+        for(let i=0; i<claimPackages.length; i++){
+            let c = claimPackages[i];
+            let claimPackage = new _claimPackage.ClaimPackage(c.typeId, c.signedBy, c.claim);
+            let claim = await claimPackage.decrypt(this.privateKey, password);
+            claims.push(claim);
+        }
+        
+        return claims;
+    }
+
+    async _initWallets(wallets, password){
+        let unlockedWallets = [];
+        if(!wallets || wallets.length == 0)
+            return unlockedWallets;
+        
+        for(let i=0; i<wallets.length; i++){
+            let w = wallets[i];
+            let wallet = new _wallet.Wallet(w.network, w.address, w.key);
+            await wallet.unlock(password);
+            unlockedWallets.push(wallet);
+        }
+
+        return unlockedWallets;
     }
 };
 

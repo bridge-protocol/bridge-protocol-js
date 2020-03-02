@@ -41,10 +41,10 @@ var wallet = class Wallet
 
     export(){
         return {
-            network,
-            address,
-            key
-        }
+            network: this.network,
+            address: this.address,
+            key: this.key
+        };
     }
 
     async unlock(password){

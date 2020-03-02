@@ -1,4 +1,4 @@
-const _crypto = require('../utils/crypto');
+const _crypto = require('../utils/crypto').Crypto;
 const _claimPackage = require('./claimPackage');
 
 var claim = class Claim
@@ -32,7 +32,8 @@ var claim = class Claim
         if(!password)
             throw new Error("password not provided");
 
-        return await _crypto.encryptMessage(JSON.stringify(claim), targetPublicKey, passportPrivateKey, password, true);
+        let claimString = JSON.stringify(this);
+        return await _crypto.encryptMessage(claimString, targetPublicKey, passportPrivateKey, password, true);
     }
  
     async fromClaimPackage(claimPackage, privateKey, password){
@@ -44,16 +45,15 @@ var claim = class Claim
     }
 
     async toClaimPackage(targetPublicKey, passportPublicKey, passportPrivateKey, password){
-        if(!claimTypeId || !claimValue)
+        if(!this.claimTypeId || !this.claimValue)
             throw new Error("invalid or missing claim data");
 
         //Set the signing context
-        claim.signedByKey = passport.publicKey;
+        claim.signedByKey = passportPublicKey;
         let passportId = await _crypto.getPassportIdForPublicKey(targetPublicKey);
         let signatureString = await this.getSignatureString(passportId);
         claim.signature = await _crypto.signMessage(signatureString, passportPrivateKey, password, true);
         let encryptedClaim = await this.encrypt(targetPublicKey, passportPrivateKey, password);
-
         return new _claimPackage.ClaimPackage(this.claimTypeId, passportPublicKey, encryptedClaim);
     }
 
@@ -62,7 +62,7 @@ var claim = class Claim
             throw new Error("Cannot get signature string: Invalid or missing claim data.");
         }
 
-        let signedById = await _cryptoUtility.CryptoUtility.getPassportIdForPublicKey(this.signedByKey);
+        let signedById = await _crypto.getPassportIdForPublicKey(this.signedByKey);
         return passportId + this.claimTypeId + this.claimValue + this.createdOn + this.expiresOn + signedById;
     }
 
