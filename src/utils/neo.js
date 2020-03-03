@@ -12,21 +12,32 @@ const _brdgHash = _constants.brdgHash;
 
 class NEO {
     //Wallet management functions
-    async createWallet(passphrase, wif) {
-        if (!passphrase) {
-            throw new Error("passphrase not provided");
-        }
-
-        let account = new _neon.wallet.Account(wif);
-        return await this._getWalletInfo(account, passphrase);
+    async createWallet(password, wif) {
+        if (!password) 
+            throw new Error("password not provided");
+        
+        return this.getWalletFromPrivateKey(wif, password);
     }
 
     async getWalletFromPrivateKey(wif, password){
+        if (!password) 
+            throw new Error("password not provided");
+        
+        if(wif)
+            console.log("importing NEO wallet from private key");
+        else
+            console.log("creating new NEO wallet");
+
         let account = new _neon.wallet.Account(wif);
         return await this._getWalletInfo(account, password);
     }
 
     async getWalletFromEncryptedKey(nep2, password){
+        if(!nep2)
+            throw new Error("nep2 not provided");
+        if (!password) 
+            throw new Error("password not provided");
+
         return this._decryptWallet(nep2, password);
     }
 
@@ -54,6 +65,11 @@ class NEO {
     }
 
     async _decryptWallet(key, password){
+        if (!key)
+            throw new Error("key not provided");
+        if(!password)
+            throw new Error("password not provided");
+
         let wif = await _neon.wallet.decrypt(key, password);
         return new _neon.wallet.Account(wif);
     }

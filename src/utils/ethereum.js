@@ -23,9 +23,12 @@ class Ethereum {
     createWallet(password, privateKeyString){
         let wallet;
         
-        if(!privateKeyString)
+        if(!privateKeyString){
+            console.log("creating new ETH wallet");
             wallet = _wallet.generate();
+        }
         else{
+            console.log("importing ETH wallet from private key");
             const privateKeyBuffer = _util.toBuffer(privateKeyString);
             wallet = _wallet.fromPrivateKey(privateKeyBuffer);
         }

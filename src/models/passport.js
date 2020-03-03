@@ -20,6 +20,7 @@ var passport = class Passport
     }
 
     async create(password) {
+        console.log("creating passport");
         if(!password)
             throw new Error("password not specified.");
             
@@ -36,6 +37,7 @@ var passport = class Passport
     };
 
     async openFile(filePath, password){
+        console.log(`opening passport from ${filePath}`);
         if(!filePath)
             throw new Error("filePath not provided");
 
@@ -46,29 +48,33 @@ var passport = class Passport
 
     async open(passportJson, password)
     {
+        console.log("opening passport from content");
         if(!await this._load(passportJson, password)){
             throw new Error("Could not open Bridge Passport: Invalid or corrupted file");
         }
 
         try{
+            console.log("verifying passport password");
             let key = await _crypto.decryptPrivateKey(this.key.private, password);
         }
         catch(err){
-            throw new Error("Invalid passphrase");
+            throw new Error("invalid password");
         }
 
         return true;
     };
 
-    async save(filePath){
+    async save(filePath, password){
+        console.log("saving passport");
         if(!filePath)
             throw new Error("filePath not provided");
 
-        let passport = this.export();
+        let passport = await this.export(password);
         if(!passport)
             throw new Error("error serializing passport");
 
         try {
+            console.log(`saving passport to ${filePath}`);
             _fs.writeFileSync(filePath, JSON.stringify(passport));
             return true;
         }
@@ -79,6 +85,7 @@ var passport = class Passport
     }
 
     async export(password){
+        console.log("preparing passport for export");
         //Copy the object
         let serialized = JSON.stringify(this);
         let exp = JSON.parse(serialized);
@@ -95,34 +102,36 @@ var passport = class Passport
             exp.claims[i] = await claim.toClaimPackage(this.publicKey, this.publicKey, this.privateKey, password);
         }
 
-        return JSON.stringify(exp);
+        return exp;
     }
 
     async addWallet(network, password, privateKey)
     {
+        console.log(`adding ${network.toUpperCase()} wallet`);
         if(!network)
             throw new Error("network not provided");
         if(!password)
             throw new Error("password not provided");
 
         let wallet = new _wallet.Wallet(network);
-        wallet.create(password, privateKey);
+        await wallet.create(password, privateKey);
 
         if(!wallet.key)
             return false;
 
+        await wallet.unlock(password);
         this.wallets.push(wallet);
         return true;
     }
 
     getWalletForNetwork(network){
+        console.log(`getting wallet for ${network.toUpperCase()}`);
         if(!network)
             throw new Error("Network not provided.");
         if(!this.wallets || this.wallets.length == 0)
             throw new Error("Wallet not found for " + network);
 
-        for(let i=0; i<this.wallets.length; i++){
-            let wallet = this.wallets[i];
+        for(const wallet of this.wallets){
             if(wallet.network.toLowerCase() === network.toLowerCase())
                 return wallet;
         }
@@ -130,31 +139,13 @@ var passport = class Passport
         return null;
     }
 
-    async getDecryptedClaims(password, claimTypeIds){
-        let claimPackages;
-        if(!claimTypeIds)
-            claimPackages = this.claims;
-        else
-            claimPackages = this.getClaimPackages(claimTypeIds);
-        
-        if(!claimPackages || claimPackages.length == 0)
-            return null;
-
-        let claims = [];
-        for(var claimPackage in claimPackages){
-            let claim = await claimPackage.decrypt(this.privateKey, password);
-            claims.push(claim);
-        }
-        return claims;
-    }
-
     getClaimPackages(claimTypeIds){
         if(!claimTypeIds)
             throw new Error("no claimTypeIds specified");
 
         let claimPackages = new Array();
-        for(var claimTypeId in claimTypeIds){
-            let claimPackage = this.getClaimPackageByType(claimTypeId);
+        for(const claimTypeId of claimTypeIds){
+            let claimPackage = this.getClaimPackage(claimTypeId);
             if(claimPackage != null)
                 claimPackages.push(claimPackage);
         }
@@ -204,7 +195,7 @@ var passport = class Passport
         this.version = passport.version;
         this.key = passport.key;
 
-        this.wallets = await this._initWallets(passport.wallets, password);
+        this.wallets = await this._initWallets(passport.wallets);
         this.claims = await this._initClaims(passport.claims, password);
         
         return true;
@@ -215,29 +206,24 @@ var passport = class Passport
         if(!claimPackages || claimPackages.length == 0)
             return claims;
 
-        for(let i=0; i<claimPackages.length; i++){
-            let c = claimPackages[i];
+        for(const c of claimPackages){
             let claimPackage = new _claimPackage.ClaimPackage(c.typeId, c.signedBy, c.claim);
             let claim = await claimPackage.decrypt(this.privateKey, password);
             claims.push(claim);
-        }
-        
+        };
+
         return claims;
     }
 
-    async _initWallets(wallets, password){
-        let unlockedWallets = [];
+    async _initWallets(wallets){
         if(!wallets || wallets.length == 0)
             return unlockedWallets;
         
         for(let i=0; i<wallets.length; i++){
-            let w = wallets[i];
-            let wallet = new _wallet.Wallet(w.network, w.address, w.key);
-            await wallet.unlock(password);
-            unlockedWallets.push(wallet);
+            wallets[i] = new _wallet.Wallet(wallets[i].network, wallets[i].address, wallets[i].key);
         }
 
-        return unlockedWallets;
+        return wallets;
     }
 };
 

@@ -12,7 +12,7 @@ var claim = class Claim
 
     get expired(){
         if(this.expiresOn == null){
-            throw new Error("Expiration not set.");
+            throw new Error("expiration not set");
         }
 
         //Never expires
@@ -25,6 +25,9 @@ var claim = class Claim
     }
 
     async encrypt(targetPublicKey, passportPrivateKey, password){
+        let targetPassportId = await _crypto.getPassportIdForPublicKey(targetPublicKey);
+        console.log(`encrypting claim for ${targetPassportId}`);
+
         if(!targetPublicKey)
             throw new Error("target public key not provided");
         if(!passportPrivateKey)
@@ -37,6 +40,7 @@ var claim = class Claim
     }
  
     async fromClaimPackage(claimPackage, privateKey, password){
+        console.log(`loading claim ${this.typeId} from claim package`);
         if(!claimPackage)
             throw new Error("claim package not provided");
 
@@ -45,6 +49,9 @@ var claim = class Claim
     }
 
     async toClaimPackage(targetPublicKey, passportPublicKey, passportPrivateKey, password){
+        let targetPassportId = await _crypto.getPassportIdForPublicKey(targetPublicKey);
+        console.log(`saving claim ${this.typeId} to claim package for ${targetPassportId}`);
+
         if(!this.claimTypeId || !this.claimValue)
             throw new Error("invalid or missing claim data");
 
@@ -58,8 +65,9 @@ var claim = class Claim
     }
 
     async getSignatureString(passportId){
+        console.log(`getting signature string for ${passportId}`);
         if(!this._verify()){
-            throw new Error("Cannot get signature string: Invalid or missing claim data.");
+            throw new Error("cannot get signature string: invalid or missing claim data.");
         }
 
         let signedById = await _crypto.getPassportIdForPublicKey(this.signedByKey);
@@ -67,6 +75,7 @@ var claim = class Claim
     }
 
     async verifySignature(passportId){
+        console.log(`verifying signature for claim ${this.typeId}`);
         if(!passportId){
             throw new Error("passportId not provided");
         }
@@ -81,7 +90,7 @@ var claim = class Claim
             return message;
         }
         catch(err){
-            console.log("Error verifying claim signature: " + err.message);
+            console.log("error verifying claim signature: " + err.message);
         }
         
         return false;
@@ -89,7 +98,7 @@ var claim = class Claim
 
     async _load(claim){
         if(!claim )
-            throw new Error("Invalid or missing claim data.");
+            throw new Error("invalid or missing claim data.");
 
         this.claimTypeId = claim.claimTypeId;
         this.claimValue = claim.claimValue;
@@ -100,7 +109,7 @@ var claim = class Claim
 
         if(!this._verify()){
             this._reset();
-            throw new Error("Invalid or missing claim data.");
+            throw new Error("invalid or missing claim data.");
         }
             
     }

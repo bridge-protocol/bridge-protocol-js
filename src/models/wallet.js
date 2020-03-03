@@ -15,6 +15,7 @@ var wallet = class Wallet
     }
 
     get privateKey(){
+        console.log(`retrieving private key for ${this.network.toUpperCase()}`);
         if(!this.unlocked)
             throw new Error("wallet not unlocked");
 
@@ -27,6 +28,7 @@ var wallet = class Wallet
     }
 
     async create(password, privateKey){
+        console.log(`creating wallet for ${this.network.toUpperCase()}`);
         let wallet;
         if(this.network.toLowerCase() === "neo"){
             wallet = await _neo.createWallet(password, privateKey);
