@@ -119,9 +119,7 @@ var passport = class Passport
         if(!wallet.key)
             return false;
 
-        await wallet.unlock(password);
         this.wallets.push(wallet);
-        return true;
     }
 
     getWalletForNetwork(network){

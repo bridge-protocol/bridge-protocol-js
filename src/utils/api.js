@@ -1,5 +1,5 @@
 const _fetch = require('node-fetch');
-const _crypto = require('./crypto');
+const _crypto = require('./crypto').Crypto;
 
 var APIUtility = class APIUtility {
     constructor(apiBaseUrl, passport, passphrase) {
@@ -20,7 +20,7 @@ var APIUtility = class APIUtility {
             throw new Error("method not provided");
         }
 
-        var token = _crypto.CryptoUtility.getToken();
+        var token = _crypto.getToken();
         if (method == 'GET') {
             data = token;
         }
@@ -28,7 +28,7 @@ var APIUtility = class APIUtility {
             data = JSON.stringify(data);
         }
             
-        var signedMessage = await _crypto.CryptoUtility.signMessage(data, this._passport.privateKey, this._passphrase, true);
+        var signedMessage = await _crypto.signMessage(data, this._passport.privateKey, this._passphrase, true);
 
         //Set the required request headers
         let headers = {

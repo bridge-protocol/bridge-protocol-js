@@ -114,11 +114,11 @@ class NEO {
     //End asset and transaction management functions
 
     //Smart contract for passport and claims management
-    async publishPassport(walletInfo, passport){
+    async publishPassport(wallet, passport){
         let neo = this;
         return new Promise(async (resolve, reject) => {
-            if (!walletInfo) {
-                reject("walletInfo not provided");
+            if (!wallet) {
+                reject("wallet not provided");
             }
             if (!passport) {
                 reject("passport not provided");
@@ -127,7 +127,7 @@ class NEO {
             try {
                 //Create the transaction
                 let publicKeyHash = _crypto.getHash(passport.publicKey);
-                let addressScriptHash = this._getAddressScriptHash(walletInfo.address);
+                let addressScriptHash = this._getAddressScriptHash(wallet.address);
                 let args = [
                     addressScriptHash,
                     passport.id,
@@ -139,7 +139,7 @@ class NEO {
                 //identity = bridge passport id
                 //key = bridge passport public key
                 //provider = the account paying the tokens for the action
-                let tx = await this._createAndSignTransaction(walletInfo, _bridgeContractHash, 'publish', args);
+                let tx = await this._createAndSignTransaction(wallet, _bridgeContractHash, 'publish', args);
                 console.log(JSON.stringify(tx));
 
                 //Relay the transaction
@@ -176,11 +176,11 @@ class NEO {
         return storage;
     }
 
-    async unpublishPassport(walletInfo, passport){
+    async unpublishPassport(wallet, passport){
         let neo = this;
         return new Promise(async (resolve, reject) => {
-            if (!walletInfo) {
-                reject("walletInfo not provided");
+            if (!wallet) {
+                reject("wallet not provided");
             }
             if (!passport) {
                 reject("passport not provided");
@@ -188,7 +188,7 @@ class NEO {
 
             try {
                 //Create the transaction
-                let addressScriptHash = this._getAddressScriptHash(walletInfo.address);
+                let addressScriptHash = this._getAddressScriptHash(wallet.address);
                 let args = [
                     addressScriptHash,
                     passport.id,
@@ -198,7 +198,7 @@ class NEO {
                 //address = your public neo address being used to sign the invocation / tx
                 //identity = bridge passport id
                 //user = the address to remove
-                let tx = await this._createAndSignTransaction(walletInfo, _bridgeContractHash, 'revoke', args);
+                let tx = await this._createAndSignTransaction(wallet, _bridgeContractHash, 'revoke', args);
                 console.log(JSON.stringify(tx));
 
                 //Relay the transaction
@@ -212,28 +212,24 @@ class NEO {
     }
 
     //Amount is 100000000 = 1
-    async sendSpendTokensTransaction(amount, paymentIdentifier, recipient, passport, passphrase, wait) {
+    async sendSpendTokensTransaction(wallet, passportId, amount, paymentIdentifier, recipient, wait) {
         let neo = this;
         return new Promise(async (resolve, reject) => {
-            if (!amount) {
+            if (!wallet)
+                reject("wallet not provided");
+            if(!wallet.unlocked)
+                reject("wallet not unlocked");
+            if (!amount)
                 reject("amount not provided");
-            }
-            if (!passport) {
-                reject("passport not provided");
-            }
-            if (!passphrase) {
-                reject("passphrase not provided");
-            }
-
             if (!recipient)
                 recipient = _bridgeContractAddress;
 
             try {
-                let addressScriptHash = this._getAddressScriptHash(passport.wallets[0].address);
+                let addressScriptHash = this._getAddressScriptHash(wallet.address);
                 let recipientScriptHash = this._getAddressScriptHash(recipient);
                 let args = [
                     addressScriptHash,
-                    passport.id,
+                    passportId,
                     recipientScriptHash,
                     amount,
                     addressScriptHash
@@ -245,7 +241,7 @@ class NEO {
                 //recipient = the recipient address for the payment
                 //amount = number of tokens
                 //provider = the account paying the tokens for the action
-                let tx = await this._createAndSignTransaction(_bridgeContractHash, 'spend', args, passport, passphrase, paymentIdentifier);
+                let tx = await this._createAndSignTransaction(wallet, _bridgeContractHash, 'spend', args, paymentIdentifier);
 
                 //Relay the transaction
                 if (wait)
@@ -572,12 +568,12 @@ class NEO {
     //End smart contract for passport and claims management
 
 
-    async _createAndSignTransaction(walletInfo, scriptHash, operation, args, remark) {
-        if (!walletInfo) {
+    async _createAndSignTransaction(wallet, scriptHash, operation, args, remark) {
+        if (!wallet) {
             throw new Error("wallet not provided");
         }
-        if(!walletInfo.wallet){
-            throw new Error("wallet not unlicked");
+        if(!wallet.unlocked){
+            throw new Error("wallet not unlocked");
         }
         if (!scriptHash) {
             throw new Error("scriptHash not provided");
@@ -600,7 +596,7 @@ class NEO {
         }
 
         // Create a transaction script and parameters
-        let primaryAddress = walletInfo.address;
+        let primaryAddress = wallet.address;
         let scriptParams = { scriptHash, operation, args };
         let transactionParameters = {
             scriptParams,
@@ -612,7 +608,7 @@ class NEO {
         let transaction = this._createTransaction(transactionParameters);
 
         //User signs it
-        transaction.sign(walletInfo.wallet.privateKey);
+        transaction.sign(wallet.unlocked.privateKey);
 
         console.log(JSON.stringify(transaction));
 

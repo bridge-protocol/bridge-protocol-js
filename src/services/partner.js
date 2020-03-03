@@ -10,7 +10,7 @@ class PartnerApi{
             return res.partners;
         }
         else{
-            return _constants.Constants.partners;
+            return _constants.partners;
         }
     }
 
@@ -25,7 +25,7 @@ class PartnerApi{
             return res.partner;
         }
         else{
-            return this._getPartnerById(_constants.Constants.partners, partnerId);
+            return this._getPartnerById(_constants.partners, partnerId);
         }
     }
     

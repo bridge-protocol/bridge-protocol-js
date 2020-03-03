@@ -11,7 +11,7 @@ class ProfileApi
             return res.profileTypes;
         }
         else{
-            return _constants.Constants.profileTypes;
+            return _constants.profileTypes;
         } 
     }
     
@@ -26,7 +26,7 @@ class ProfileApi
             return res.profileType;
         }
         else{
-           return this._getProfileTypeById(_constants.Constants.profileTypes);
+           return this._getProfileTypeById(_constants.profileTypes);
         }
     }
 

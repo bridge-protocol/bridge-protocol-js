@@ -11,7 +11,7 @@ class BridgeApi
             return res.id;
         }
         else{
-            return _constants.Constants.bridgePassportId;
+            return _constants.bridgePassportId;
         }
     }
 
@@ -22,7 +22,7 @@ class BridgeApi
             return res.publicKey;
         }
         else{
-            return _constants.Constants.bridgePublicKey;
+            return _constants.bridgePublicKey;
         }
     }
 
@@ -33,7 +33,7 @@ class BridgeApi
             return res.scriptHash;
         }
         else{
-            return _constants.Constants.bridgeContractHash;
+            return _constants.bridgeContractHash;
         }
     }
 
@@ -44,7 +44,7 @@ class BridgeApi
             return res.address;
         }
         else{
-            return _constants.Constants.bridgeContractAddress;
+            return _constants.bridgeContractAddress;
         }
     }
 
@@ -55,7 +55,7 @@ class BridgeApi
             return res.address;
         }
         else{
-            return _constants.Constants.bridgeAddress;
+            return _constants.bridgeAddress;
         }
     }
 
