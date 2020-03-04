@@ -40,20 +40,6 @@ var blockchain = class Blockchain {
         }
     }
 
-    async getAddressForPassport(network, passportId){
-        if(!network)
-            throw new Error("network not provided");
-        if(!passportId)
-            throw new Error("passportId not provided");
-            
-        if(network.toLowerCase() === "neo"){
-            return await _neo.getAddressForPassport(passportId);
-        }
-        else if(network.toLowerCase() === "eth"){
-            return await _eth.getAddressForPassport(passportId);
-        }
-    }
-
     async unpublishPassport(wallet){
         if(!wallet)
             throw new Error("wallet not provided");

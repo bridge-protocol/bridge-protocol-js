@@ -152,20 +152,6 @@ class NEO {
         });
     }
 
-    async getAddressForPassport(passportId) {
-        let storage = await this._getStorage(_bridgeContractHash, passportId);
-        if (!storage) {
-            console.log("Address not registered.");
-            return null;
-        }
-        var deserialized = this._deserialize(storage);
-        let addresslist = deserialized[1];
-        let address = null;
-        for (var scripthash in addresslist)
-            address = this._getAddressFromScriptHash(addresslist[scripthash]);
-        return address;
-    }
-
     async getPassportForAddress(address) {
         let addressScriptHash = this._getAddressScriptHash(address);
         let storage = await this._getStorage(_bridgeContractHash, addressScriptHash);
