@@ -212,7 +212,7 @@ class NEO {
     }
 
     //Amount is 100000000 = 1
-    async sendSpendTokensTransaction(wallet, passportId, amount, paymentIdentifier, recipient, wait) {
+    async sendBrdg(wallet, recipient, amount, paymentIdentifier) {
         let neo = this;
         return new Promise(async (resolve, reject) => {
             if (!wallet)
@@ -229,31 +229,123 @@ class NEO {
                 let recipientScriptHash = this._getAddressScriptHash(recipient);
                 let args = [
                     addressScriptHash,
-                    passportId,
                     recipientScriptHash,
-                    amount,
-                    addressScriptHash
+                    amount
                 ];
 
-                //invoke <contracthash> "spend" [address, identity, amount, provider]
-                //address = your public neo address being used to sign the invocation / tx
-                //identity = bridge passport id to deposit funds to
-                //recipient = the recipient address for the payment
-                //amount = number of tokens
-                //provider = the account paying the tokens for the action
-                let tx = await this._createAndSignTransaction(wallet, _bridgeContractHash, 'spend', args, paymentIdentifier);
+                //invoke <contracthash> "transfer" [address, to, amount]
+                //arguments[0] = address
+			    //arguments[1] = to
+			    //arguments[2] = amount
+                let tx = await this._createAndSignTransaction(wallet, _brdgHash, 'transfer', args, paymentIdentifier);
 
                 //Relay the transaction
-                if (wait)
-                    resolve(await this._relayTransactionWaitStatus(tx));
-                else
-                    resolve(this._relayTransaction(tx));
+                resolve(await this._relayTransactionWaitStatus(tx));
             }
             catch (err) {
                 reject(err);
                 return;
             }
         });
+    }
+
+    async verifyTransfer(info, amount, recipient, identifier) {
+        if (!recipient)
+            recipient = _bridgeContractAddress;
+        if (!amount) {
+            throw new Error("amount not provided");
+        }
+
+        if (!info) {
+            console.log("transaction info was null");
+            return { complete: true, success: false };
+        }
+        if (!Array.isArray(info.tx)) {
+            console.log("transaction values not found");
+            return { complete: true, success: false };;
+        }
+        if (!info.log.executions || !Array.isArray(info.log.executions)) {
+            console.log("log executions is null");
+            return { complete: true, success: false };
+        }
+        if (!info.log.txid) {
+            console.log("log does not contain the txid");
+            return { complete: true, success: false };
+        }
+
+        //get the txid
+        let txid = info.log.txid;
+        if (txid.startsWith("0x")) {
+            txid = txid.slice(2);
+        }
+
+        //If an identifier to match is specified, make sure it exists on the transaction
+        if (identifier) {
+            //Find the remark and see if it matches
+            let remark;
+            for (let t in info.tx) {
+                let val = info.tx[t];
+                if (val.type && val.type == "Remark") {
+                    remark = val.value;
+                }
+            };
+            if (remark == null) {
+                console.log("remark not found on transaction");
+                return { complete: true, success: false, txid };
+            }
+            if (!remark.includes(identifier)) {
+                console.log("transaction remark does not match requested identifier");
+                return { complete: true, success: false, txid };
+            }
+        }
+
+        //Get the notifications about the transaction
+        for (let e in info.log.executions) {
+            let execution = info.log.executions[e];
+            if (Array.isArray(execution.notifications)) {
+                for (let n in execution.notifications) {
+                    let notify = execution.notifications[n];
+                    if (notify.values && Array.isArray(notify.values)) {
+                        //Look for spend tx to the smart contract
+                        if (notify.contract == _bridgeContractHash && notify.values[0] == "spend" && notify.values.length == 6) {
+                            //let from = notify.values[1];
+                            let to = notify.values[3];
+                            let amt = notify.values[4];
+
+                            if (amt >= amount && to == recipient) {
+                                console.log("transaction confirmed");
+                                return { complete: true, success: true, txid };
+                            }
+                        }
+                        //Look for a straight nep5 transfer
+                        if (notify.contract == _brdgHash && notify.values[0] == "transfer" && notify.values.length == 4) {
+                            //let from = notify.values[1];
+                            let to = notify.values[2];
+                            let amt = notify.values[3];
+
+                            if (amt >= amount && to == recipient) {
+                                console.log("transaction confirmed");
+                                return { complete: true, success: true, txid };
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        console.log("transaction could not be confirmed");
+        return { complete: true, success: false, txid };
+    }
+
+    async verifyTransferFromHash(txid, amount, recipient, identifier) {
+        //Get the transaction info
+        let info = await this._getTransactionInfo(txid);
+        if (info == null) {
+            console.log("transaction not found");
+            return { complete: false, success: false };
+        }
+
+        return await this.verifyTransfer(info, amount, recipient, identifier);
     }
 
     //Need to get the transaction, send to bridge, then relay
@@ -468,102 +560,6 @@ class NEO {
             return null;
 
         return await this.getClaimForPassport(claimType, info.passportId);
-    }
-
-    async verifySpendTransactionFromInfo(info, amount, recipient, identifier) {
-        if (!recipient)
-            recipient = _bridgeContractAddress;
-        if (!amount) {
-            throw new Error("amount not provided");
-        }
-
-        if (!info) {
-            console.log("transaction info was null");
-            return { complete: true, success: false };
-        }
-        if (!Array.isArray(info.tx)) {
-            console.log("transaction values not found");
-            return { complete: true, success: false };;
-        }
-        if (!info.log.executions || !Array.isArray(info.log.executions)) {
-            console.log("log executions is null");
-            return { complete: true, success: false };
-        }
-        if (!info.log.txid) {
-            console.log("log does not contain the txid");
-            return { complete: true, success: false };
-        }
-
-        //get the txid
-        let txid = info.log.txid;
-        if (txid.startsWith("0x")) {
-            txid = txid.slice(2);
-        }
-
-        //If an identifier to match is specified, make sure it exists on the transaction
-        if (identifier) {
-            //Find the remark and see if it matches
-            let remark;
-            for (let t in info.tx) {
-                let val = info.tx[t];
-                if (val.type && val.type == "Remark") {
-                    remark = val.value;
-                }
-            };
-            if (remark == null) {
-                console.log("remark not found on transaction");
-                return { complete: true, success: false, txid };
-            }
-            if (!remark.includes(identifier)) {
-                console.log("transaction remark does not match requested identifier");
-                return { complete: true, success: false, txid };
-            }
-        }
-
-        //Get the notifications about the transaction
-        for (let e in info.log.executions) {
-            let execution = info.log.executions[e];
-            if (Array.isArray(execution.notifications)) {
-                for (let n in execution.notifications) {
-                    let notify = execution.notifications[n];
-                    if (notify.values && Array.isArray(notify.values)) {
-                        //Look for spend tx to the smart contract
-                        if (notify.contract == _bridgeContractHash && notify.values[0] == "spend" && notify.values.length == 6) {
-                            //let from = notify.values[1];
-                            let to = notify.values[3];
-                            let amt = notify.values[4];
-
-                            if (amt >= amount && to == recipient) {
-                                return { complete: true, success: true, txid };
-                            }
-                        }
-                        //Look for a straight nep5 transfer
-                        if (notify.contract == _brdgHash && notify.values[0] == "transfer" && notify.values.length == 4) {
-                            //let from = notify.values[1];
-                            let to = notify.values[2];
-                            let amt = notify.values[3];
-
-                            if (amt >= amount && to == recipient) {
-                                return { complete: true, success: true, txid };
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return { complete: true, success: false, txid };
-    }
-
-    async verifySpendTransaction(txid, amount, recipient, identifier) {
-        //Get the transaction info
-        let info = await this._getTransactionInfo(txid);
-        if (info == null) {
-            console.log("transaction not found");
-            return { complete: false, success: false };
-        }
-
-        return await this.verifySpendTransactionFromInfo(info, amount, recipient, identifier);
     }
     //End smart contract for passport and claims management
 

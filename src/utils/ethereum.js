@@ -124,17 +124,17 @@ class Ethereum {
         return await this._broadcastTransaction(wallet, _bridgeTokenContractAddress, data, nonce);
     }
 
-    async verifyTransferWithMemoTransactionFromHash(hash, from, to, amount, memo){
+    async verifyTransferFromHash(hash, from, to, amount, memo){
         let info = await this._getTransactionInfo(hash);
         if(!info){
             console.log("Unable to retrieve transaction info for " + hash);
             return false;
         }
 
-        return this.verifyTransferWithMemoTransaction(info, from, to, amount, memo);
+        return this.verifyTransfer(info, from, to, amount, memo);
     }
 
-    async verifyTransferWithMemoTransaction(info, from, to, amount, memo){
+    async verifyTransfer(info, from, to, amount, memo){
         let senderValid = false;
         let recipientValid = false;
         let amountValid = false;
@@ -280,11 +280,11 @@ class Ethereum {
                 _web3.eth.sendSignedTransaction(raw)
                     .on('transactionHash',(hash) => console.log("Transaction " + hash + " sent.  Waiting for completion."))
                     .on('receipt', (info) => {
-                        console.log("Transaction confirmed.");
+                        console.log("transaction confirmed");
                         resolve(info);
                     })
                     .catch((err) => { 
-                        console.log(err); 
+                        console.log("transaction could not be confirmed: " + err); 
                         resolve(null); 
                     });
             });

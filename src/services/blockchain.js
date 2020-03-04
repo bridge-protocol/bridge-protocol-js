@@ -88,7 +88,6 @@ var blockchain = class Blockchain {
         return null;
     }
 
-    //Amount is 100000000 = 1 for NEO
     async sendPayment(passportId, wallet, amount, recipient, paymentIdentifier) {
         //Recipient can be null, it will default to bridge contract address
         if(!passportId)
@@ -100,16 +99,17 @@ var blockchain = class Blockchain {
         if (!amount)
             throw new Error("amount not provided.");
 
-        let success;
         if (wallet.network.toLowerCase() === "neo") {
-            let res = await _neo.sendSpendTokensTransaction(wallet, passportId, amount, paymentIdentifier, recipient, true);
-            let verify = await _neo.verifySpendTransactionFromInfo(res.info, amount, recipient, paymentIdentifier);
+            //Amount is 100000000 = 1 for NEO
+            let res = await _neo.sendBrdg(wallet, recipient, amount, paymentIdentifier);
+            let verify = await _neo.verifyTransfer(res.info, amount, recipient, paymentIdentifier);
             return verify.success;
         }
         else if(wallet.network.toLowerCase() === "eth"){
             amount = (amount / 100000000);
             let info = await _eth.sendBrdg(wallet, recipient, amount, paymentIdentifier);
-            return await _eth.verifyTransferWithMemoTransaction(info, wallet.address, recipient, amount, paymentIdentifier);
+            let verify = await _eth.verifyTransfer(info, wallet.address, recipient, amount, paymentIdentifier);
+            return verify;
         }
     }
 
