@@ -235,7 +235,7 @@ class NEO {
         });
     }
 
-    async verifyTransfer(info, amount, recipient, identifier) {
+    async verifyTransfer(info, recipient, amount, identifier) {
         if (!recipient)
             recipient = _bridgeContractAddress;
         if (!amount) {
@@ -323,7 +323,7 @@ class NEO {
         return { complete: true, success: false, txid };
     }
 
-    async verifyTransferFromHash(txid, amount, recipient, identifier) {
+    async verifyTransferFromHash(txid, recipient, amount, identifier) {
         //Get the transaction info
         let info = await this._getTransactionInfo(txid);
         if (info == null) {
@@ -331,7 +331,7 @@ class NEO {
             return { complete: false, success: false };
         }
 
-        return await this.verifyTransfer(info, amount, recipient, identifier);
+        return await this.verifyTransfer(info, recipient, amount, identifier);
     }
 
     //Need to get the transaction, send to bridge, then relay

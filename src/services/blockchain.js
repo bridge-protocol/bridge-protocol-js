@@ -88,7 +88,7 @@ var blockchain = class Blockchain {
         if (wallet.network.toLowerCase() === "neo") {
             //Amount is 100000000 = 1 for NEO
             let res = await _neo.sendBrdg(wallet, recipient, amount, paymentIdentifier);
-            let verify = await _neo.verifyTransfer(res.info, amount, recipient, paymentIdentifier);
+            let verify = await _neo.verifyTransfer(res.info, recipient, amount, paymentIdentifier);
             return verify.success;
         }
         else if(wallet.network.toLowerCase() === "eth"){
@@ -99,53 +99,30 @@ var blockchain = class Blockchain {
         }
     }
 
-    async waitTransactionStatus(network, txid, amount, recipient, paymentIdentifier){
-        if (!network) {
-            throw new Error("network not provided.");
-        }
-        if (!txid) {
-            throw new Error("txid not provided.");
-        }
-        if (!amount) {
+    async verifyPayment(hash, from, to, amount, paymentIdentifier){
+        if(!hash)
+            throw new Error("hash not provided.");
+        if(!from)
+            throw new Error("from not unlocked");
+        if(!from)
+            throw new Error("from not provided");
+        if(!amount)
             throw new Error("amount not provided.");
-        }
-        if (!recipient) {
-            throw new Error("recipient not provided.");
-        }
+        if(!paymentIdentifier)
+            throw new Error("payment identifier not provided.");
 
-        if (network.toLowerCase() === "neo") {
-            let info = await _neo.checkTransactionComplete(txid);
-            console.log("Verifying payment..");
-            let verifyRes = await _neo.verifySpendTransactionFromInfo(info, amount, recipient, paymentIdentifier);
-            if (!verifyRes.success) {
-                console.log("Payment failed");
-                return null;
-            }
-
-            if(verifyRes.success){
-                console.log("Payment successful");
-                return verifyRes.txid;
-            }
+        if (wallet.network.toLowerCase() === "neo") {
+            //Amount is 100000000 = 1 for NEO
+            let verify = await _neo.verifyTransferFromHash(hash, to, amount, paymentIdentifier);
+            return verify.success;
         }
-
-        return null;
+        else if(wallet.network.toLowerCase() === "eth"){
+            amount = (amount / 100000000);
+            let verify = await _eth.verifyTransferFromHash(hash, from, to, amount, paymentIdentifier);
+            return verify;
+        }
     }
 
-    async checkTransactionComplete(network, transactionId) {
-        if (!network) {
-            throw new Error("network not provided");
-        }
-        if (!transactionId) {
-            throw new Error("transactionId not provided");
-        }
-
-        var res = await this.getTransactionStatus(network, transactionId);
-        if (res && res.complete)
-            return true;
-
-        return false;
-    }
-    
     async addClaim(network, claim, hashOnly) {
         if (!network) {
             throw new Error("network not provided");
