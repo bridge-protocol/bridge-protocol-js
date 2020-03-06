@@ -7,6 +7,6 @@
 
 # Summary
 
-The Bridge Protocol SDK encompasses all functionality of the Bridge Passport, Bridge Protocol, and interaction with the Bridge Protocol Network API.
+The Bridge Protocol SDK encompasses all functionality of the Bridge Passport, Bridge Protocol, and interaction with the Bridge Protocol Network API, BRDG Token, NEO Blockchain Smart Contract(s), and Ethereum Blockchain Smart Contract(s).
 
 <img src="./docs/bridge_overview-v2.jpg">
