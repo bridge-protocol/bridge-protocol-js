@@ -158,20 +158,17 @@ var blockchain = class Blockchain {
         return null;
     }
 
-    async removeClaim(network, claimTypeId) {
-        if (!network) {
-            throw new Error("network not provided");
+    async removeClaim(wallet, claimTypeId) {
+        if (!wallet) {
+            throw new Error("wallet not provided");
         }
         if (!claimTypeId) {
             throw new Error("claimTypeId not provided");
         }
 
-        if (network.toLowerCase() === "neo") {
-            return _neo.sendRemoveClaimTransaction(claimTypeId, this._passport, this._passphrase, true);
-            //TODO: Validate response
+        if (wallet.network.toLowerCase() === "neo") {
+            await _neo.removeClaim(wallet, claimTypeId);
         }
-
-        return null;
     }
 
     //Public get claim for any address

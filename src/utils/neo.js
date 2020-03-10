@@ -495,24 +495,21 @@ class NEO {
         });
     }
 
-    async sendRemoveClaimTransaction(claimTypeId, passport, passphrase, wait) {
-        let neo = this;
+    async removeClaim(wallet, claimTypeId) {
         return new Promise(async (resolve, reject) => {
             if (!claimTypeId) {
                 reject("claimTypeIds not provided");
             }
-            if (!passport) {
-                reject("passport not provided");
-            }
-            if (!passphrase) {
-                reject("passphrase not provided");
+            if (!wallet) {
+                reject("wallet not provided");
             }
 
+            let passportId = await this.getPassportForAddress(wallet.address);
             try {
-                let addressScriptHash = this._getAddressScriptHash(passport.wallets[0].address);
+                let addressScriptHash = this._getAddressScriptHash(wallet.address);
                 let args = [
                     addressScriptHash,
-                    passport.id,
+                    passportId,
                     _crypto.hexEncode(claimTypeId.toString())
                 ];
 
@@ -520,13 +517,10 @@ class NEO {
                 //address
                 //identity
                 //claims - [[claimtypeid,claimvalue,createdon]]
-                let tx = await this._createAndSignTransaction(_bridgeContractHash, 'revokeclaim', args, passport, passphrase);
+                let tx = await this._createAndSignTransaction(wallet, _bridgeContractHash, 'revokeclaim', args);
 
                 //Relay the transaction
-                if (wait)
-                    resolve(await this._relayTransactionWaitStatus(tx));
-                else
-                    resolve(this._relayTransaction(tx));
+                resolve(await this._relayTransactionWaitStatus(tx));
             }
             catch (err) {
                 reject(err);
@@ -535,8 +529,7 @@ class NEO {
         });
     }
 
-
-    async getClaimForPassport(claimType, passportId) {
+    async getClaimForPassport(passportId, claimType) {
         claimType = _crypto.hexEncode(claimType.toString());
 
         let storageKey = (passportId + '3032' + claimType);
@@ -556,7 +549,7 @@ class NEO {
         if (!passportId)
             return null;
 
-        return await this.getClaimForPassport(claimType, passportId);
+        return await this.getClaimForPassport(passportId, claimType);
     }
     //End smart contract for passport and claims management
 

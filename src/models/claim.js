@@ -44,7 +44,7 @@ var claim = class Claim
         if(!claimPackage)
             throw new Error("claim package not provided");
 
-        let decrypted = claimPackage.decrypt(claimPackage, privateKey, password);
+        let decrypted = await claimPackage.decrypt(privateKey, password);
         this._load(decrypted);
     }
 
@@ -55,13 +55,16 @@ var claim = class Claim
         if(!this.claimTypeId || !this.claimValue)
             throw new Error("invalid or missing claim data");
 
-        //Set the signing context
-        claim.signedByKey = passportPublicKey;
+        this.signedByKey = passportPublicKey;
         let passportId = await _crypto.getPassportIdForPublicKey(targetPublicKey);
         let signatureString = await this.getSignatureString(passportId);
-        claim.signature = await _crypto.signMessage(signatureString, passportPrivateKey, password, true);
+        this.signature = await _crypto.signMessage(signatureString, passportPrivateKey, password, true);
         let encryptedClaim = await this.encrypt(targetPublicKey, passportPrivateKey, password);
-        return new _claimPackage.ClaimPackage(this.claimTypeId, passportPublicKey, encryptedClaim);
+        let claimPackage = new _claimPackage.ClaimPackage(this.claimTypeId, passportPublicKey, encryptedClaim);
+
+        this.signedByKey = null;
+        this.signature = null;
+        return claimPackage;
     }
 
     async getSignatureString(passportId){

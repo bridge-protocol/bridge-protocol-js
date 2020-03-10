@@ -1,6 +1,11 @@
 exports.Constants = require('./constants').Constants;
 exports.Crypto = require('./utils/crypto').Crypto;
-exports.Passport = require('./models/passport').Passport;
+exports.Models = {
+    Claim: require('./models/claim').Claim,
+    ClaimPackage: require('./models/claimPackage').ClaimPackage,
+    Passport: require('./models/passport').Passport,
+    Wallet: require('./models/wallet').Wallet
+};
 exports.Messaging = {
     Auth: require('./messaging/auth').Auth,
     Claim: require('./messaging/claim').Claim,
@@ -14,4 +19,4 @@ exports.Services = {
     Partner: require('./services/partner').PartnerApi,
     Passport: require('./services/passport').PassportApi,
     Profile: require('./services/profile').ProfileApi
-}
+};

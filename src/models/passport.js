@@ -137,6 +137,15 @@ var passport = class Passport
         return null;
     }
 
+    async addClaimFromPackage(claimPackage, password){
+        let decryptedClaim = new _claim.Claim();
+        await decryptedClaim.fromClaimPackage(claimPackage, this.privateKey, password);
+        if(!decryptedClaim)
+            throw new Error("Unable to decrypt claim or claim invalid");
+
+        this.claims.push(decryptedClaim);
+    }
+
     getClaims(claimTypeIds){
         if(!claimTypeIds)
             throw new Error("no claimTypeIds specified");
