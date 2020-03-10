@@ -352,29 +352,26 @@ class NEO {
     }
 
     //Need to get the transaction, send to bridge, then relay
-    async getAddClaimTransaction(claim, passport, passphrase, secondaryPassportId, secondaryAddress, hashOnly) {
-        let neo = this;
+    async getAddClaimTransaction(wallet, claim, secondaryAddress, hashOnly) {
         return new Promise(async (resolve, reject) => {
             if (!claim) {
                 reject("claims not provided");
             }
-            if (!passport) {
-                reject("passport not provided");
-            }
-            if (!passphrase) {
-                reject("passphrase not provided");
+            if (!wallet) {
+                reject("wallet not provided");
             }
 
-            
             let bridgeContractHash = _bridgeContractHash;
             if (bridgeContractHash.startsWith("0x")) {
                 bridgeContractHash = bridgeContractHash.slice(2);
             }
-            const address = passport.wallets[0].address;
-            const addressScriptHash = this._getAddressScriptHash(address);
+
+            let secondaryPassportId = this.getPassportForAddress(secondaryAddress);
+            if(!secondaryPassportId)
+                throw new Error("Passport is not registeredd");
             const secondaryAddressScriptHash = this._getAddressScriptHash(secondaryAddress);
-            const privateKey = await this.getWifFromNep2Key(passport.wallets[0].key, passphrase);
-            const account = new _neon.wallet.Account(privateKey);
+            const addressScriptHash = this._getAddressScriptHash(wallet.address);
+            const account = new _neon.wallet.Account(wallet.privateKey);
 
             //Allow publishing the actual or hash value
             let claimValue = claim.claimValue.toString();

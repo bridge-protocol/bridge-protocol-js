@@ -165,25 +165,37 @@ class Ethereum {
     //End asset and transaction management functions
 
     //Smart contract for passport and claims management
-    async approvePublishClaim(wallet, account, claimType, claimDate, claimValue, nonce){
-        if(!claimType)
-            throw new Error("Claim type is required.");
-        if(!claimValue)
+    async approvePublishClaim(wallet, account, claim, hashOnly, nonce){
+        if(!claim.claimTypeId)
+            throw new Error("Claim is required.");
+        if(!claim.claimValue)
             throw new Error("Claimm value is required");
-        if(!Number.isInteger(claimDate) || claimDate <= 0)
+        if(!Number.isInteger(claim.createdOn) || claim.createdOn <= 0)
             throw new Error("Date must be an integer");
+
+        let claimType = claim.claimTypeid;
+        let claimDate = claim.createdOn;
+        let claimValue = claim.claimValue;
+        if(hashOnly)
+            claimValue = _crypto.getHash(claimValue);
 
         const data = _contract.methods.approvePublishClaim(account, claimType, claimDate, claimValue).encodeABI();
         return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, nonce);
     }
 
-    async publishClaim(wallet, claimType, claimDate, claimValue, nonce){
-        if(!claimType)
-            throw new Error("Claim type is required.");
-        if(!claimValue)
+    async publishClaim(wallet, claim, hashOnly, nonce){
+        if(!claim.claimTypeId)
+            throw new Error("Claim is required.");
+        if(!claim.claimValue)
             throw new Error("Claimm value is required");
-        if(!Number.isInteger(claimDate) || claimDate <= 0)
+        if(!Number.isInteger(claim.createdOn) || claim.createdOn <= 0)
             throw new Error("Date must be an integer");
+
+        let claimType = claim.claimTypeid;
+        let claimDate = claim.createdOn;
+        let claimValue = claim.claimValue;
+        if(hashOnly)
+            claimValue = _crypto.getHash(claimValue);
 
         const data = _contract.methods.publishClaim(claimType, claimDate, claimValue).encodeABI();
         return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, nonce);

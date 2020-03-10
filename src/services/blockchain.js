@@ -146,13 +146,19 @@ var blockchain = class Blockchain {
         }
 
         if (wallet.network.toLowerCase() === "neo") {
+            //For NEO we create a signed preapproval transaction then the user signs and relays
             let tx = await _neoApi.getAddClaimTransaction(this._passport, this._passphrase, claim, wallet.address, hashOnly);
             if(tx == null){
                 return null;
             }
-            
+            //Secondarily sign it and relay the signed transaction
             let signed = await _neo.secondarySignAddClaimTransaction(tx, wallet);
             return await _neo.sendAddClaimTransaction({ transaction: signed.serialize(), hash: signed.hash });
+        }
+        else if(wallet.network.toLowerCase() == "eth"){
+             //For ETH the user publishes the claim then requests an approval to publish
+            await _eth.publishClaim(wallet, claim, hashOnly);
+            //TODO: Send a request to the Bridge API to approve the publish
         }
 
         return null;
@@ -168,6 +174,22 @@ var blockchain = class Blockchain {
 
         if (wallet.network.toLowerCase() === "neo") {
             await _neo.removeClaim(wallet, claimTypeId);
+        }
+    }
+
+    //Bridge approval function
+    async approveClaimPublish(wallet, address, claim, hashOnly)
+    {
+        if(!wallet)
+            throw new Error("wallet not provided");
+
+        if(wallet.network.toLowerCase() == "neo"){
+            //For NEO we create a signed preapproval transaction then the user signs and relays
+            return await _neo.createApprovedClaimTransaction(wallet, claim, secondaryAddress, hashOnly);
+        }
+        else if(wallet.network.toLowerCase() == "eth"){
+            //For ETH the user publishes the claim then requests an approval to publish
+            return await _eth.approvePublishClaim(wallet, address, claim.claimTypeId, claim.createdOn, claim.claimValue, hashOnly);
         }
     }
 
