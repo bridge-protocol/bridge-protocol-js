@@ -152,6 +152,23 @@ class NEO {
         });
     }
 
+    async getAddressForPassport(passportId) {
+        let storage = await this._getStorage(_bridgeContractHash, passportId);
+        if (!storage) {
+            console.log("Address not registered.");
+            return null;
+        }
+        var deserialized = this._deserialize(storage);
+
+        //For each NEO address we are going to get the token balance
+        let addresslist = deserialized[1];
+        for (var scripthash in addresslist) {
+            return this._getAddressFromScriptHash(addresslist[scripthash]);
+        }
+
+        return null;
+    }
+
     async getPassportForAddress(address) {
         let addressScriptHash = this._getAddressScriptHash(address);
         let storage = await this._getStorage(_bridgeContractHash, addressScriptHash);
@@ -431,11 +448,9 @@ class NEO {
     }
 
     //Secondary sign the add claim transaction
-    async secondarySignAddClaimTransaction(tx, passport, passphrase) {
+    async secondarySignAddClaimTransaction(tx, wallet) {
         return new Promise(async (resolve, reject) => {
-            const privateKey = await this.getWifFromNep2Key(passport.wallets[0].key, passphrase);
-            const account = new _neon.wallet.Account(privateKey);
-
+            let account = new _neon.wallet.Account(wallet.privateKey);
             const provider = new _neon.api.neoscan.instance("MainNet");
             const script = tx.script;
             const config = {
@@ -447,7 +462,7 @@ class NEO {
                 gas: 0
             };
             config.tx = new _neon.tx.InvocationTransaction(tx);
-            config.signingFunction = _neon.api.signWithPrivateKey(privateKey);
+            config.signingFunction = _neon.api.signWithPrivateKey(wallet.privateKey);
             config.account = account;
             _neon.api.signTx(config)
                 .then(c => {
@@ -463,8 +478,7 @@ class NEO {
 
     //This is the secondary signed transaction by Bridge for publish
     //If it's not signed by Bridge the smart contract will reject it
-    async sendAddClaimTransaction(tx, wait) {
-        let neo = this;
+    async sendAddClaimTransaction(tx) {
         return new Promise(async (resolve, reject) => {
             if (!tx) {
                 reject("tx not provided");
@@ -472,10 +486,7 @@ class NEO {
 
             try {
                 //Relay the transaction
-                if (wait)
-                    resolve(await this._relayTransactionWaitStatus(tx));
-                else
-                    resolve(this._relayTransaction(tx));
+                resolve(await this._relayTransactionWaitStatus(tx));
             }
             catch (err) {
                 reject(err);
@@ -541,11 +552,11 @@ class NEO {
     }
 
     async getClaimForAddress(address, claimType) {
-        let info = await this.getRegisteredAddressInfo(address);
-        if (!info || !info.passportId)
+        let passportId = await this.getPassportForAddress(address);
+        if (!passportId)
             return null;
 
-        return await this.getClaimForPassport(claimType, info.passportId);
+        return await this.getClaimForPassport(claimType, passportId);
     }
     //End smart contract for passport and claims management
 

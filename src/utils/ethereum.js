@@ -206,6 +206,10 @@ class Ethereum {
         let account = address;
         return await _contract.methods.getPassportForAddress(account).call();
     }
+
+    async getAddressForPassport(passportId){
+        return await _contract.methods.getAddressForPassport(passportId).call();
+    }
     
     async unpublishPassport(wallet, nonce){
         const data = _contract.methods.unpublishPassport().encodeABI();

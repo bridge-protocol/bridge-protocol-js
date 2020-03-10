@@ -26,6 +26,20 @@ var blockchain = class Blockchain {
         return null;
     }
 
+    async getAddressForPassport(network, passportId){
+        if(!network)
+            throw new Error("network not provided");
+        if(!passportId)
+            throw new Error("passportId not provided");
+
+        if(network.toLowerCase() === "neo"){
+            return await _neo.getAddressForPassport(passportId);
+        }
+        else if(network.toLowerCase() === "eth"){
+            return await _eth.getAddressForPassport(passportId);
+        }
+    }
+
     async getPassportForAddress(network, address){
         if(!network)
             throw new Error("network not provided");
@@ -123,22 +137,22 @@ var blockchain = class Blockchain {
         }
     }
 
-    async addClaim(network, claim, hashOnly) {
-        if (!network) {
-            throw new Error("network not provided");
+    async addClaim(wallet, claim, hashOnly) {
+        if (!wallet) {
+            throw new Error("walletnot provided");
         }
         if (!claim) {
             throw new Error("claim not provided");
         }
 
-        if (network.toLowerCase() === "neo") {
-            let tx = await _neoApi.getAddClaimTransaction(claim, this._passport.wallets[0].address, hashOnly);//  _neoHelper.getAddClaimTransaction(claim, this._passport, this._passphrase);
+        if (wallet.network.toLowerCase() === "neo") {
+            let tx = await _neoApi.getAddClaimTransaction(this._passport, this._passphrase, claim, wallet.address, hashOnly);
             if(tx == null){
                 return null;
             }
             
-            let signed = await _neo.secondarySignAddClaimTransaction(tx, this._passport, this._passphrase);
-            return await _neo.sendAddClaimTransaction({ transaction: signed.serialize(), hash: signed.hash }, true);
+            let signed = await _neo.secondarySignAddClaimTransaction(tx, wallet);
+            return await _neo.sendAddClaimTransaction({ transaction: signed.serialize(), hash: signed.hash });
         }
 
         return null;

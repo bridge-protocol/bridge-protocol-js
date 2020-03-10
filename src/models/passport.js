@@ -137,26 +137,27 @@ var passport = class Passport
         return null;
     }
 
-    getClaimPackages(claimTypeIds){
+    getClaims(claimTypeIds){
         if(!claimTypeIds)
             throw new Error("no claimTypeIds specified");
 
-        let claimPackages = new Array();
-        for(const claimTypeId of claimTypeIds){
-            let claimPackage = this.getClaimPackage(claimTypeId);
-            if(claimPackage != null)
-                claimPackages.push(claimPackage);
+        let claims = new Array();
+        for(let i=0; i<claimTypeIds.length; i++){
+            let claim = this.getClaim(claimTypeIds[i]);
+            if(claim)
+                claims.push(claim);
         }
-        return claimPackages;
+
+        return claims;
     }
 
-    getClaimPackage(claimTypeId){
+    getClaim(claimTypeId){
         if(!claimTypeId)
             return null;
 
-        for(var claimPackage in this.claims){
-            if(claimPackage.typeId == claimTypeId)
-                return claimPackage;
+        for(let i=0; i<this.claims.length; i++){
+            if(this.claims[i].claimTypeId == claimTypeId)
+                return this.claims[i];
         }
 
         return null;
