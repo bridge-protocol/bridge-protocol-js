@@ -366,7 +366,7 @@ class NEO {
                 bridgeContractHash = bridgeContractHash.slice(2);
             }
 
-            let secondaryPassportId = this.getPassportForAddress(secondaryAddress);
+            let secondaryPassportId = await this.getPassportForAddress(secondaryAddress);
             if(!secondaryPassportId)
                 throw new Error("Passport is not registeredd");
             const secondaryAddressScriptHash = this._getAddressScriptHash(secondaryAddress);
@@ -534,12 +534,12 @@ class NEO {
         if (!storage || storage.length == 0)
             return null;
 
-        let type = null;
-        let time = 0;
+        let type = claimType;
+        let date = 0;
         let value = null;
         try{
             let deserialized = await this._deserialize(storage);
-            type = claimType;
+            type = _crypto.hexDecode(claimType);
             date = parseInt(deserialized[1]);
             value = this._unhexlify(deserialized[0]);
         }

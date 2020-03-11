@@ -137,7 +137,7 @@ var blockchain = class Blockchain {
         }
     }
 
-    async addClaim(wallet, claim, hashOnly) {
+    async addClaim(wallet, claim, hashOnly, bridgeWallet) {
         if (!wallet) {
             throw new Error("walletnot provided");
         }
@@ -147,7 +147,11 @@ var blockchain = class Blockchain {
 
         if (wallet.network.toLowerCase() === "neo") {
             //For NEO we create a signed preapproval transaction then the user signs and relays
-            let tx = await _neoApi.getAddClaimTransaction(this._passport, this._passphrase, claim, wallet.address, hashOnly);
+            //let tx = await _neoApi.getAddClaimTransaction(this._passport, this._passphrase, claim, wallet.address, hashOnly);
+            //Try and simulate the service for testing
+            claim.createdOn = claim.createdOn.toString();
+            let tx = await _neo.createApprovedClaimTransaction(bridgeWallet, claim, wallet.address, hashOnly);
+
             if(tx == null)
                 throw new Error("Unable to add claim: integrity or signer check failed.");
             
