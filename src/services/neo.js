@@ -5,6 +5,7 @@ const _apiBaseUrl = _constants.bridgeApiUrl + "neo/";
 class NEOApi
 {
     async getAddClaimTransaction(passport, passphrase, claim, address, hashOnly) {
+        claim.createdOn = claim.createdOn.toString();
         var obj = {
             claim,
             address,

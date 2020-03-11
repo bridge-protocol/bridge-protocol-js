@@ -140,7 +140,7 @@ class NEO {
                 //key = bridge passport public key
                 //provider = the account paying the tokens for the action
                 let tx = await this._createAndSignTransaction(wallet, _bridgeContractHash, 'publish', args);
-                console.log(JSON.stringify(tx));
+                //console.log(JSON.stringify(tx));
 
                 //Relay the transaction
                 resolve(await this._relayTransactionWaitStatus(tx));
@@ -202,7 +202,7 @@ class NEO {
                 //identity = bridge passport id
                 //user = the address to remove
                 let tx = await this._createAndSignTransaction(wallet, _bridgeContractHash, 'revoke', args);
-                console.log(JSON.stringify(tx));
+                //console.log(JSON.stringify(tx));
 
                 //Relay the transaction
                 resolve(await this._relayTransactionWaitStatus(tx));
@@ -351,8 +351,8 @@ class NEO {
         return await this.verifyTransfer(info, recipient, amount, identifier);
     }
 
-    //Need to get the transaction, send to bridge, then relay
-    async getAddClaimTransaction(wallet, claim, secondaryAddress, hashOnly) {
+    //Bridge is the only accepted passport to sign this transaction
+    async createApprovedClaimTransaction(wallet, claim, secondaryAddress, hashOnly) {
         return new Promise(async (resolve, reject) => {
             if (!claim) {
                 reject("claims not provided");
@@ -534,11 +534,19 @@ class NEO {
         if (!storage || storage.length == 0)
             return null;
 
-        let deserialized = await this._deserialize(storage);
-        let time = this._unhexlify(deserialized[1]);
-        let value = this._unhexlify(deserialized[0]);
-
-        return { time, value };
+        let type = null;
+        let time = 0;
+        let value = null;
+        try{
+            let deserialized = await this._deserialize(storage);
+            type = claimType;
+            date = parseInt(deserialized[1]);
+            value = this._unhexlify(deserialized[0]);
+        }
+        catch(err){
+            console.log("Could not deserialize claim data: " + err.message);
+        }
+        return { type, date, value };
     }
 
     async getClaimForAddress(address, claimType) {
@@ -593,7 +601,7 @@ class NEO {
         //User signs it
         transaction.sign(wallet.unlocked.privateKey);
 
-        console.log(JSON.stringify(transaction));
+        //console.log(JSON.stringify(transaction));
 
         //Get the hash
         let hash = transaction.hash; //_neon.tx.getTransactionHash(transaction);

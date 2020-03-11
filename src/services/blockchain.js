@@ -101,12 +101,12 @@ var blockchain = class Blockchain {
 
         if (wallet.network.toLowerCase() === "neo") {
             //Amount is 100000000 = 1 for NEO
+            amount = (amount * 100000000);
             let res = await _neo.sendBrdg(wallet, recipient, amount, paymentIdentifier);
             let verify = await _neo.verifyTransfer(res.info, recipient, amount, paymentIdentifier);
             return verify.success;
         }
         else if(wallet.network.toLowerCase() === "eth"){
-            amount = (amount / 100000000);
             let info = await _eth.sendBrdg(wallet, recipient, amount, paymentIdentifier);
             let verify = await _eth.verifyTransfer(info, wallet.address, recipient, amount, paymentIdentifier);
             return verify;
@@ -148,9 +148,9 @@ var blockchain = class Blockchain {
         if (wallet.network.toLowerCase() === "neo") {
             //For NEO we create a signed preapproval transaction then the user signs and relays
             let tx = await _neoApi.getAddClaimTransaction(this._passport, this._passphrase, claim, wallet.address, hashOnly);
-            if(tx == null){
-                return null;
-            }
+            if(tx == null)
+                throw new Error("Unable to add claim: integrity or signer check failed.");
+            
             //Secondarily sign it and relay the signed transaction
             let signed = await _neo.secondarySignAddClaimTransaction(tx, wallet);
             return await _neo.sendAddClaimTransaction({ transaction: signed.serialize(), hash: signed.hash });
@@ -175,6 +175,9 @@ var blockchain = class Blockchain {
         if (wallet.network.toLowerCase() === "neo") {
             await _neo.removeClaim(wallet, claimTypeId);
         }
+        else if(wallet.network.toLowerCase() === "eth"){
+            await _eth.removeClaim(wallet, claimTypeId);
+        }
     }
 
     //Bridge approval function
@@ -189,7 +192,7 @@ var blockchain = class Blockchain {
         }
         else if(wallet.network.toLowerCase() == "eth"){
             //For ETH the user publishes the claim then requests an approval to publish
-            return await _eth.approvePublishClaim(wallet, address, claim.claimTypeId, claim.createdOn, claim.claimValue, hashOnly);
+            return await _eth.approvePublishClaim(wallet, address, claim, hashOnly);
         }
     }
 

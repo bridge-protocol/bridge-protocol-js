@@ -15,7 +15,6 @@ var wallet = class Wallet
     }
 
     get privateKey(){
-        console.log(`retrieving private key for ${this.network.toUpperCase()}`);
         if(!this.unlocked)
             throw new Error("wallet not unlocked");
 

@@ -49,7 +49,7 @@ var passport = class Passport
     async open(passportJson, password)
     {
         console.log("opening passport from content");
-        if(!await this._load(passportJson, password)){
+        if(!await this._load(passportJson)){
             throw new Error("Could not open Bridge Passport: Invalid or corrupted file");
         }
 
@@ -64,12 +64,12 @@ var passport = class Passport
         return true;
     };
 
-    async save(filePath, password){
+    async save(filePath){
         console.log("saving passport");
         if(!filePath)
             throw new Error("filePath not provided");
 
-        let passport = await this.export(password);
+        let passport = await this.export();
         if(!passport)
             throw new Error("error serializing passport");
 
@@ -84,7 +84,7 @@ var passport = class Passport
         return false;
     }
 
-    async export(password){
+    async export(){
         console.log("preparing passport for export");
         //Copy the object
         let serialized = JSON.stringify(this);
@@ -94,12 +94,6 @@ var passport = class Passport
         for(let i=0; i<exp.wallets.length; i++){
             let wallet = exp.wallets[i];
             exp.wallets[i] = new _wallet.Wallet(wallet.network, wallet.address, wallet.key).export();
-        }
-
-        //Create claim packages for secure export
-        for(let i=0; i<exp.claims.length; i++){
-            let claim = new _claim.Claim(exp.claims[i]);
-            exp.claims[i] = await claim.toClaimPackage(this.publicKey, this.publicKey, this.privateKey, password);
         }
 
         return exp;
@@ -137,22 +131,36 @@ var passport = class Passport
         return null;
     }
 
-    async addClaimFromPackage(claimPackage, password){
-        let decryptedClaim = new _claim.Claim();
-        await decryptedClaim.fromClaimPackage(claimPackage, this.privateKey, password);
-        if(!decryptedClaim)
-            throw new Error("Unable to decrypt claim or claim invalid");
+    getDecryptedClaim(claimTypeId, password){
+        let claimPackage = this.getClaimPackage(claimTypeId);
+        if(claimPackage)
+            return claimPackage.decrypt(this.privateKey, password);
 
-        this.claims.push(decryptedClaim);
+        return null;
     }
 
-    getClaims(claimTypeIds){
+    getDecryptedClaims(claimTypeIds, password)
+    {
+        let claims = [];
+        let claimPackages = this.getClaimPackages(claimTypeIds);
+        if(claimPackages){
+            for(let i=0; i<claimPackages.length; i++){
+                let claim = claimPackages[i].decrypt(this.privateKey, password);
+                if(claim)
+                    claims.push(claim);
+            }
+        }
+
+        return claims;
+    }
+
+    getClaimPackages(claimTypeIds){
         if(!claimTypeIds)
             throw new Error("no claimTypeIds specified");
 
         let claims = new Array();
         for(let i=0; i<claimTypeIds.length; i++){
-            let claim = this.getClaim(claimTypeIds[i]);
+            let claim = this.getClaimPackage(claimTypeIds[i]);
             if(claim)
                 claims.push(claim);
         }
@@ -160,12 +168,12 @@ var passport = class Passport
         return claims;
     }
 
-    getClaim(claimTypeId){
+    getClaimPackage(claimTypeId){
         if(!claimTypeId)
             return null;
 
         for(let i=0; i<this.claims.length; i++){
-            if(this.claims[i].claimTypeId == claimTypeId)
+            if(this.claims[i].typeId == claimTypeId)
                 return this.claims[i];
         }
 
@@ -183,7 +191,7 @@ var passport = class Passport
         this.claims = new Array();
     }
 
-    async _load(json, password){
+    async _load(json){
         let passport = JSON.parse(json);
 
         if(!passport)
@@ -204,20 +212,19 @@ var passport = class Passport
         this.key = passport.key;
 
         this.wallets = await this._initWallets(passport.wallets);
-        this.claims = await this._initClaims(passport.claims, password);
+        this.claims = await this._initClaims(passport.claims);
         
         return true;
     }
 
-    async _initClaims(claimPackages, password){
+    async _initClaims(claimPackages){
         let claims = [];
         if(!claimPackages || claimPackages.length == 0)
             return claims;
 
         for(const c of claimPackages){
             let claimPackage = new _claimPackage.ClaimPackage(c.typeId, c.signedBy, c.claim);
-            let claim = await claimPackage.decrypt(this.privateKey, password);
-            claims.push(claim);
+            claims.push(claimPackage);
         };
 
         return claims;

@@ -173,7 +173,7 @@ class Ethereum {
         if(!Number.isInteger(claim.createdOn) || claim.createdOn <= 0)
             throw new Error("Date must be an integer");
 
-        let claimType = claim.claimTypeid;
+        let claimType = claim.claimTypeId;
         let claimDate = claim.createdOn;
         let claimValue = claim.claimValue;
         if(hashOnly)
@@ -191,7 +191,7 @@ class Ethereum {
         if(!Number.isInteger(claim.createdOn) || claim.createdOn <= 0)
             throw new Error("Date must be an integer");
 
-        let claimType = claim.claimTypeid;
+        let claimType = claim.claimTypeId;
         let claimDate = claim.createdOn;
         let claimValue = claim.claimValue;
         if(hashOnly)
