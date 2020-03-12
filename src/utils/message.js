@@ -1,6 +1,7 @@
 const _crypto = require('./crypto').Crypto;
 
 class Message {
+    //Encrypted message for the target recipient
     async createEncryptedMessage(payload, targetPublicKey, passportPrivateKey, passportPublicKey, password) {
         if(!payload)
             throw new Error("payload not provided");
@@ -17,6 +18,7 @@ class Message {
         return this.createMessage(payload, passportPublicKey);
     }
 
+    //Signed message only, the public key is of the passport doing the sending
     async createMessage(payload, passportPublicKey){
         if(!payload)
             throw new Error("payload not provided");
@@ -30,11 +32,11 @@ class Message {
         return this._serialize(message, true);
     }
 
-    async decryptMessage(message) {
+    async decryptMessage(message, passportPrivateKey, password) {
         if(!message)
             throw new Error("message not provided");
 
-        message = await this._decrypt(message);
+        message = await this._decrypt(message, passportPrivateKey, password);
         let passportId = await _crypto.getPassportIdForPublicKey(message.publicKey);
 
         return {
@@ -44,7 +46,7 @@ class Message {
         }
     }
 
-    async _decrypt(message) {
+    async _decrypt(message, passportPrivateKey, password) {
         if(!message){
             throw new Error("message not provided");
         }
@@ -55,7 +57,7 @@ class Message {
         //Message format is always publicKey, payload.  If it's not encrypted, the payload should be json
         //Try and decrypt the payload if it's hex.  If that fails, and it's still hex, let's decode it.
         if (_crypto.isHex(message.payload)) {
-            let decrypted = await _crypto.decryptMessage(message.payload, message.publicKey, this._passport.privateKey, this._passphrase);
+            let decrypted = await _crypto.decryptMessage(message.payload, message.publicKey, passportPrivateKey, password);
             message.payload = JSON.parse(decrypted);
         }
 

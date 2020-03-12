@@ -20,3 +20,6 @@ exports.Services = {
     Passport: require('./services/passport').PassportApi,
     Profile: require('./services/profile').ProfileApi
 };
+exports.Utils = {
+    Claim: require('./utils/claim').Claim
+};

@@ -2,19 +2,23 @@ const _fs = require('fs');
 const _bridge = require("../src/index");
 
 async function Init() {
-    let passportHelper = new _bridge.Passport();
+    const passport = new _bridge.Models.Passport();
+    const password = "12345";
 
     //Load from file
-    let passportFromFile = await passportHelper.loadPassportFromFile('./passport.json',"12345");
+    await passport.openFile('./passport.json',password);
     console.log("Loaded from File:");
-    console.log(JSON.stringify(passportFromFile));
+    console.log(JSON.stringify(passport));
 
-    //Load from string
-    let buffer = _fs.readFileSync('./passport.json');
-    let content = buffer.toString();
-    let passportFromContent = await passportHelper.loadPassportFromContent(content, "12345");
-    console.log("Loaded from Content:");
-    console.log(JSON.stringify(passportFromContent));
+    //Unlock the NEO wallet (required for any signing/tx activity)
+    let neoWallet = passport.getWalletForNetwork("neo");
+    await neoWallet.unlock(password);
+    console.log("Unlocked NEO wallet: " + JSON.stringify(neoWallet));
+
+    //Unlock the ETH wallet (required for any signing/tx activity)
+    let ethWallet = passport.getWalletForNetwork("eth");
+    await ethWallet.unlock(password);
+    console.log("Unlocked ETH wallet: " + JSON.stringify(ethWallet));
 }
 
 Init();

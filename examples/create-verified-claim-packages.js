@@ -1,30 +1,38 @@
 const _fs = require('fs');
 const _bridge = require("../src/index");
-const _passphrase = "0123456789";
-const _apiBaseUrl = "https://api.bridgeprotocol.io";
 
 async function Init() {
-    var passportHelper = new _bridge.Passport();
+    const userPassport = new _bridge.Models.Passport();
+    const verificationPartnerPassport = new _bridge.Models.Passport();
+    const password = "12345";
 
     //Simulate a user passport so we have a public key
-    let userPassport = await passportHelper.createPassport(_passphrase);
-
+    await userPassport.create(password);
     //Our passport we are using to verify and package the claim
-    let verificationPartnerPassport = await passportHelper.createPassport(_passphrase);
-    let verificationClaimHelper = new _bridge.Claim(_apiBaseUrl, verificationPartnerPassport, _passphrase);
+    await verificationPartnerPassport.create(password);
 
-    //Verified email address claim
-    var claims = [];
-    claims.push({
+    //Create verified email address claim
+    let claim = new _bridge.Models.Claim({
         claimTypeId: 3,
         claimValue: "someuser@bridgeprotocol.io",
         createdOn: 1551180491,
-        expiresOn: 1553580491
+        expiresOn: 0, //Never expires
+        signedByKey: verificationPartnerPassport.publicKey
     });
+    console.log("Claim Created:");
+    console.log(JSON.stringify(claim));
 
-    let verifiedClaimPackages = await verificationClaimHelper.createClaimPackages(userPassport.publicKey, claims);
-    console.log("Claim Package(s) Created:");
-    console.log(JSON.stringify(verifiedClaimPackages));
+    //Sign the claim as the verifier and package it for the target user passport
+    let verifiedClaimPackage = new _bridge.Models.ClaimPackage();
+    await verifiedClaimPackage.fromClaim(claim, userPassport.publicKey, verificationPartnerPassport.publicKey, verificationPartnerPassport.privateKey, password);
+
+    console.log("Claim Package Created:");
+    console.log(JSON.stringify(verifiedClaimPackage));
+
+    //Unpackage the claim package as the user passport
+    let decryptedClaim = await verifiedClaimPackage.decrypt(userPassport.privateKey, password);
+    console.log("Claim Package Decrypted:");
+    console.log(decryptedClaim);
 }
 
 Init();

@@ -1,115 +1,105 @@
 const _fs = require('fs');
 const _bridge = require("../src/index");
-const _passphrase = "0123456789";
-const _apiBaseUrl = "https://api.bridgeprotocol.io/";
 
-var _userPassport;
-var _networkPartnerPassport;
-var _verificationPartnerPassport;
+const _apiBaseUrl = "https://api.bridgeprotocol.io/";
+const _passphrase = "0123456789";
+const _userPassport = new _bridge.Models.Passport();
+const _networkPartnerPassport = new _bridge.Models.Passport();
+const _verificationPartnerPassport = new _bridge.Models.Passport();
 
 var _randomAuthToken;
 var _requiredClaimTypes;
+var _requiredBlockchainAddresses;
 
 async function Init() {
     //Simulate 3 passport types (these would generally be loaded from disk, but for the example we can create on the fly)
-    var passportHelper = new _bridge.Passport();
-    _userPassport = await passportHelper.createPassport(_passphrase);
-    _networkPartnerPassport = await passportHelper.createPassport(_passphrase);
-    _verificationPartnerPassport = await passportHelper.createPassport(_passphrase);
+    //Create a user passport with wallets for both chains
+    await _userPassport.create(_passphrase);
+    await _userPassport.addWallet("neo", _passphrase);
+    await _userPassport.addWallet("eth",_passphrase);
+
+    await _networkPartnerPassport.create(_passphrase);
+    await _verificationPartnerPassport.create(_passphrase);
 
     //Verified claims get added to the user passport from a verification partner
-    _userPassport.claims = await GetClaimPackagesForPassport(_userPassport);
+    _userPassport.claims = await CreateClaimPackagesForPassport(_userPassport);
+    console.log("Passport Claims:");
+    console.log(JSON.stringify(_userPassport.claims));
 
     //Network partner wants to authenticate and authorize user with their passport
     let authRequest = await GetAuthRequest(_networkPartnerPassport);
+    console.log("Network Partner Auth Request:");
+    console.log(authRequest);
 
     //The user verifies the payload and the auth request and gets details about the request
-    let authMessage = await VerifyAuthRequest(_userPassport, authRequest);
+    let authMessage = await _bridge.Messaging.Auth.verifyPassportLoginChallengeRequest(authRequest);
+    console.log("Decrypted and Verified Auth Request:");
+    console.log(JSON.stringify(authMessage));
 
     //Optional - if the user wants to know more about the identity of the passport requesting
     //their data, they can ask the Bridge Protocol Network about this passport
-    var networkPartnerPassportDetails = await GetPassportDetails(_userPassport, authMessage.passportId);
+    var networkPartnerPassportDetails = await _bridge.Services.Passport.getDetails(_userPassport, _passphrase, authMessage.passportId);
+    console.log("Network Partner Passport Info:");
+    console.log(JSON.stringify(networkPartnerPassportDetails));
 
     //The user generates their response to the auth request
-    var response = await GetAuthResponse(_userPassport, authMessage);
+    var authResponse = await GetAuthResponse(_userPassport, authMessage);
+    console.log("User Passport Auth Response:");
+    console.log(authResponse);
 
-    //Validate the response the user sent us
-    var authValidationInfo = await VerifyAuthResponse(_networkPartnerPassport, response);
-    var tokenVerified = authValidationInfo.tokenVerified; //Whether or not we got back the token we sent 
-    var claims = authValidationInfo.claims //The user claims they provided us with the values
-    var missingClaimTypes = authValidationInfo.missingClaimTypes //The claims we asked for but the user did not provide
-    
+    //The network partner decrypts and validates the response the user sent
+    var authValidationInfo =  await _bridge.Messaging.Auth.verifyPassportLoginChallengeResponse(_networkPartnerPassport, _passphrase, authResponse, _randomAuthToken, _requiredClaimTypes, _requiredBlockchainAddresses);
+    console.log("Auth Response Validation Info:");
+    console.log(JSON.stringify(authValidationInfo));
+
     //Optional - once again, if they want to check to see if the user that provided the claims to them
     //Is blacklisted, etc they can call the Bridge Protocol Network for info
-    var userPassportDetails = await GetPassportDetails(_networkPartnerPassport, authValidationInfo.passportId);
-}
-
-async function VerifyAuthResponse(contextPassport, response)
-{
-    //Allocate an auth helper to the context passport scope
-    let authHelper = new _bridge.Auth(_apiBaseUrl, contextPassport, _passphrase);
-    
-    //Pass in the auth token we sent and the claim types we asked for along with the response to verify and get detail
-    //On what the user provided us and whether or not its valid
-    return await authHelper.verifyPassportLoginChallengeResponse(response, _randomAuthToken, _requiredClaimTypes, contextPassport.id);
+    var userPassportDetails = await _bridge.Services.Passport.getDetails(_networkPartnerPassport, _passphrase, authValidationInfo.passportId);
+    console.log("User Passport Info:");
+    console.log(JSON.stringify(userPassportDetails));
 }
 
 async function GetAuthResponse(contextPassport, message){
-    //Allocate our auth and claim helpers with the context passport scope
-    let authHelper = new _bridge.Auth(_apiBaseUrl, contextPassport, _passphrase);
-    let claimHelper = new _bridge.Claim(_apiBaseUrl, contextPassport, _passphrase);
-    var claims = await claimHelper.decryptClaimPackages(contextPassport.claims);
+    //Retrieve the requested claims
+    let claims = await contextPassport.getDecryptedClaims(message.payload.claimTypes, _passphrase);
 
-    //You can use the requestedClaimTypeIds to know what is being requested
-    //The user can have options on what they do / do not want to send or notified of what they are missing
-    let requestedClaimTypeIds = message.payload.claimTypes;
+    //Get the requested blockchain addresses
+    let addresses = contextPassport.getWalletAddresses(message.payload.networks);
 
-    //We will just send all of our claims, sign and pass back the token they gave us
-    return await authHelper.createPassportLoginChallengeResponse(message.payload.token, claims, message.publicKey);
-}
-
-async function GetPassportDetails(contextPassport, passportId){
-    //Allocate a passport helper with the passport context
-    let passportHelper = new _bridge.Passport(_apiBaseUrl, contextPassport, _passphrase);
-    //Get the details from the network about the passport in question
-    return await passportHelper.getDetails(passportId);
-}
-
-async function VerifyAuthRequest(contextPassport, message){
-    //Allocate an auth helper for the context passport scope
-    let authHelper = new _bridge.Auth(_apiBaseUrl, contextPassport, _passphrase);
-    //Verify and decrypt the auth request and get the details
-    return await authHelper.verifyPassportLoginChallengeRequest(message);
+    //Find the claims they asked for and sign and send the response
+    //Optionally add networks (neo, eth) to provide blockcahin addresses in the response
+    return await _bridge.Messaging.Auth.createPassportLoginChallengeResponse(contextPassport, _passphrase, message.publicKey, message.payload.token, claims, addresses); 
 }
 
 //Simulate a network partner creating a challenge request to the user for their passport info and optionally claims
 async function GetAuthRequest(contextPassport){
-    //Allocate an auth helper for our context passport scope
-    let authHelper = new _bridge.Auth(_apiBaseUrl, contextPassport, _passphrase);
     //Create a random signing token to send to the user and hang on to it so we can check that they respond with it
     _randomAuthToken = "randomtoken";
     //Request the claim type for verified user e-mail, persist the claims we are asking for so we can verify they sent us the right claims later
     _requiredClaimTypes = [3];
-
+    //Request blockchain addresses be provided
+    _requiredBlockchainAddresses = ["neo","eth"];
+    
     //Generate and return the resulting request payload
-    return await authHelper.createPassportLoginChallengeRequest(_randomAuthToken, _requiredClaimTypes);
+    return await _bridge.Messaging.Auth.createPassportLoginChallengeRequest(contextPassport, _passphrase, _randomAuthToken, _requiredClaimTypes, _requiredBlockchainAddresses);
 }
 
 //Generate claims for the user passport verified by the verification partner passport
-async function GetClaimPackagesForPassport(contextPassport) {
-    //Allocate our claim helper with the verification partner passport scope
-    let claimHelper = new _bridge.Claim(_apiBaseUrl, _verificationPartnerPassport, _passphrase);
+async function CreateClaimPackagesForPassport(contextPassport) {    
+    let claims = [];
 
-    //Verification partner verified the users email
-    var claims = [{
+    //Create a claim 
+    let claim = new _bridge.Models.Claim({
         claimTypeId: 3,
         claimValue: "someuser@bridgeprotocol.io",
         createdOn: 1551180491,
-        expiresOn: 1553580491
-    }];
+        expiresOn: 0, //Never expires
+        signedByKey: _verificationPartnerPassport.publicKey
+    });
+    claims.push(claim);
 
-    //Create signed and encrypted claim packages for the user passport
-    return await claimHelper.createClaimPackages(contextPassport.publicKey, claims);
+    //Package the claims to signed claim packages
+    return await _bridge.Utils.Claim.createClaimPackagesFromClaims(claims, _userPassport.publicKey, _verificationPartnerPassport.publicKey, _verificationPartnerPassport.privateKey, _passphrase);
 }
 
 Init();

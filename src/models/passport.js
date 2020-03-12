@@ -131,21 +131,31 @@ var passport = class Passport
         return null;
     }
 
-    getDecryptedClaim(claimTypeId, password){
+    getWalletAddresses(networks){
+        let addresses = [];
+        for(let i=0; i<networks.length; i++){
+            let wallet = this.getWalletForNetwork(networks[i]);
+            if(wallet)
+                addresses.push({ network: wallet.network, address: wallet.address });
+        }
+        return addresses;
+    }
+
+    async getDecryptedClaim(claimTypeId, password){
         let claimPackage = this.getClaimPackage(claimTypeId);
         if(claimPackage)
-            return claimPackage.decrypt(this.privateKey, password);
+            return await claimPackage.decrypt(this.privateKey, password);
 
         return null;
     }
 
-    getDecryptedClaims(claimTypeIds, password)
+    async getDecryptedClaims(claimTypeIds, password)
     {
         let claims = [];
         let claimPackages = this.getClaimPackages(claimTypeIds);
         if(claimPackages){
             for(let i=0; i<claimPackages.length; i++){
-                let claim = claimPackages[i].decrypt(this.privateKey, password);
+                let claim = await claimPackages[i].decrypt(this.privateKey, password);
                 if(claim)
                     claims.push(claim);
             }
