@@ -6,7 +6,6 @@ const expect = chai.expect;    // Using Expect style
 const _userPassportFile = "./test/data/user-passport.json";
 const _partnerPassportFile = "./test/data/partner-passport.json";
 const _passphrase = "0123456789";
-const _apiBaseUrl = "https://api.bridgeprotocol.io/";
 
 let _userPassport = new _bridge.Models.Passport();
 let _partnerPassport = new _bridge.Models.Passport();
@@ -20,8 +19,8 @@ let _authResponse;
 
 describe("Loads the user and partner passports from file", function() {
     before(async () => {
-        _userPassport.openFile(_userPassportFile, _passphrase);
-        _partnerPassport.openFile(_partnerPassportFile, _passphrase);
+        await _userPassport.openFile(_userPassportFile, _passphrase);
+        await _partnerPassport.openFile(_partnerPassportFile, _passphrase);
     });
 
     it("should load the user passport successfully", function() {

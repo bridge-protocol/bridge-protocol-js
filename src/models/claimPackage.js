@@ -26,7 +26,10 @@ var claimPackage = class ClaimPackage {
         console.log(`decrypting claim package ${this.typeId}`);
         let claimString = await _crypto.decryptMessage(this.claim, this.signedBy, privateKey, password);
         let claim = JSON.parse(claimString);
-        return new _claim.Claim(claim);
+        if(claim)
+            return new _claim.Claim(claim);
+            
+        return null;
     }
 
     _load(typeId, signedBy, claim){

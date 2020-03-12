@@ -8,16 +8,15 @@ const _verificationPassportFile = "./test/data/verification-passport.json";
 const _passphrase = "0123456789";
 const _apiBaseUrl = "https://api.bridgeprotocol.io/";
 
-let _passportHelper = new _bridge.Passport();
-let _userPassport;
-let _verificationPassport;
+let _userPassport = new _bridge.Models.Passport();
+let _verificationPassport = new _bridge.Models.Passport();
 let _verifiedClaims = [];
 let _verifiedClaimPackages = [];
 
 describe("Should load the user and verification passports from file", function() {
     before(async () => {
-        _userPassport = await _passportHelper.loadPassportFromFile(_userPassportFile, _passphrase);
-        _verificationPassport = await _passportHelper.loadPassportFromFile(_verificationPassportFile, _passphrase);
+        await _userPassport.openFile(_userPassportFile, _passphrase);
+        await _verificationPassport.openFile(_verificationPassportFile, _passphrase);
     });
 
     it("should load the user passport successfully", function() {
@@ -31,23 +30,20 @@ describe("Should load the user and verification passports from file", function()
 
 describe("Create valid claims", function() {
     it("should create a verified email claim", function() {
-        _verifiedClaims.push({
+        let claim = new _bridge.Models.Claim({
             claimTypeId: 3,
             claimValue: "someuser@bridgeprotocol.io",
             createdOn: 1551180491,
-            expiresOn: 1553580491
+            expiresOn: 0,
+            signedByKey: _verificationPassport.publicKey
         });
-
-        expect(_verifiedClaims).to.have.length > 0;
-        expect(_verifiedClaims[0]).to.have.property("claimTypeId", 3);
-        expect(_verifiedClaims[0]).to.have.property("claimValue","someuser@bridgeprotocol.io");
+        _verifiedClaims.push(claim);
     });
 });
 
 describe("Create valid signed and encrypted claim packages for user passport", function() {
     before(async () => {
-        let verificationClaimHelper = new _bridge.Claim(_apiBaseUrl, _verificationPassport, _passphrase);
-        _verifiedClaimPackages = await verificationClaimHelper.createClaimPackages(_userPassport.publicKey, _verifiedClaims);
+        _verifiedClaimPackages = await _bridge.Utils.Claim.createClaimPackagesFromClaims(_verifiedClaims, _userPassport.publicKey, _verificationPassport.publicKey, _verificationPassport.privateKey, _passphrase);
     });
 
     it("should create valid encrypted signed claim packages", function() {
@@ -59,27 +55,25 @@ describe("Create valid signed and encrypted claim packages for user passport", f
 });
 
 describe("Claim packages are only able to be read by the user passport", function() {
-    let verificationClaims = [];
-    let userClaims = [];
+    let verificationClaim;
+    let userClaim;
 
     before(async () => {
-        let verificationClaimHelper = new _bridge.Claim(_apiBaseUrl, _verificationPassport, _passphrase);
-        let userClaimHelper = new _bridge.Claim(_apiBaseUrl, _userPassport, _passphrase);
-
-        userClaims = await userClaimHelper.decryptClaimPackages(_verifiedClaimPackages);
-        verificationClaims = await verificationClaimHelper.decryptClaimPackages(_verifiedClaimPackages);
+        userClaim = await _verifiedClaimPackages[0].decrypt(_userPassport.privateKey, _passphrase);
+        verificationClaim = await _verifiedClaimPackages[0].decrypt(_verificationPassport.privateKey, _passphrase);
     });
 
     it("claims should not be readable by the verification passport", function() {
-        expect(verificationClaims).to.have.length == 0;
+        expect(verificationClaim).to.be.null;
     });
 
     it("claims should be readable by the user passport", function(){
-        expect(userClaims).to.have.length > 0;
-        expect(userClaims[0]).to.have.property("claimTypeId",3);
-        expect(userClaims[0]).to.have.property("claimValue","someuser@bridgeprotocol.io");
-        expect(userClaims[0]).to.have.property("createdOn",1551180491);
-        expect(userClaims[0]).to.have.property("expiresOn",1553580491);
+        expect(userClaim).to.have.property("claimTypeId",3);
+        expect(userClaim).to.have.property("claimValue","someuser@bridgeprotocol.io");
+        expect(userClaim).to.have.property("createdOn",1551180491);
+        expect(userClaim).to.have.property("expiresOn",0);
+        expect(userClaim).to.have.property("signedByKey",_verificationPassport.publicKey);
+        expect(userClaim).to.have.property("signature");
     });
 
     after(function() {
