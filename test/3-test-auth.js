@@ -8,11 +8,11 @@ const _partnerPassportFile = "./test/data/partner-passport.json";
 const _passphrase = "0123456789";
 const _apiBaseUrl = "https://api.bridgeprotocol.io/";
 
-let _passportHelper = new _bridge.Passport();
-let _userPassport;
-let _partnerPassport;
+let _userPassport = new _bridge.Models.Passport();
+let _partnerPassport = new _bridge.Models.Passport();
 let _randomAuthToken;
 let _requiredClaimTypes = [];
+let _requiredBlockchainAddresses = [];
 
 let _authRequest;
 let _authRequestMessage;
@@ -20,43 +20,46 @@ let _authResponse;
 
 describe("Loads the user and partner passports from file", function() {
     before(async () => {
-        _userPassport = await _passportHelper.loadPassportFromFile(_userPassportFile, _passphrase);
-        _partnerPassport = await _passportHelper.loadPassportFromFile(_partnerPassportFile, _passphrase);
+        _userPassport.openFile(_userPassportFile, _passphrase);
+        _partnerPassport.openFile(_partnerPassportFile, _passphrase);
     });
 
     it("should load the user passport successfully", function() {
         expect(_userPassport).to.have.property('id');
+        expect(_userPassport).to.have.property('publicKey');
+        expect(_userPassport).to.have.property('privateKey');
     });
 
     it("should load the partner passport successfully", function() {
         expect(_partnerPassport).to.have.property('id');
+        expect(_partnerPassport).to.have.property('publicKey');
+        expect(_partnerPassport).to.have.property('privateKey');
     });
 });
 
 describe("Partner creates a passport auth request", function() {
     before(async () => {
-        let authHelper = new _bridge.Auth(_apiBaseUrl, _partnerPassport, _passphrase);
         _randomAuthToken = "randomtoken";
         _requiredClaimTypes = [3]; //User email
-        _authRequest = await authHelper.createPassportLoginChallengeRequest(_randomAuthToken, _requiredClaimTypes);
+        _requiredBlockchainAddresses = ["neo"];
+        _authRequest = await _bridge.Messaging.Auth.createPassportLoginChallengeRequest(_partnerPassport, _passphrase, _randomAuthToken, _requiredClaimTypes, _requiredBlockchainAddresses);
     });
 
     it("should create a valid encoded auth request", function() {
         expect(_authRequest).to.be.not.null;
-
         let decodedAuthRequest = JSON.parse(_bridge.Crypto.hexDecode(_authRequest, true));
-        expect(decodedAuthRequest).to.be.not.null;
+        expect(decodedAuthRequest).to.be.not.null;  
         expect(decodedAuthRequest).to.have.property("publicKey", _partnerPassport.publicKey);     
         expect(decodedAuthRequest).to.have.property("payload").not.null;
         expect(decodedAuthRequest.payload).to.have.property("token").not.null; 
-        expect(decodedAuthRequest.payload).to.have.property("claimTypes").not.null; 
+        expect(decodedAuthRequest.payload).to.have.property("claimTypes").not.null;
+        expect(decodedAuthRequest.payload).to.have.property("networks").not.null;
     });
 });
 
 describe("User validates the passport auth request", function(){
     before(async () => {
-        let authHelper = new _bridge.Auth(_apiBaseUrl, _userPassport, _passphrase);
-        _authRequestMessage = await authHelper.verifyPassportLoginChallengeRequest(_authRequest);
+        _authRequestMessage = await _bridge.Messaging.Auth.verifyPassportLoginChallengeRequest(_authRequest);
     });
 
     it("should validate the auth request", function(){
@@ -65,6 +68,7 @@ describe("User validates the passport auth request", function(){
         expect(_authRequestMessage).to.have.property("passportId", _partnerPassport.id);
         expect(_authRequestMessage).to.have.property("payload").not.null;
         expect(_authRequestMessage.payload).to.have.property("claimTypes").not.null;
+        expect(_authRequestMessage.payload).to.have.property("networks").not.null;
         expect(_authRequestMessage.payload.claimTypes).length > 0;
         expect(_authRequestMessage.payload.claimTypes[0]).to.equal(3);
     });
@@ -72,13 +76,13 @@ describe("User validates the passport auth request", function(){
 
 describe("User creates a valid auth response to the parther auth request", function(){
     let claims;
-    let decodedAuthResponse;
+    let blockchainAddresses;
 
     it("should properly decrypt the claims packages", async function(){
-        let claimHelper = new _bridge.Claim(_apiBaseUrl, _userPassport, _passphrase);
-        claims = await claimHelper.decryptClaimPackages(_userPassport.claims);
+        //Retrieve the requested claims
+        claims = await _userPassport.getDecryptedClaims(_authRequestMessage.payload.claimTypes, _passphrase);
         expect(claims).to.be.not.null;
-        expect(claims).length > 0;
+        expect(claims).length == 1;
         expect(claims[0]).to.have.property("claimTypeId",3);
         expect(claims[0]).to.have.property("claimValue","someuser@bridgeprotocol.io");
         expect(claims[0]).to.have.property("createdOn").not.null;
@@ -87,10 +91,15 @@ describe("User creates a valid auth response to the parther auth request", funct
         expect(claims[0]).to.have.property("signedByKey").not.null;
     });
 
+    it("should find the requested blockchain address", async function(){
+        blockchainAddresses = _userPassport.getWalletAddresses(_authRequestMessage.payload.networks);
+        expect(blockchainAddresses).to.be.not.null;
+        expect(blockchainAddresses).length == 1;
+        expect(blockchainAddresses[0].network.toLowerCase() === "neo");
+    });
+
     it("should properly create a valid auth response including the token and claims", async function(){
-        let authHelper = new _bridge.Auth(_apiBaseUrl, _userPassport, _passphrase);
-        _authResponse = await authHelper.createPassportLoginChallengeResponse(_authRequestMessage.payload.token, claims, _authRequestMessage.publicKey);
-        
+        _authResponse = await _bridge.Messaging.Auth.createPassportLoginChallengeResponse(_userPassport, _passphrase, _authRequestMessage.publicKey, _authRequestMessage.payload.token, claims, blockchainAddresses); 
         decodedAuthResponse = JSON.parse(_bridge.Crypto.hexDecode(_authResponse, true));
         expect(decodedAuthResponse).to.have.property("publicKey").not.null;
         expect(decodedAuthResponse).to.have.property("payload").not.null;
@@ -105,14 +114,12 @@ describe("User creates a valid auth response to the parther auth request", funct
 });
 
 describe("Partner verifies the auth response and gets the passport and claim data", function(){
-    let response;
+    let res;
 
     it("should not let the user pass back the request as the response", async function(){
-        let authHelper = new _bridge.Auth(_apiBaseUrl, _partnerPassport, _passphrase);
         let error = null;
-
         try{
-            response = await authHelper.verifyPassportLoginChallengeResponse(_authRequest, _randomAuthToken, _requiredClaimTypes, _partnerPassport.id);
+            res = await _bridge.Messaging.Auth.verifyPassportLoginChallengeResponse(_userPassport, _passphrase, _authResponse, _randomAuthToken, _requiredClaimTypes, _requiredBlockchainAddresses);
         }
         catch(err){
             error = err.message;
@@ -122,28 +129,33 @@ describe("Partner verifies the auth response and gets the passport and claim dat
     });
 
     it("should verify the auth response", async function(){
-        let authHelper = new _bridge.Auth(_apiBaseUrl, _partnerPassport, _passphrase);
-        response = await authHelper.verifyPassportLoginChallengeResponse(_authResponse, _randomAuthToken, _requiredClaimTypes, _partnerPassport.id);
+        res = await _bridge.Messaging.Auth.verifyPassportLoginChallengeResponse(_partnerPassport, _passphrase, _authResponse, _randomAuthToken, _requiredClaimTypes, _requiredBlockchainAddresses);
      });
 
     it("should verify the token matches what was sent", function(){
-        expect(response.tokenVerified).equals(true);
+        expect(res.authResponse.tokenVerified).equals(true);
     });
 
     it("should check there are no missing claim types", function(){
-        expect(response.missingClaimTypes).length == 0;
+        expect(res.authResponse.missingClaimTypes).length == 0;
     });
 
-    it("should be able to read the claims and passport data", async function(){
-        expect(response).to.have.property("passportId",_userPassport.id);
-        expect(response.claims).length > 0;
-        expect(response.claims[0]).to.have.property("claimTypeId",3);
-        expect(response.claims[0]).to.have.property("claimValue","someuser@bridgeprotocol.io");
-        expect(response.claims[0]).to.have.property("createdOn").not.null;
-        expect(response.claims[0]).to.have.property("expiresOn").not.null;
-        expect(response.claims[0]).to.have.property("signedById").not.null;
+    it("should check there are no missing requested blockchain addresses", function(){
+        expect(res.authResponse.missingBlockchainAddresses).length == 0;
     });
 
+    it("should be able to read the claims. blockchain address and passport data", async function(){
+        expect(res.authResponse).to.have.property("passportId",_userPassport.id);
+        expect(res.authResponse.claims).length == 1;
+        expect(res.authResponse.claims[0]).to.have.property("claimTypeId",3);
+        expect(res.authResponse.claims[0]).to.have.property("claimValue","someuser@bridgeprotocol.io");
+        expect(res.authResponse.claims[0]).to.have.property("createdOn").not.null;
+        expect(res.authResponse.claims[0]).to.have.property("expiresOn").not.null;
+        expect(res.authResponse.claims[0]).to.have.property("signedById").not.null;
+        expect(res.authResponse.blockchainAddresses).length == 1;
+        expect(res.authResponse.blockchainAddresses[0].network.toLowerCase()).equals("neo");
+        expect(res.authResponse.blockchainAddresses[0]).to.have.property("address").not.null;
+    });
 });
 
 
