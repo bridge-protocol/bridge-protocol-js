@@ -58,7 +58,8 @@ var passport = class Passport
             let key = await _crypto.decryptPrivateKey(this.key.private, password);
         }
         catch(err){
-            throw new Error("invalid password");
+            this._reset();
+            return false;
         }
 
         return true;
