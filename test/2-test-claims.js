@@ -78,6 +78,6 @@ describe("Claim packages are only able to be read by the user passport", functio
 
     after(function() {
         _userPassport.claims = _verifiedClaimPackages;
-        _fs.writeFileSync(_userPassportFile, JSON.stringify(_userPassport));
+        _userPassport.save(_userPassportFile);
     });
 });
