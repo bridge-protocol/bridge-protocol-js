@@ -88,7 +88,7 @@ var blockchain = class Blockchain {
         return null;
     }
 
-    async sendPayment(passportId, wallet, amount, recipient, paymentIdentifier) {
+    async sendBrdg(passportId, wallet, amount, recipient, paymentIdentifier, wait) {
         //Recipient can be null, it will default to bridge contract address
         if(!passportId)
             throw new Error("passport not provided.");
@@ -102,12 +102,22 @@ var blockchain = class Blockchain {
         if (wallet.network.toLowerCase() === "neo") {
             //Amount is 100000000 = 1 for NEO
             amount = (amount * 100000000);
-            let res = await _neo.sendBrdg(wallet, recipient, amount, paymentIdentifier);
+            let res = await _neo.sendBrdg(wallet, recipient, amount, paymentIdentifier, wait);
+
+            //If we aren't waiting, just return the hash
+            if(!wait)
+                return res.txid;
+
             let verify = await _neo.verifyTransfer(res.info, recipient, amount, paymentIdentifier);
             return verify.success;
         }
         else if(wallet.network.toLowerCase() === "eth"){
-            let info = await _eth.sendBrdg(wallet, recipient, amount, paymentIdentifier);
+            let info = await _eth.sendBrdg(wallet, recipient, amount, paymentIdentifier, wait);
+
+            //If we aren't waiting, just return the hash
+            if(!wait)
+                return info;
+
             let verify = await _eth.verifyTransfer(info, wallet.address, recipient, amount, paymentIdentifier);
             return verify;
         }

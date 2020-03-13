@@ -119,9 +119,9 @@ class Ethereum {
         return txs;
     }
 
-    async sendBrdg(wallet, recipient, amount, memo, nonce){
+    async sendBrdg(wallet, recipient, amount, memo, wait, nonce){
         const data = _token.methods.transferWithMemo(recipient, amount, memo).encodeABI();
-        return await this._broadcastTransaction(wallet, _bridgeTokenContractAddress, data, nonce);
+        return await this._broadcastTransaction(wallet, _bridgeTokenContractAddress, data, wait, nonce);
     }
 
     async verifyTransferFromHash(hash, from, to, amount, memo){
@@ -255,7 +255,7 @@ class Ethereum {
         });
     };
 
-    async _broadcastTransaction(wallet, contract, data, nonce){
+    async _broadcastTransaction(wallet, contract, data, wait, nonce){
         if(!wallet.unlocked)
             throw new Error("Wallet is not unlocked.");
 
@@ -290,7 +290,11 @@ class Ethereum {
                 
                 // Broadcast the transaction
                 _web3.eth.sendSignedTransaction(raw)
-                    .on('transactionHash',(hash) => console.log("Transaction " + hash + " sent.  Waiting for completion."))
+                    .on('transactionHash',(hash) => {
+                        console.log("Transaction " + hash + " sent.  Waiting for completion.");
+                        if(!wait)
+                            resolve(hash);
+                    })
                     .on('receipt', (info) => {
                         console.log("transaction confirmed");
                         resolve(info);

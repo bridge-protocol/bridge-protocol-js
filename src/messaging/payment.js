@@ -2,13 +2,8 @@
 const _message = require('../utils/message').Message;
 const _crypto = require('../utils/crypto').Crypto;
 
-var paymentUtility = class PaymentUtility{
-    constructor(passport, passphrase) {
-        this._passport = passport;
-        this._passphrase = passphrase;
-    }
-
-    async createPaymentRequest(network, amount, address, identifier) {
+class PaymentUtility{
+    async createPaymentRequest(passport, password, network, amount, address, identifier) {
         if(!network){
             throw new Error("network not provided");
         }
@@ -27,10 +22,10 @@ var paymentUtility = class PaymentUtility{
         };
 
         let payload = {
-            paymentRequest: await _crypto.signMessage(JSON.stringify(request), this._passport.privateKey, this._passphrase, true),
+            paymentRequest: await _crypto.signMessage(JSON.stringify(request), passport.privateKey, password, true),
         };
 
-        return await _message.createMessage(payload);
+        return await _message.createMessage(payload, passport.publicKey);
     }
 
     async verifyPaymentRequest(message) {
@@ -44,7 +39,7 @@ var paymentUtility = class PaymentUtility{
         return message;
     }
 
-    async createPaymentResponse(network, amount, address, identifier, transactionId, publicKey){
+    async createPaymentResponse(passport, password, network, amount, address, identifier, transactionId, targetPublicKey){
         if(!network){
             throw new Error("network not provided");
         }
@@ -70,10 +65,10 @@ var paymentUtility = class PaymentUtility{
             transactionId
         };
 
-        return await _message.createMessage(payload, publicKey);
+        return await _message.createEncryptedMessage(payload, targetPublicKey, passport.publicKey, passport.privateKey, password);
     }
 
-    async verifyPaymentResponse(message, requestPassportId){
+    async verifyPaymentResponse(message){
         if(!message){
             throw new Error("message not provided");
         }
@@ -82,10 +77,6 @@ var paymentUtility = class PaymentUtility{
         }
 
         let res = await _message.decryptMessage(message);
-        if(res.passportId === requestPassportId){
-            throw new Error("Invalid response.  Request and response passports cannot be the same.");
-        }
-
         return{
             paymentResponse: res.payload,
             passportId: res.passportId
@@ -93,4 +84,4 @@ var paymentUtility = class PaymentUtility{
     }
 };
 
-exports.PaymentUtility = paymentUtility;
+exports.PaymentUtility = new PaymentUtility();

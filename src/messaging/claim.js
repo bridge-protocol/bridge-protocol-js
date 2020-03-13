@@ -2,8 +2,8 @@ const _crypto = require('../utils/crypto').Crypto;
 const _message = require('../utils/message').Message;
 
 class Claim{
-    async createClaimsImportRequest(claimPackages, passportPrivateKey, password){
-        if(!claims || !Array.isArray(claims) || claims.length == 0)
+    async createClaimsImportRequest(passport, password, claimPackages){
+        if(!claimPackages || !Array.isArray(claimPackages) || claimPackages.length == 0)
             throw new Error("claims not provided");
 
         let request = {
@@ -11,10 +11,10 @@ class Claim{
         };
 
         let payload = {
-            claimsImportRequest: await _crypto.signMessage(JSON.stringify(request), passportPrivateKey, password, true),
+            claimsImportRequest: await _crypto.signMessage(JSON.stringify(request), passport.privateKey, password, true),
         };
 
-        return await _message.createMessage(payload);
+        return await _message.createMessage(payload, passport.publicKey);
     }
 
     async verifyClaimsImportRequest(message){

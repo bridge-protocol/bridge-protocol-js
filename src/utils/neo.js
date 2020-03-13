@@ -215,7 +215,7 @@ class NEO {
     }
 
     //Amount is 100000000 = 1
-    async sendBrdg(wallet, recipient, amount, paymentIdentifier) {
+    async sendBrdg(wallet, recipient, amount, paymentIdentifier, wait) {
         let neo = this;
         return new Promise(async (resolve, reject) => {
             if (!wallet)
@@ -243,7 +243,10 @@ class NEO {
                 let tx = await this._createAndSignTransaction(wallet, _brdgHash, 'transfer', args, paymentIdentifier);
 
                 //Relay the transaction
-                resolve(await this._relayTransactionWaitStatus(tx));
+                if(!wait)
+                    resolve(await this._relayTransaction(tx));
+                else
+                    resolve(await this._relayTransactionWaitStatus(tx));
             }
             catch (err) {
                 reject(err);

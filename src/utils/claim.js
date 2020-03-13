@@ -16,6 +16,30 @@ class Claim{
         }
         return claimPackages;
     }
+
+    async verifyClaimPackagesForImport(passport, password, claimPackages){
+        let verifiedClaimPackages = [];
+
+        for(let i=0; i<claimPackages.length; i++){
+            try{
+                //Use a claim package model
+                let claimPackage = new _claimPackage(claimPackages[i].typeId, claimPackages[i].signedBy, claimPackages[i].claim);
+
+                //Unpackage the claim package and verify it
+                let decryptedClaim = await claimPackage.decrypt(passport.privateKey, password);
+                if(decryptedClaim.isValid){
+                    console.log(`Claim package type ${claimPackage.typeId} decrypted and valid`);
+                    verifiedClaimPackages.push(claimPackage);
+                }
+                    
+            }
+            catch(err){
+                console.log(`Unable to decrypt claim package: ${err.message}, skipping.`);
+            }
+        }
+
+        return verifiedClaimPackages;
+    }
 }
 
 exports.Claim = new Claim();

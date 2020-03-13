@@ -24,6 +24,10 @@ var claim = class Claim
         return now >= this.expiresOn;
     }
 
+    get isValid(){
+        return this._verify();
+    }
+
     async encrypt(targetPublicKey, passportPrivateKey, password){
         let targetPassportId = await _crypto.getPassportIdForPublicKey(targetPublicKey);
         console.log(`encrypting claim for ${targetPassportId}`);

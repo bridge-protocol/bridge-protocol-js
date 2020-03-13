@@ -1,3 +1,10 @@
+//---------------------Bridge Protocol SDK Example------------------------
+// Author: Bridge Protocol Corporation
+// File: claims-create.js
+// Description: Demonstrate the creation of secure claim packages for 
+// transmission via the Bridge Protocol on and off chain.
+// Prerequisites: none
+//------------------------------------------------------------------------
 const _fs = require('fs');
 const _bridge = require("../src/index");
 
@@ -32,7 +39,7 @@ async function Init() {
     //Unpackage the claim package as the user passport
     let decryptedClaim = await verifiedClaimPackage.decrypt(userPassport.privateKey, password);
     console.log("Claim Package Decrypted:");
-    console.log(decryptedClaim);
+    console.log(JSON.stringify(decryptedClaim));
 }
 
 Init();
