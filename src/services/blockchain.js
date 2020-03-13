@@ -148,7 +148,7 @@ class Blockchain {
 
         if (wallet.network.toLowerCase() === "neo") {
             //For NEO we create a signed preapproval transaction then the user signs and relays
-            let tx = await _neoApi.getAddClaimTransaction(passport, passphrase, claim, wallet.address, hashOnly);
+            let tx = await _neoApi.getAddClaimTransaction(passport, password, claim, wallet.address, hashOnly);
             if(tx == null)
                 throw new Error("Unable to add claim: integrity or signer check failed.");
             
