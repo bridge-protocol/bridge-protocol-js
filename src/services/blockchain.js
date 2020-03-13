@@ -3,12 +3,7 @@ const _neo = require('../utils/neo').NEO;
 const _eth = require('../utils/ethereum').Ethereum;
 const _neoApi = require('./neo').NEOApi;
 
-var blockchain = class Blockchain {
-    constructor(passport, passphrase) {
-        this._passport = passport;
-        this._passphrase = passphrase;
-    }
-
+class Blockchain {
     async publishPassport(wallet, passport)
     {
         if (!wallet)
@@ -54,14 +49,14 @@ var blockchain = class Blockchain {
         }
     }
 
-    async unpublishPassport(wallet){
+    async unpublishPassport(passport, wallet){
         if(!wallet)
             throw new Error("wallet not provided");
         if(!wallet.unlocked)
             throw new Error("wallet not unlocked");
 
         if(wallet.network.toLowerCase() === "neo"){
-            return await _neo.unpublishPassport(wallet, this._passport);
+            return await _neo.unpublishPassport(wallet, passport);
         }
         else if(wallet.network.toLowerCase() === "eth"){
             return await _eth.unpublishPassport(wallet);
@@ -88,10 +83,8 @@ var blockchain = class Blockchain {
         return null;
     }
 
-    async sendBrdg(passportId, wallet, amount, recipient, paymentIdentifier, wait) {
+    async sendBrdg(wallet, amount, recipient, paymentIdentifier, wait) {
         //Recipient can be null, it will default to bridge contract address
-        if(!passportId)
-            throw new Error("passport not provided.");
         if (!wallet)
             throw new Error("wallet not provided.");
         if(!wallet.unlocked)
@@ -119,11 +112,11 @@ var blockchain = class Blockchain {
                 return info;
 
             let verify = await _eth.verifyTransfer(info, wallet.address, recipient, amount, paymentIdentifier);
-            return verify;
+            return verify.success;
         }
     }
 
-    async verifyPayment(hash, from, to, amount, paymentIdentifier){
+    async verifyPayment(network, hash, from, to, amount, paymentIdentifier){
         if(!hash)
             throw new Error("hash not provided.");
         if(!from)
@@ -135,19 +128,17 @@ var blockchain = class Blockchain {
         if(!paymentIdentifier)
             throw new Error("payment identifier not provided.");
 
-        if (wallet.network.toLowerCase() === "neo") {
+        if (network.toLowerCase() === "neo") {
             //Amount is 100000000 = 1 for NEO
-            let verify = await _neo.verifyTransferFromHash(hash, to, amount, paymentIdentifier);
-            return verify.success;
+            amount = (amount * 100000000);
+            return await _neo.verifyTransferFromHash(hash, to, amount, paymentIdentifier);
         }
-        else if(wallet.network.toLowerCase() === "eth"){
-            amount = (amount / 100000000);
-            let verify = await _eth.verifyTransferFromHash(hash, from, to, amount, paymentIdentifier);
-            return verify;
+        else if(network.toLowerCase() === "eth"){
+            return await _eth.verifyTransferFromHash(hash, from, to, amount, paymentIdentifier);
         }
     }
 
-    async addClaim(wallet, claim, hashOnly) {
+    async addClaim(passport, password, wallet, claim, hashOnly) {
         if (!wallet) {
             throw new Error("walletnot provided");
         }
@@ -157,7 +148,7 @@ var blockchain = class Blockchain {
 
         if (wallet.network.toLowerCase() === "neo") {
             //For NEO we create a signed preapproval transaction then the user signs and relays
-            let tx = await _neoApi.getAddClaimTransaction(this._passport, this._passphrase, claim, wallet.address, hashOnly);
+            let tx = await _neoApi.getAddClaimTransaction(passport, passphrase, claim, wallet.address, hashOnly);
             if(tx == null)
                 throw new Error("Unable to add claim: integrity or signer check failed.");
             
@@ -219,4 +210,4 @@ var blockchain = class Blockchain {
     }
 };
 
-exports.Blockchain = blockchain;
+exports.Blockchain = new Blockchain();

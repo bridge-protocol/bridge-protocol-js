@@ -141,7 +141,7 @@ class Ethereum {
         let memoValid = false;
 
         if(!info.logs || info.logs.length == 0)
-            return false;
+            return { complete: false, success: false };
 
         for(let i=0; i<info.logs.length; i++){
             let log = info.logs[i];
@@ -160,7 +160,8 @@ class Ethereum {
             }
         }
 
-        return senderValid && recipientValid && amountValid && memoValid;
+        let success = senderValid && recipientValid && amountValid && memoValid;
+        return { complete: true, success };
     };
     //End asset and transaction management functions
 

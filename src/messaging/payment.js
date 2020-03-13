@@ -39,10 +39,12 @@ class PaymentUtility{
         return message;
     }
 
-    async createPaymentResponse(passport, password, network, amount, address, identifier, transactionId, targetPublicKey){
+    async createPaymentResponse(passport, password, network, from, amount, address, identifier, transactionId, targetPublicKey){
         if(!network){
             throw new Error("network not provided");
         }
+        if(!from)
+            throw new Error("from address not provided");
         if(!amount){
             throw new Error("amount not provided");
         }
@@ -52,31 +54,29 @@ class PaymentUtility{
         if(!transactionId){
             throw new Error("transactionId not provided");
         }
-        if(!publicKey)
+        if(!targetPublicKey)
         {
             throw new Error("public key not provided");
         }
 
         let payload = {
             network,
+            from,
             amount,
             address,
             identifier,
             transactionId
         };
 
-        return await _message.createEncryptedMessage(payload, targetPublicKey, passport.publicKey, passport.privateKey, password);
+        return await _message.createEncryptedMessage(payload, targetPublicKey, passport.privateKey, passport.publicKey, password);
     }
 
-    async verifyPaymentResponse(message){
+    async verifyPaymentResponse(passport, password, message){
         if(!message){
             throw new Error("message not provided");
         }
-        if(!requestPassportId){
-            throw new Error("requestPassportId not provided");
-        }
 
-        let res = await _message.decryptMessage(message);
+        let res = await _message.decryptMessage(message, passport.privateKey, password);
         return{
             paymentResponse: res.payload,
             passportId: res.passportId
