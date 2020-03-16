@@ -15,7 +15,7 @@ The Bridge Passport is the container holds all of a user's keys, blockchain wall
 <img src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/bridgepassport-key.jpg?raw=true'>
 
 ### Blockchain Wallet
-<img src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/bridgepassport-wallets.jpg?raw=true'>
+<img src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/bridgepassport-wallet.jpg?raw=true'>
 
 ### Encrypted Claim Package
 <img src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/passport-claimpackage.jpg?raw=true?raw=true'>
