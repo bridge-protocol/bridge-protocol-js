@@ -6,15 +6,15 @@ class Claim{
         if(!claimPackages || !Array.isArray(claimPackages) || claimPackages.length == 0)
             throw new Error("claims not provided");
 
-        let request = {
+        let claimsImportRequest = {
             claimPackages
         };
 
         let payload = {
-            claimsImportRequest: await _crypto.signMessage(JSON.stringify(request), passport.privateKey, password, true),
+            claimsImportRequest
         };
 
-        return await _message.createMessage(payload, passport.publicKey);
+        return await _message.createSignedMessage(passport, password, payload);
     }
 
     async verifyClaimsImportRequest(message){
@@ -22,9 +22,7 @@ class Claim{
             throw new Error("message not provided");
         }
 
-        message = await _message.decryptMessage(message);
-        message.payload.claimsImportRequest = await _crypto.verifySignedMessage(message.payload.claimsImportRequest, message.publicKey);
-        message.payload.claimsImportRequest = JSON.parse(message.payload.claimsImportRequest);
+        message = await _message.verifySignedMessage(message);
         return message;
     }
 };

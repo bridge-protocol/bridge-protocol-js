@@ -14,7 +14,7 @@ class PaymentUtility{
             throw new Error("address not provided");
         }
 
-        let request = {
+        let paymentRequest = {
             network,
             amount,
             address,
@@ -22,10 +22,10 @@ class PaymentUtility{
         };
 
         let payload = {
-            paymentRequest: await _crypto.signMessage(JSON.stringify(request), passport.privateKey, password, true),
+            paymentRequest
         };
 
-        return await _message.createMessage(payload, passport.publicKey);
+        return await _message.createSignedMessage(passport, password, payload);
     }
 
     async verifyPaymentRequest(message) {
@@ -33,9 +33,7 @@ class PaymentUtility{
             throw new Error("message not provided");
         }
 
-        message = await _message.decryptMessage(message);
-        message.payload.paymentRequest = await _crypto.verifySignedMessage(message.payload.paymentRequest, message.publicKey);
-        message.payload.paymentRequest = JSON.parse(message.payload.paymentRequest);
+        message = await _message.verifySignedMessage(message);
         return message;
     }
 
@@ -68,7 +66,7 @@ class PaymentUtility{
             transactionId
         };
 
-        return await _message.createEncryptedMessage(payload, targetPublicKey, passport.privateKey, passport.publicKey, password);
+        return await _message.createEncryptedMessage(passport, password, payload, targetPublicKey);
     }
 
     async verifyPaymentResponse(passport, password, message){

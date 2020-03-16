@@ -2,24 +2,34 @@ const _crypto = require('./crypto').Crypto;
 
 class Message {
     //Encrypted message for the target recipient
-    async createEncryptedMessage(payload, targetPublicKey, passportPrivateKey, passportPublicKey, password) {
+    async createEncryptedMessage(passport, password, payload, targetPublicKey) {
+        if(!passport)
+            throw new Errorr("passport not provided");
+        if(!password)
+            throw new Error("password not provided");
         if(!payload)
             throw new Error("payload not provided");
         if(!targetPublicKey)
             throw new Error("target public key not provided");
-        if(!passportPrivateKey)
-            throw new Errorr("passport private key not provided");
-        if(!passportPublicKey)
-            throw new Error("passport public key not provided");
+
+        payload = await _crypto.encryptMessage(JSON.stringify(payload), targetPublicKey, passport.privateKey, password, true)
+        return this.createMessage(payload, passport.publicKey);
+    }
+
+    async createSignedMessage(passport, password, payload){
+        if(!passport)
+            throw new Errorr("passport not provided");
         if(!password)
             throw new Error("password not provided");
+        if(!payload)
+            throw new Error("payload not provided");
 
-        payload = await _crypto.encryptMessage(JSON.stringify(payload), targetPublicKey, passportPrivateKey, password, true)
-        return this.createMessage(payload, passportPublicKey);
+        let signature = await _crypto.signMessage(JSON.stringify(payload), passport.privateKey, password, true);
+        return this.createMessage(payload, passport.publicKey, signature);
     }
 
     //Signed message only, the public key is of the passport doing the sending
-    async createMessage(payload, passportPublicKey){
+    async createMessage(payload, passportPublicKey, signature){
         if(!payload)
             throw new Error("payload not provided");
         if(!passportPublicKey)
@@ -29,7 +39,30 @@ class Message {
             payload: payload,
             publicKey: passportPublicKey
         };
+
+        if(signature)
+            message.signature = signature;
+
         return this._serialize(message, true);
+    }
+
+    async verifySignedMessage(message){
+        if(!message)
+            throw new Error("message not provided");
+
+        //Deserialized
+        message = this._deserialize(message);
+
+        //Verify the signature of the payload
+        let serializedPayload = JSON.stringify(message.payload);
+        let signedMessage = await _crypto.verifySignedMessage(message.signature, message.publicKey);
+        let passportId = await _crypto.getPassportIdForPublicKey(message.publicKey);
+        return {
+            passportId,
+            publicKey: message.publicKey,
+            payload: message.payload,
+            signatureValid: signedMessage === serializedPayload
+        }
     }
 
     async decryptMessage(message, passportPrivateKey, password) {

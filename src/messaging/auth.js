@@ -9,12 +9,12 @@ class Auth{
         }
 
         let payload = {
-            token: await _crypto.signMessage(token, passport.privateKey, password, true),
+            token,
             claimTypes,
             networks
         };
 
-        return await _message.createMessage(payload, passport.publicKey);
+        return await _message.createSignedMessage(passport, password, payload);
     }
 
     async verifyPassportLoginChallengeRequest(message) {
@@ -22,8 +22,7 @@ class Auth{
             throw new Error("message not provided");
         }
 
-        message = await _message.decryptMessage(message);
-        message.payload.token = await _crypto.verifySignedMessage(message.payload.token, message.publicKey);
+        message = await _message.verifySignedMessage(message);
         return message;
     }
 
@@ -42,7 +41,7 @@ class Auth{
         };
 
         //Encrypt the message
-        return await _message.createEncryptedMessage(payload, targetPublicKey, passport.privateKey, passport.publicKey, password);
+        return await _message.createEncryptedMessage(passport, password, payload, targetPublicKey);
     }
 
     async verifyPassportLoginChallengeResponse(passport, password, message, verifyToken, claimTypeIds, networks) {
