@@ -24,12 +24,12 @@ class Message {
         if(!payload)
             throw new Error("payload not provided");
 
-        let signature = await _crypto.signMessage(JSON.stringify(payload), passport.privateKey, password, true);
-        return this.createMessage(payload, passport.publicKey, signature);
+        payload = await _crypto.signMessage(JSON.stringify(payload), passport.privateKey, password, true);
+        return this.createMessage(payload, passport.publicKey);
     }
 
     //Signed message only, the public key is of the passport doing the sending
-    async createMessage(payload, passportPublicKey, signature){
+    async createMessage(payload, passportPublicKey){
         if(!payload)
             throw new Error("payload not provided");
         if(!passportPublicKey)
@@ -39,9 +39,6 @@ class Message {
             payload: payload,
             publicKey: passportPublicKey
         };
-
-        if(signature)
-            message.signature = signature;
 
         return this._serialize(message, true);
     }
@@ -54,14 +51,14 @@ class Message {
         message = this._deserialize(message);
 
         //Verify the signature of the payload
-        let serializedPayload = JSON.stringify(message.payload);
-        let signedMessage = await _crypto.verifySignedMessage(message.signature, message.publicKey);
+        let signedMessage = await _crypto.verifySignedMessage(message.payload, message.publicKey);
         let passportId = await _crypto.getPassportIdForPublicKey(message.publicKey);
+
         return {
             passportId,
             publicKey: message.publicKey,
-            payload: message.payload,
-            signatureValid: signedMessage === serializedPayload
+            payload: JSON.parse(signedMessage),
+            signatureValid: signedMessage != null
         }
     }
 

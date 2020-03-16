@@ -70,7 +70,7 @@ var claim = class Claim
 
         try
         {
-            let signatureString = await claim.getSignatureString(passportId);
+            let signatureString = await this.getSignatureString(passportId);
             let message = await _crypto.verifySignedMessage(this.signature, this.signedByKey);
             if(signatureString != message)
                 return false;
