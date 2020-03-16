@@ -3,7 +3,7 @@ const _message = require('../utils/message').Message;
 const _claim = require('../models/claim');
 
 class Auth{
-    async createPassportLoginChallengeRequest(passport, password, token, claimTypes, networks) {
+    async createPassportChallengeRequest(passport, password, token, claimTypes, networks) {
         if(!token){
             throw new Error("token not provided");
         }
@@ -17,7 +17,7 @@ class Auth{
         return await _message.createSignedMessage(passport, password, payload);
     }
 
-    async verifyPassportLoginChallengeRequest(message) {
+    async verifyPassportChallengeRequest(message) {
         if(!message){
             throw new Error("message not provided");
         }
@@ -26,7 +26,7 @@ class Auth{
         return message;
     }
 
-    async createPassportLoginChallengeResponse(passport, password, targetPublicKey, token, claims, networks) {
+    async createPassportChallengeResponse(passport, password, targetPublicKey, token, claims, networks) {
         if(!targetPublicKey){
             throw new Error("publicKey not provided");
         }
@@ -44,7 +44,7 @@ class Auth{
         return await _message.createEncryptedMessage(passport, password, payload, targetPublicKey);
     }
 
-    async verifyPassportLoginChallengeResponse(passport, password, message, verifyToken, claimTypeIds, networks) {
+    async verifyPassportChallengeResponse(passport, password, message, verifyToken, claimTypeIds, networks) {
         if(!passport){
             throw new Error("passport not provided");
         }

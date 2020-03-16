@@ -28,7 +28,7 @@ async function Init() {
     console.log(authRequest);
 
     //The user verifies the payload and the auth request and gets details about the request
-    let authMessage = await _bridge.Messaging.Auth.verifyPassportLoginChallengeRequest(authRequest);
+    let authMessage = await _bridge.Messaging.Auth.verifyPassportChallengeRequest(authRequest);
     console.log("Decrypted and Verified Auth Request:");
     console.log(JSON.stringify(authMessage));
 
@@ -44,7 +44,7 @@ async function Init() {
     console.log(authResponse);
 
     //The network partner decrypts and validates the response the user sent
-    var authValidationInfo =  await _bridge.Messaging.Auth.verifyPassportLoginChallengeResponse(_networkPartnerPassport, _password, authResponse, _randomAuthToken, _requiredClaimTypes, _requiredBlockchainAddresses);
+    var authValidationInfo =  await _bridge.Messaging.Auth.verifyPassportChallengeResponse(_networkPartnerPassport, _password, authResponse, _randomAuthToken, _requiredClaimTypes, _requiredBlockchainAddresses);
     console.log("Auth Response Validation Info:");
     console.log(JSON.stringify(authValidationInfo));
 
@@ -64,7 +64,7 @@ async function GetAuthResponse(contextPassport, message){
 
     //Find the claims they asked for and sign and send the response
     //Optionally add networks (neo, eth) to provide blockcahin addresses in the response
-    return await _bridge.Messaging.Auth.createPassportLoginChallengeResponse(contextPassport, _password, message.publicKey, message.payload.token, claims, addresses); 
+    return await _bridge.Messaging.Auth.createPassportChallengeResponse(contextPassport, _password, message.publicKey, message.payload.token, claims, addresses); 
 }
 
 //Simulate a network partner creating a challenge request to the user for their passport info and optionally claims
@@ -77,7 +77,7 @@ async function GetAuthRequest(contextPassport){
     _requiredBlockchainAddresses = ["neo","eth"];
     
     //Generate and return the resulting request payload
-    return await _bridge.Messaging.Auth.createPassportLoginChallengeRequest(contextPassport, _password, _randomAuthToken, _requiredClaimTypes, _requiredBlockchainAddresses);
+    return await _bridge.Messaging.Auth.createPassportChallengeRequest(contextPassport, _password, _randomAuthToken, _requiredClaimTypes, _requiredBlockchainAddresses);
 }
 
 Init();
