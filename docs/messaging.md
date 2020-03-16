@@ -1,5 +1,5 @@
 ---
-id: utils-messaging
+id: messaging
 title: Messaging
 sidebar_label: Messaging Protocol
 ---
