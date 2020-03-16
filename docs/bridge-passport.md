@@ -7,10 +7,9 @@ sidebar_label: Bridge Passport
 # Bridge Passport
 The Bridge Passport is the container holds all of a user's keys, blockchain wallets, and claims to allow them to interact with the Bridge Network, Bridge Marketplace, other Bridge Passports, and multiple blockchains.
 
-## Entities
-### Bridge Passport
 <img src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/bridgepassport.jpg?raw=true'>
 
+## Entities
 ### Bridge Protocol Key Pair
 <img src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/bridgepassport-key.jpg?raw=true'>
 
