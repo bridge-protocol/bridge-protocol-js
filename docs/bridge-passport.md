@@ -11,15 +11,24 @@ The Bridge Passport is the container holds all of a user's keys, blockchain wall
 
 ## Entities
 ### Bridge Protocol Key Pair
+The Bridge Protocol key pair is used for all cryptographic signing and encrypting when using the Bridge Protocol.
+
 <img src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/bridgepassport-key.jpg?raw=true'>
 
 ### Blockchain Wallet
+A Bridge Passport will contain one or more blockchain wallets to handle on-chain transactions (payments, publishing, etc).  The current supported blockchain wallets are Ethereum and NEO.
+
 <img src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/bridgepassport-wallet.jpg?raw=true'>
 
 ### Encrypted Claim Package
+A Bridge Passport may contain encrypted claims packages that were issued to the passport from another passport.  
+
 <img src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/passport-claimpackage.jpg?raw=true?raw=true'>
 
-## File Structure
+## Export and Backup
+The Bridge Protocol can be exported to a JSON file to include all keys, blockchain wallets, and encrypted claims packages to provide portability and allow for backups.  When the passport is exported, all Bridge Protocol and blockchain wallet private keys are encrypted using the passphrase that was provided when the passport was created.  Claim packages are encrypted for the Bridge Passport by the original sender, so no additional encryption is necessary on export.
+
+### File Format
 ```
 {
   "id": "6e2aa1e196527ac3f1e23544bc1ab0cbb4d99ae6",
