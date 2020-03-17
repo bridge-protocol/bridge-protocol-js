@@ -1,10 +1,10 @@
 module.exports = {
   title: 'Bridge Protocol',
   tagline: 'Identity Secured',
-  url: 'https://',
+  url: 'https://github.com/bridge-protocol',
   baseUrl: '/',
   favicon: 'img/bridge-token.png',
-  organizationName: 'bridge-protoccol', // Usually your GitHub org/user name.
+  organizationName: 'bridge-protocol', // Usually your GitHub org/user name.
   projectName: 'bridgeprotocol.github.io', // Usually your repo name.
   themeConfig: {
     navbar: {
