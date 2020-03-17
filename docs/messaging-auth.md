@@ -5,7 +5,7 @@ sidebar_label: Authentication Protocol
 ---
 
 # Bridge Protcol Authentication Protocol
-<img src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/message-authchallenge.jpg?raw=true'>
+<img src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/message-authchallenge.jpg?raw=true'></img>
 
 ## Creating a Passport Challenge Request
 ```

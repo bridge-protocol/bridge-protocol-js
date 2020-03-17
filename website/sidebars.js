@@ -1,6 +1,6 @@
 module.exports = {
   someSidebar: {
-    Docusaurus: ['doc1', 'doc2', 'doc3'],
-    Features: ['mdx'],
+    'Basic Concepts': ['bridge-overview', 'bridge-passport'],
+    'Bridge Protocol': ['messaging', 'messaging-auth', 'messaging-claimsimport','messaging-payment']
   },
 };

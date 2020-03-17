@@ -8,32 +8,29 @@ import styles from './styles.module.css';
 
 const features = [
   {
-    title: <>Easy to Use</>,
-    imageUrl: 'img/undraw_docusaurus_mountain.svg',
+    title: <>Secure Digital Identity</>,
+    imageUrl: '/img/secure.png',
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        Bridge Protocol is a secure identity protocol that allows for verification, management, and transmission of digital identity.  With the Bridge Protocol, users are in total control of their data and only provide the data they choose.
       </>
     ),
   },
   {
-    title: <>Focus on What Matters</>,
-    imageUrl: 'img/undraw_docusaurus_tree.svg',
+    title: <>Flexible Integration Options</>,
+    imageUrl: '/img/flexible.png',
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Your Bridge Protocol identity is fully portable allowing for peer-to-peer, in-person, and on-chain transmission with popular blockchains.  There are several flexible integrated authentication and authorization options for any application.
       </>
     ),
   },
   {
-    title: <>Powered by React</>,
-    imageUrl: 'img/undraw_docusaurus_react.svg',
+    title: <>Open Sourced</>,
+    imageUrl: '/img/github.png',
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        Bridge Protocol was built and open sourced to bring secure digital identity to the community.  The core SDK, integration microservices, and end-user clients are all available on GitHub and free to use in all of your applications.
       </>
     ),
   },
@@ -59,19 +56,21 @@ function Home() {
   const {siteConfig = {}} = context;
   return (
     <Layout
-      title={`Hello from ${siteConfig.title}`}
+      title={`${siteConfig.title}`}
       description="Description will go into a meta tag in <head />">
       <header className={classnames('hero hero--primary', styles.heroBanner)}>
         <div className="container">
-          <h1 className="hero__title">{siteConfig.title}</h1>
-          <p className="hero__subtitle">{siteConfig.tagline}</p>
+          <div className="hero-logo">
+            <img src="/img/bridge-white.png"></img>
+            <h1>SECURE DIGITAL IDENTITY PROTOCOL</h1>
+          </div>
           <div className={styles.buttons}>
             <Link
               className={classnames(
-                'button button--outline button--secondary button--lg',
+                'button button--secondary button--lg',
                 styles.getStarted,
               )}
-              to={useBaseUrl('docs/doc1')}>
+              to={useBaseUrl('docs/bridge-overview')}>
               Get Started
             </Link>
           </div>

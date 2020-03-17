@@ -5,4 +5,4 @@ sidebar_label: Payment Protocol
 ---
 
 # Bridge Protcol Payment Protocol
-<img src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/message-payment.jpg?raw=true'>
+<img src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/message-payment.jpg?raw=true'></img>
