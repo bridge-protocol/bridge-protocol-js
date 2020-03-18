@@ -4,6 +4,12 @@ title: Claim
 sidebar_label: Claim
 ---
 
-# Properties
-
 # Functions
+
+## createClaimPackagesFromClaims
+
+async createClaimPackagesFromClaims(claims, targetPublicKey, passportPublicKey, passportPrivateKey, password)
+
+## verifyClaimPackagesForImport
+
+async verifyClaimPackagesForImport(passport, password, claimPackages)

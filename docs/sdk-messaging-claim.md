@@ -4,6 +4,12 @@ title: Claim
 sidebar_label: Claim 
 ---
 
-# Properties
-
 # Functions
+
+## createClaimsImportRequest
+
+async createClaimsImportRequest(passport, password, claimPackages)
+
+## verifyClaimsImportRequest
+
+async verifyClaimsImportRequest(message)

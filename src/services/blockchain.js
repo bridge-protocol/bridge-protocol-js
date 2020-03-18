@@ -83,7 +83,7 @@ class Blockchain {
         return null;
     }
 
-    async sendBrdg(wallet, amount, recipient, paymentIdentifier, wait) {
+    async sendPayment(wallet, amount, recipient, paymentIdentifier, wait) {
         //Recipient can be null, it will default to bridge contract address
         if (!wallet)
             throw new Error("wallet not provided.");

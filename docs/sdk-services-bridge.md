@@ -4,6 +4,16 @@ title: Bridge
 sidebar_label: Bridge 
 ---
 
-# Properties
-
 # Functions
+
+## getBridgePassportId
+
+async getBridgePassportId(useApi, passport, passphrase)
+
+## getBridgePublicKey
+
+async getBridgePublicKey(useApi, passport, passphrase)
+
+## getBridgeNetworkFee
+
+async getBridgeNetworkFee(passport, passphrase)

@@ -4,6 +4,12 @@ title: Profile
 sidebar_label: Profile 
 ---
 
-# Properties
-
 # Functions
+
+## getAllProfileTypes
+
+async getAllProfileTypes(useApi, passport, passphrase)
+
+## getProfileType
+
+async getProfileType(profileTypeId, useApi, passport, passphrase)

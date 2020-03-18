@@ -4,6 +4,12 @@ title: Claim
 sidebar_label: Claim 
 ---
 
-# Properties
-
 # Functions
+
+## getAllTypes
+
+async getAllTypes(useApi, passport, passphrase)
+
+## getType
+
+async getType(claimTypeId, useApi, passport, passphrase)

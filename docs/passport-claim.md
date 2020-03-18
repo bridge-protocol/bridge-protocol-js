@@ -1,7 +1,7 @@
 ---
 id: passport-claim
-title: Bridge Encrypted Claims
-sidebar_label: Encrypted Claims
+title: Bridge Verified Claims
+sidebar_label: Verified Claims
 ---
 
 A Bridge Passport may contain encrypted claims packages that were issued to the passport from another passport.  

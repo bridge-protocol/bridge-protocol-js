@@ -87,7 +87,7 @@ async function getPaymentResponse(passport, paymentRequest, targetPublicKey){
     await wallet.unlock(_password);
 
     //User creates a NEO payment and sends it
-    let transactionId = await _bridge.Services.Blockchain.sendBrdg(wallet, paymentRequest.amount, paymentRequest.address, paymentRequest.identifier, false);
+    let transactionId = await _bridge.Services.Blockchain.sendPayment(wallet, paymentRequest.amount, paymentRequest.address, paymentRequest.identifier, false);
     if(!transactionId)
         throw new Error("Transaction failed.");
 

@@ -4,6 +4,14 @@ title: Partner
 sidebar_label: Partner 
 ---
 
-# Properties
-
 # Functions
+
+## getAllPartners
+
+async getAllPartners(useApi, passport, passphrase)
+
+## getPartner
+
+async getPartner(partnerId, useApi, passport, passphrase)
+
+

@@ -4,6 +4,8 @@ title: Passport
 sidebar_label: Passport
 ---
 
-# Properties
-
 # Functions
+
+## getDetails
+
+async getDetails(passport, passphrase, passportId)
