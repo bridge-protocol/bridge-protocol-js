@@ -15,7 +15,7 @@ A Bridge Passport can challenge another passport for information including the p
 let randomAuthToken = "randomtoken";
 let requiredClaimTypes = [3];
 let requiredBlockchainAddresses = ["neo","eth"];
-let authRequest = await _bridge.Messaging.Auth.createPassportChallengeRequest(passport, password, randomAuthToken, requiredClaimTypes, requiredBlockchainAddresses);
+let authRequest = await Bridge.Messaging.Auth.createPassportChallengeRequest(passport, password, randomAuthToken, requiredClaimTypes, requiredBlockchainAddresses);
 ```
 - **randomAuthToken** - A randomly generated token that will be passed back in the response to assist in verifying the integrity of the response
 - **requiredClaimTypes** - The claim types being requested of the target passport
@@ -47,7 +47,7 @@ let authResponse = await Bridge.Messaging.Auth.createPassportChallengeResponse(p
 ## Receiving the Passport Challenge Response
 When the challenge response is received, the message integrity needs to be verified, the message is decrypted, the sender is verified, and the provided claim integrity is verified.
 ```
-let verifiedAuthResponse =  await _bridge.Messaging.Auth.verifyPassportChallengeResponse(passport, password, authResponse, randomAuthToken, requiredClaimTypes, requiredBlockchainAddresses);
+let verifiedAuthResponse =  await Bridge.Messaging.Auth.verifyPassportChallengeResponse(passport, password, authResponse, randomAuthToken, requiredClaimTypes, requiredBlockchainAddresses);
 let passportInfo = await Bridge.Services.Passport.getDetails(passport, password, authResponse.passportId);
 ```
 - **authResponse** - the challenge response message received

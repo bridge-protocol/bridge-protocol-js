@@ -32,8 +32,8 @@ The receiving passport will send the requested payment on the requested blockcha
 ```
 let wallet = passport.getWalletForNetwork(paymentRequest.network);
 await wallet.unlock(password);
-let transactionId = await _bridge.Services.Blockchain.sendPayment(wallet, paymentRequest.amount, paymentRequest.address, paymentRequest.identifier, false);
-let paymentResponse = await _bridge.Messaging.Payment.createPaymentResponse(passport, password, paymentRequest.network, wallet.address, paymentRequest.amount, paymentRequest.address, paymentRequest.identifier, transactionId, targetPublicKey);
+let transactionId = await Bridge.Services.Blockchain.sendPayment(wallet, paymentRequest.amount, paymentRequest.address, paymentRequest.identifier, false);
+let paymentResponse = await Bridge.Messaging.Payment.createPaymentResponse(passport, password, paymentRequest.network, wallet.address, paymentRequest.amount, paymentRequest.address, paymentRequest.identifier, transactionId, targetPublicKey);
 ```
 - **wallet** - the blockchain wallet to send payment from
 - **transactionId** - the resulting transaction identifier for the blockchain payment transaction
@@ -42,8 +42,8 @@ let paymentResponse = await _bridge.Messaging.Payment.createPaymentResponse(pass
 ## Verifying a Payment Response
 The passport that sent the payment request recieves the payment response and verifies the blockchain transaction information for the payment.
 ```
-let verifiedPaymentResponse = await _bridge.Messaging.Payment.verifyPaymentResponse(passport, _password, paymentResponse);
-let verifiedPayment = await _bridge.Services.Blockchain.verifyPayment(verifiedPaymentResponse.network, verifiedPaymentResponse.transactionId, verifiedPaymentResponse.from, verifiedPaymentResponse.address, verifiedPaymentResponse.amount, verifiedPaymentResponse.identifier);
+let verifiedPaymentResponse = await Bridge.Messaging.Payment.verifyPaymentResponse(passport, _password, paymentResponse);
+let verifiedPayment = await Bridge.Services.Blockchain.verifyPayment(verifiedPaymentResponse.network, verifiedPaymentResponse.transactionId, verifiedPaymentResponse.from, verifiedPaymentResponse.address, verifiedPaymentResponse.amount, verifiedPaymentResponse.identifier);
 ```
 - **paymentResponse** - the payment response message received from the sender
 - **verifiedPaymentResponse** - the integrity verified data transmitted via the payment response message
