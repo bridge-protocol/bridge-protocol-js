@@ -1,7 +1,7 @@
 ---
 id: messaging
 title: Bridge Protocol
-sidebar_label: Overview
+sidebar_label: Protocol
 ---
 The Bridge Protcol is the core messaging protocol that handles the encoding, signing, and encrypting of messages to faciliate secure peer-to-peer communication between Bridge Passports.  All messages are hex encoded for transport.
 

@@ -3,56 +3,67 @@ id: sdk-services-blockchain
 title: Blockchain
 sidebar_label: Blockchain
 ---
+Service to manage all Bridge Passport blockchain interaction with supported blockchains
 
-# Functions
-
-## async publishPassport
-
+## Functions
+### publishPassport()
+```
 async publishPassport(wallet, passport)
+```
 
-## getAddressForPassport
-
+### getAddressForPassport()
+```
 async getAddressForPassport(network, passportId)
+```
 
-## getPassportForAddress
-
+### getPassportForAddress()
+```
 async getPassportForAddress(network, address)
+```
 
-## unpublishPassport
-
+### unpublishPassport()
+```
 async unpublishPassport(passport, wallet)
+```
 
-## getBalances
-
+### getBalances()
+```
 async getBalances(network, address)
+```
 
-## getRecentTransactions
-
+### getRecentTransactions()
+```
 async getRecentTransactions(network, address) 
+```
 
-## sendPayment
-
+### sendPayment()
+```
 async sendPayment(wallet, amount, recipient, paymentIdentifier, wait)
+```
 
-## verifyPayment
-
+### verifyPayment()
+```
 async verifyPayment(network, hash, from, to, amount, paymentIdentifier)
+```
 
-## addClaim
-
+### addClaim()
+```
 async addClaim(passport, password, wallet, claim, hashOnly) 
+```
 
-## removeClaim
-
+### removeClaim()
+```
 async removeClaim(wallet, claimTypeId)
+```
 
-## approveClaimPublish
-
+### approveClaimPublish()
+```
 async approveClaimPublish(wallet, address, claim, hashOnly)
+```
 
-## getClaim
-
+### getClaim()
+```
 async getClaim(network, claimTypeId, address) 
-
+```
 
 

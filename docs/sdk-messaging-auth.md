@@ -4,20 +4,25 @@ title: Auth
 sidebar_label: Auth 
 ---
 
-# Functions
+Implements the challenge / response authentication protocol
 
-## createPassportChallengeRequest
-
+## Functions
+### createPassportChallengeRequest()
+```
 async createPassportChallengeRequest(passport, password, token, claimTypes, networks)
+```
 
-## createPassportChallengeResponse
-
+### createPassportChallengeResponse()
+```
 async createPassportChallengeResponse(passport, password, targetPublicKey, token, claims, networks)
+```
 
-## verifyPassportChallengeRequest
-
+### verifyPassportChallengeRequest()
+```
 async verifyPassportChallengeRequest(message) 
+```
 
-## verifyPassportChallengeResponse
-
+### verifyPassportChallengeResponse()
+```
 async verifyPassportChallengeResponse(passport, password, message, verifyToken, claimTypeIds, networks)
+```

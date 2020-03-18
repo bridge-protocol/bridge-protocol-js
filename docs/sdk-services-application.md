@@ -3,33 +3,40 @@ id: sdk-services-application
 title: Application
 sidebar_label: Application
 ---
+Service to manage the lifecycle of verification requests on the Bridge Network
 
-# Functions
-
-## getActiveApplications
-
+## Functions
+### getActiveApplications()
+```
 async getActiveApplications(passport, passphrase)
+```
 
-## getAllApplications
-
+### getAllApplications()
+```
 async getAllApplications(passport, passphrase)
+```
 
-## getApplication
-
+### getApplication()
+```
 async getApplication(passport, passphrase, applicationId)
+```
 
-## createApplication
-
+### createApplication()
+```
 async createApplication(passport, passphrase, partner)
+```
 
-## updatePaymentTransaction
-
+### updatePaymentTransaction()
+```
 async updatePaymentTransaction(passport, passphrase, applicationId, network, transactionId)
+```
 
-## retrySend
-
+### retrySend()
+```
 async retrySend(passport, passphrase, applicationId)
+```
 
-## getStatus
-
+### getStatus()
+```
 async getStatus(passport, passphrase, applicationId)
+```

@@ -3,13 +3,16 @@ id: sdk-messaging-claim
 title: Claim
 sidebar_label: Claim 
 ---
+Implements the claims import protocol
 
-# Functions
+## Functions
 
-## createClaimsImportRequest
-
+### createClaimsImportRequest()
+```
 async createClaimsImportRequest(passport, password, claimPackages)
+```
 
-## verifyClaimsImportRequest
-
+### verifyClaimsImportRequest()
+```
 async verifyClaimsImportRequest(message)
+```

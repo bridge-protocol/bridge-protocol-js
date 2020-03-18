@@ -3,21 +3,25 @@ id: sdk-messaging-payment
 title: Payment
 sidebar_label: Payment 
 ---
+Implements the payment request / response protocol
 
-# Functions
-
-## createPaymentRequest
-
+## Functions
+### createPaymentRequest()
+```
 async createPaymentRequest(passport, password, network, amount, address, identifier)
+```
 
-## createPaymentResponse
-
+### createPaymentResponse()
+```
 async createPaymentResponse(passport, password, network, from, amount, address, identifier, transactionId, targetPublicKey)
+```
 
-## verifyPaymentRequest
-
+### verifyPaymentRequest()
+```
 async verifyPaymentRequest(message)
+```
 
-## verifyPaymentResponse
-
+### verifyPaymentResponse()
+```
 async verifyPaymentResponse(passport, password, message)
+```

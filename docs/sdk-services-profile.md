@@ -3,13 +3,14 @@ id: sdk-services-profile
 title: Profile
 sidebar_label: Profile 
 ---
-
-# Functions
-
-## getAllProfileTypes
-
+Service to retrieve the Bridge Network known profile types
+## Functions
+### getAllProfileTypes()
+```
 async getAllProfileTypes(useApi, passport, passphrase)
+```
 
-## getProfileType
-
+### getProfileType()
+```
 async getProfileType(profileTypeId, useApi, passport, passphrase)
+```

@@ -4,14 +4,16 @@ title: Partner
 sidebar_label: Partner 
 ---
 
-# Functions
+Service used to retrieve the Bridge Network known network partner passports
 
-## getAllPartners
-
+## Functions
+### getAllPartners()
+```
 async getAllPartners(useApi, passport, passphrase)
+```
 
-## getPartner
-
+### getPartner()
+```
 async getPartner(partnerId, useApi, passport, passphrase)
-
+```
 
