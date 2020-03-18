@@ -4,7 +4,6 @@ module.exports = {
     'Bridge Passport': ['bridge-passport', 'passport-key', 'passport-claim', 'passport-wallet'],
     'Bridge Protocol': ['messaging', 'messaging-auth', 'messaging-claimsimport','messaging-payment'],
     'Bridge Network': ['network','marketplace'],
-    'Blockchain': ['blockchain', 'blockchain-neo', 'blockchain-ethereum'],
     'SDK':[
       {
         type: 'category',

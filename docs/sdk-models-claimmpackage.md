@@ -30,5 +30,5 @@ Decrypts the claim package and returns a <a href='sdk-models-claim'>Claim</a>
 ```
 async decrypt(privateKey, password)
 ```
-- **privateKey** - the private key of the decrypting passport
-- **password** - the password to unlock private key of the decrypting passport
+- **privateKey** (string) - the private key of the decrypting passport
+- **password** (string) - the password to unlock private key of the decrypting passport

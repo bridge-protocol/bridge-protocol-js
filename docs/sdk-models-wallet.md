@@ -32,7 +32,7 @@ Unlocks the wallet / private key with the specified password.  If successful, th
 async unlock(password)
 ```
 
-- **password** - the password to unlock the private key / wallet
+- **password** (string) - the password to unlock the private key / wallet
 
 ### export()
 Returns a secure representation of the wallet with the unlocked wallet / private key excluded.
