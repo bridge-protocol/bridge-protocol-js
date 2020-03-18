@@ -20,5 +20,6 @@ exports.Services = {
     Profile: require('./services/profile').ProfileApi
 };
 exports.Utils = {
-    Claim: require('./utils/claim').Claim
+    Claim: require('./utils/claim').Claim,
+    Crypto: require('./utils/crypto').Crypto
 };

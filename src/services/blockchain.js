@@ -189,7 +189,7 @@ class Blockchain {
 
         if(wallet.network.toLowerCase() == "neo"){
             //For NEO we create a signed preapproval transaction then the user signs and relays
-            return await _neo.createApprovedClaimTransaction(wallet, claim, secondaryAddress, hashOnly);
+            return await _neo.createApprovedClaimTransaction(wallet, claim, address, hashOnly);
         }
         else if(wallet.network.toLowerCase() == "eth"){
             //For ETH the user publishes the claim then requests an approval to publish
