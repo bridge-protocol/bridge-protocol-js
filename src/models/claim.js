@@ -10,7 +10,7 @@ var claim = class Claim
             this._load(claim);
     };
 
-    get expired(){
+    get isExpired(){
         if(this.expiresOn == null){
             throw new Error("expiration not set");
         }
