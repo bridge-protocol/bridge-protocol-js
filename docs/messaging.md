@@ -3,24 +3,22 @@ id: messaging
 title: Bridge Protocol
 sidebar_label: Overview
 ---
-The Bridge Protcol core messaging handles the encoding, signing, and encrypting of messages to faciliate secure peer-to-peer communication between Bridge Passports.  All messages are hex encoded for transport.
+The Bridge Protcol is the core messaging protocol that handles the encoding, signing, and encrypting of messages to faciliate secure peer-to-peer communication between Bridge Passports.  All messages are hex encoded for transport.
 
-<img src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/message-overview.jpg?raw=true'></img>
+<img class='centered' src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/message-overview.jpg?raw=true'></img>
 
 ## Message Structure
-- publicKey - the public key of the sender
-- payload - the message payload
+<img src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/message-structure.jpg?raw=true'></img>
+
+- **Public Key** - the public key of the sending passport
+- **Payload** - the message payload (see below for formats)
 
 ## Message Types
 ### Encoded Message
-<img src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/message.jpg?raw=true'></img>
-
-An encoded message is a simple message with no signing or encryption
+An encoded message is a simple message with no signing or encryption.
 
 ### Signed Message
-<img src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/message-sign.jpg?raw=true'></img>
-A signed message has a signature property that is the signed payload.  The integrity of the message is verified using the public key of the sender and the signature of the payload.
+A signed message contains the signed payload.  The the signed message can be verified using the public key and the signature of the payload.
 
 ### Encrypted Message
-<img src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/message-encrypt.jpg?raw=true'></img>
-An encrypted message has an encrypted payload property.  The payload property can be verified and decrypted using the public key of the sender and the private key of the Bridge Passport.
+An encrypted message has an encrypted payload.  The payload can be verified and decrypted using the public key of the sending passport and the private key of the the receiving passport.

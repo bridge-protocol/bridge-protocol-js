@@ -4,7 +4,9 @@ title: Bridge Overview
 sidebar_label: Overview
 ---
 
-<img src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/overview.jpg?raw=true'></img>
+There are several components that make up the Bridge ecosystem that allow end users to verify and store their personal information, and securely transmit that information via peer-to-peer or blockchain communication.
+
+<img class='centered' src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/overview.jpg?raw=true'></img>
 
 ## Bridge Protocol
 The secure messaging protocol that allows a Bridge Passport to communicate directly with another Bridge Passport via peer-to-peer communications.
