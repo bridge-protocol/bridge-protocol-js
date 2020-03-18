@@ -1,5 +1,4 @@
 exports.Constants = require('./constants').Constants;
-exports.Crypto = require('./utils/crypto').Crypto;
 exports.Models = {
     Claim: require('./models/claim').Claim,
     ClaimPackage: require('./models/claimPackage').ClaimPackage,

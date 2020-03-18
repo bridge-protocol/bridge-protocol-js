@@ -1,4 +1,5 @@
 const _bridge = require('../src/index');
+const _crypto = require('../src/utils/crypto').Crypto;
 const chai = require('chai');
 const _fs = require('fs');
 const expect = chai.expect;    // Using Expect style
@@ -41,24 +42,21 @@ describe("Partner creates a passport auth request", function() {
         _randomAuthToken = "randomtoken";
         _requiredClaimTypes = [3]; //User email
         _requiredBlockchainAddresses = ["neo"];
-        _authRequest = await _bridge.Messaging.Auth.createPassportLoginChallengeRequest(_partnerPassport, _passphrase, _randomAuthToken, _requiredClaimTypes, _requiredBlockchainAddresses);
+        _authRequest = await _bridge.Messaging.Auth.createPassportChallengeRequest(_partnerPassport, _passphrase, _randomAuthToken, _requiredClaimTypes, _requiredBlockchainAddresses);
     });
 
     it("should create a valid encoded auth request", function() {
         expect(_authRequest).to.be.not.null;
-        let decodedAuthRequest = JSON.parse(_bridge.Crypto.hexDecode(_authRequest, true));
+        let decodedAuthRequest = JSON.parse(_crypto.hexDecode(_authRequest, true));
         expect(decodedAuthRequest).to.be.not.null;  
         expect(decodedAuthRequest).to.have.property("publicKey", _partnerPassport.publicKey);     
         expect(decodedAuthRequest).to.have.property("payload").not.null;
-        expect(decodedAuthRequest.payload).to.have.property("token").not.null; 
-        expect(decodedAuthRequest.payload).to.have.property("claimTypes").not.null;
-        expect(decodedAuthRequest.payload).to.have.property("networks").not.null;
     });
 });
 
 describe("User validates the passport auth request", function(){
     before(async () => {
-        _authRequestMessage = await _bridge.Messaging.Auth.verifyPassportLoginChallengeRequest(_authRequest);
+        _authRequestMessage = await _bridge.Messaging.Auth.verifyPassportChallengeRequest(_authRequest);
     });
 
     it("should validate the auth request", function(){
@@ -98,15 +96,15 @@ describe("User creates a valid auth response to the parther auth request", funct
     });
 
     it("should properly create a valid auth response including the token and claims", async function(){
-        _authResponse = await _bridge.Messaging.Auth.createPassportLoginChallengeResponse(_userPassport, _passphrase, _authRequestMessage.publicKey, _authRequestMessage.payload.token, claims, blockchainAddresses); 
-        decodedAuthResponse = JSON.parse(_bridge.Crypto.hexDecode(_authResponse, true));
+        _authResponse = await _bridge.Messaging.Auth.createPassportChallengeResponse(_userPassport, _passphrase, _authRequestMessage.publicKey, _authRequestMessage.payload.token, claims, blockchainAddresses); 
+        decodedAuthResponse = JSON.parse(_crypto.hexDecode(_authResponse, true));
         expect(decodedAuthResponse).to.have.property("publicKey").not.null;
         expect(decodedAuthResponse).to.have.property("payload").not.null;
     });
 
     it("should only allow the auth response to be viewed by the partner passport", async function(){
-        let partnerDecryptedAuthResponse = await _bridge.Crypto.decryptMessage(decodedAuthResponse.payload, decodedAuthResponse.publicKey, _partnerPassport.privateKey, _passphrase);
-        let userDecryptedAuthResponse = await _bridge.Crypto.decryptMessage(decodedAuthResponse.payload, decodedAuthResponse.publicKey, _userPassport.privateKey, _passphrase);
+        let partnerDecryptedAuthResponse = await _crypto.decryptMessage(decodedAuthResponse.payload, decodedAuthResponse.publicKey, _partnerPassport.privateKey, _passphrase);
+        let userDecryptedAuthResponse = await _crypto.decryptMessage(decodedAuthResponse.payload, decodedAuthResponse.publicKey, _userPassport.privateKey, _passphrase);
         expect(partnerDecryptedAuthResponse).to.be.not.null;
         expect(userDecryptedAuthResponse).to.be.null;
     });
@@ -118,7 +116,7 @@ describe("Partner verifies the auth response and gets the passport and claim dat
     it("should not let the user pass back the request as the response", async function(){
         let error = null;
         try{
-            res = await _bridge.Messaging.Auth.verifyPassportLoginChallengeResponse(_userPassport, _passphrase, _authResponse, _randomAuthToken, _requiredClaimTypes, _requiredBlockchainAddresses);
+            res = await _bridge.Messaging.Auth.verifyPassportChallengeResponse(_userPassport, _passphrase, _authResponse, _randomAuthToken, _requiredClaimTypes, _requiredBlockchainAddresses);
         }
         catch(err){
             error = err.message;
@@ -128,7 +126,7 @@ describe("Partner verifies the auth response and gets the passport and claim dat
     });
 
     it("should verify the auth response", async function(){
-        res = await _bridge.Messaging.Auth.verifyPassportLoginChallengeResponse(_partnerPassport, _passphrase, _authResponse, _randomAuthToken, _requiredClaimTypes, _requiredBlockchainAddresses);
+        res = await _bridge.Messaging.Auth.verifyPassportChallengeResponse(_partnerPassport, _passphrase, _authResponse, _randomAuthToken, _requiredClaimTypes, _requiredBlockchainAddresses);
      });
 
     it("should verify the token matches what was sent", function(){
