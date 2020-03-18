@@ -1,10 +1,8 @@
 ---
 id: messaging-auth
-title: Bridge Protocol Authentication Protocol
-sidebar_label: Authentication Protocol
+title: Authentication
+sidebar_label: Authentication
 ---
-
-# Bridge Protcol Authentication Protocol
 <img src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/message-authchallenge.jpg?raw=true'></img>
 
 ## Creating a Passport Challenge Request

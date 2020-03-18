@@ -1,10 +1,8 @@
 ---
 id: messaging
-title: Messaging
-sidebar_label: Messaging Protocol
+title: Bridge Protocol
+sidebar_label: Overview
 ---
-
-# Messaging Protocol
 The Bridge Protcol core messaging handles the encoding, signing, and encrypting of messages to faciliate secure peer-to-peer communication between Bridge Passports.  All messages are hex encoded for transport.
 
 ## Message Structure

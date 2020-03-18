@@ -1,10 +1,8 @@
 ---
 id: messaging-claimsimport
-title: Bridge Protocol Claims Import Protocol
-sidebar_label: Claims Import Protocol
+title: Claims Import
+sidebar_label: Claims Import
 ---
-
-# Bridge Protcol Claims Import Protocol
 The claims import protocol is used by a passport that wishes to sign and provide an encrypted claim package to be imported to another passport.  This is the protocol used by all Bridge Marketplace providers to issue and transmit secure claims.
 
 <img src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/message-claimsimport.jpg?raw=true'></img>
