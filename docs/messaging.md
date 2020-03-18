@@ -5,6 +5,8 @@ sidebar_label: Overview
 ---
 The Bridge Protcol core messaging handles the encoding, signing, and encrypting of messages to faciliate secure peer-to-peer communication between Bridge Passports.  All messages are hex encoded for transport.
 
+<img src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/message-overview.jpg?raw=true'></img>
+
 ## Message Structure
 - publicKey - the public key of the sender
 - payload - the message payload

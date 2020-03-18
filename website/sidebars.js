@@ -3,6 +3,7 @@ module.exports = {
     'Getting Started': ['bridge-overview'],
     'Bridge Passport': ['bridge-passport', 'passport-key', 'passport-claim', 'passport-wallet'],
     'Bridge Protocol': ['messaging', 'messaging-auth', 'messaging-claimsimport','messaging-payment'],
+    'Bridge Marketplace': ['marketplace','marketplace-partners'],
     'Blockchain': ['blockchain', 'blockchain-neo', 'blockchain-ethereum'],
     'SDK':[
       {
