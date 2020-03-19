@@ -4,7 +4,7 @@ const _apiBaseUrl = _constants.bridgeApiUrl + "profile/";
 
 class ProfileApi
 {
-    async getAllProfileTypes(useApi, passport, passphrase){
+    async getAllTypes(useApi, passport, passphrase){
         if(useApi){
             var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
             var res = await api.callApi("GET", "type", null);
@@ -15,7 +15,7 @@ class ProfileApi
         } 
     }
     
-    async getProfileType(profileTypeId, useApi, passport, passphrase){
+    async getType(profileTypeId, useApi, passport, passphrase){
         if(!profileTypeId){
             throw new Error("profileTypeId not provided");
         }
