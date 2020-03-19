@@ -54,7 +54,7 @@ async function Init() {
     console.log("Verified Import Request:");
     console.log(JSON.stringify(verifiedImportRequest));
 
-    let verifiedClaimPackages = await _bridge.Utils.Claim.verifyClaimPackagesForImport(userPassport, _password, verifiedImportRequest.payload.claimsImportRequest.claimPackages);
+    let verifiedClaimPackages = await _bridge.Utils.Claim.verifyClaimPackagesForImport(userPassport, _password, verifiedImportRequest.payload.claimPackages);
     console.log("Verified Claim Packages");
     console.log(JSON.stringify(verifiedClaimPackages));
 

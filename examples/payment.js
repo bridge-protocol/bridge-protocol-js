@@ -40,7 +40,7 @@ async function Init() {
     console.log(JSON.stringify(requestingPassportDetails));
     
     //Send the payment and get the response to send back to the requester
-    let paymentResponse = await getPaymentResponse(passport, verifiedPaymentRequest.payload.paymentRequest, verifiedPaymentRequest.publicKey);
+    let paymentResponse = await getPaymentResponse(passport, verifiedPaymentRequest.payload, verifiedPaymentRequest.publicKey);
     console.log("Payment Response:")
     console.log(JSON.stringify(paymentResponse));
 

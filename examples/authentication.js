@@ -47,7 +47,7 @@ async function Init() {
 
     //Optional - once again, if they want to check to see if the user that provided the claims to them
     //Is blacklisted, etc they can call the Bridge Protocol Network for info
-    var userPassportDetails = await _bridge.Services.Passport.getDetails(_networkPartnerPassport, _password, authValidationInfo.authResponse.passportId);
+    var userPassportDetails = await _bridge.Services.Passport.getDetails(_networkPartnerPassport, _password, authValidationInfo.passportId);
     console.log("User Passport Info:");
     console.log(JSON.stringify(userPassportDetails));
 }
