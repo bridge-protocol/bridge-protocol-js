@@ -6,12 +6,8 @@ class Claim{
         if(!claimPackages || !Array.isArray(claimPackages) || claimPackages.length == 0)
             throw new Error("claims not provided");
 
-        let claimsImportRequest = {
-            claimPackages
-        };
-
         let payload = {
-            claimsImportRequest
+            claimPackages
         };
 
         return await _message.createSignedMessage(passport, password, payload);
@@ -22,8 +18,7 @@ class Claim{
             throw new Error("message not provided");
         }
 
-        message = await _message.verifySignedMessage(message);
-        return message;
+        return await _message.verifySignedMessage(message);
     }
 };
 

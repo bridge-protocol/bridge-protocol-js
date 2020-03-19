@@ -8,9 +8,10 @@ class Claim{
 
         let claimPackages = [];
         for(let i=0; i<claims.length; i++){
+            let claim = new _claim(claims[i]);
             //Sign the claim as the verifier and package it for the target context passport
             let verifiedClaimPackage = new _claimPackage();
-            await verifiedClaimPackage.fromClaim(claims[i], targetPublicKey, passportPublicKey, passportPrivateKey, password);
+            await verifiedClaimPackage.fromClaim(claim, targetPublicKey, passportPublicKey, passportPrivateKey, password);
             //Add the claim package to the collection
             claimPackages.push(verifiedClaimPackage);
         }
@@ -26,8 +27,9 @@ class Claim{
                 let claimPackage = new _claimPackage(claimPackages[i].typeId, claimPackages[i].signedBy, claimPackages[i].claim);
 
                 //Unpackage the claim package and verify it
-                let decryptedClaim = await claimPackage.decrypt(passport.privateKey, password);
-                if(decryptedClaim.isValid){
+                let claim = await claimPackage.decrypt(passport.privateKey, password);
+                claim = new _claim(claim);
+                if(claim.isValid && claim.verifySignature(passport.id) != null){
                     console.log(`Claim package type ${claimPackage.typeId} decrypted and valid`);
                     verifiedClaimPackages.push(claimPackage);
                 }

@@ -22,8 +22,7 @@ class Auth{
             throw new Error("message not provided");
         }
 
-        message = await _message.verifySignedMessage(message);
-        return message;
+        return await _message.verifySignedMessage(message);
     }
 
     async createPassportChallengeResponse(passport, password, targetPublicKey, token, claims, networks) {
@@ -81,14 +80,12 @@ class Auth{
             }
         }
 
-        return{
-            authResponse: {
-                passportId: res.passportId,
-                publicKey: res.publicKey,
-                tokenVerified:  res.payload.token === token,
-                claims,
-                blockchainAddresses: res.payload.networks
-            }
+        return {
+            passportId: res.passportId,
+            publicKey: res.publicKey,
+            tokenVerified:  res.payload.token === token,
+            claims,
+            blockchainAddresses: res.payload.networks
         }
     }
 };

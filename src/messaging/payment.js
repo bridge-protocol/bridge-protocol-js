@@ -14,15 +14,11 @@ class PaymentUtility{
             throw new Error("address not provided");
         }
 
-        let paymentRequest = {
+        let payload = {
             network,
             amount,
             address,
             identifier
-        };
-
-        let payload = {
-            paymentRequest
         };
 
         return await _message.createSignedMessage(passport, password, payload);
@@ -33,8 +29,7 @@ class PaymentUtility{
             throw new Error("message not provided");
         }
 
-        message = await _message.verifySignedMessage(message);
-        return message;
+        return await _message.verifySignedMessage(message);
     }
 
     async createPaymentResponse(passport, password, network, from, amount, address, identifier, transactionId, targetPublicKey){
@@ -75,10 +70,11 @@ class PaymentUtility{
         }
 
         let res = await _message.decryptMessage(message, passport.privateKey, password);
-        return{
-            paymentResponse: res.payload,
-            passportId: res.passportId
-        }
+        
+        let response = res.payload;
+        response.passportId = res.passportId;
+
+        return response;
     }
 };
 

@@ -107,8 +107,7 @@ var claim = class Claim
         if(this.claimTypeId &&
             this.claimValue &&
             this.createdOn &&
-            this.expiresOn != null &&
-            this.signedByKey){
+            this.expiresOn != null){
             return true;
         }
 

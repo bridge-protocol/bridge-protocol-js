@@ -4,7 +4,7 @@ class Message {
     //Encrypted message for the target recipient
     async createEncryptedMessage(passport, password, payload, targetPublicKey) {
         if(!passport)
-            throw new Errorr("passport not provided");
+            throw new Error("passport not provided");
         if(!password)
             throw new Error("password not provided");
         if(!payload)
@@ -18,7 +18,7 @@ class Message {
 
     async createSignedMessage(passport, password, payload){
         if(!passport)
-            throw new Errorr("passport not provided");
+            throw new Error("passport not provided");
         if(!password)
             throw new Error("password not provided");
         if(!payload)
