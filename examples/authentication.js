@@ -13,9 +13,6 @@ const _userPassport = new _bridge.Models.Passport();
 const _networkPartnerPassport = new _bridge.Models.Passport();
 
 var _randomAuthToken;
-var _requiredClaimTypes;
-var _requiredBlockchainAddresses;
-
 async function Init() {
     //Open the user passport
     await _userPassport.openFile('./passport.json',_password);
@@ -44,7 +41,7 @@ async function Init() {
     console.log(authResponse);
 
     //The network partner decrypts and validates the response the user sent
-    var authValidationInfo =  await _bridge.Messaging.Auth.verifyPassportChallengeResponse(_networkPartnerPassport, _password, authResponse, _randomAuthToken, _requiredClaimTypes, _requiredBlockchainAddresses);
+    var authValidationInfo =  await _bridge.Messaging.Auth.verifyPassportChallengeResponse(_networkPartnerPassport, _password, authResponse, _randomAuthToken);
     console.log("Auth Response Validation Info:");
     console.log(JSON.stringify(authValidationInfo));
 
@@ -72,12 +69,12 @@ async function GetAuthRequest(contextPassport){
     //Create a random signing token to send to the user and hang on to it so we can check that they respond with it
     _randomAuthToken = "randomtoken";
     //Request the claim type for verified user e-mail, persist the claims we are asking for so we can verify they sent us the right claims later
-    _requiredClaimTypes = [3];
+    let requiredClaimTypes = [3];
     //Request blockchain addresses be provided
-    _requiredBlockchainAddresses = ["neo","eth"];
+    let requiredBlockchainAddresses = ["neo","eth"];
     
     //Generate and return the resulting request payload
-    return await _bridge.Messaging.Auth.createPassportChallengeRequest(contextPassport, _password, _randomAuthToken, _requiredClaimTypes, _requiredBlockchainAddresses);
+    return await _bridge.Messaging.Auth.createPassportChallengeRequest(contextPassport, _password, _randomAuthToken, requiredClaimTypes, requiredBlockchainAddresses);
 }
 
 Init();

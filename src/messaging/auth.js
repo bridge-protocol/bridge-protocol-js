@@ -44,7 +44,7 @@ class Auth{
         return await _message.createEncryptedMessage(passport, password, payload, targetPublicKey);
     }
 
-    async verifyPassportChallengeResponse(passport, password, message, verifyToken, claimTypeIds, networks) {
+    async verifyPassportChallengeResponse(passport, password, message, token) {
         if(!passport){
             throw new Error("passport not provided");
         }
@@ -54,8 +54,8 @@ class Auth{
         if(!message){
             throw new Error("message not provided");
         }
-        if(!verifyToken){
-            throw new Error("verifyToken not provided");
+        if(!token){
+            throw new Error("token not provided");
         }
 
         let res = await _message.decryptMessage(message, passport.privateKey, password);
@@ -67,18 +67,14 @@ class Auth{
             res.payload.claims = new Array();
 
         //We want to go through and only include claims that have verified signatures
-        let verifiedClaims = new Array();
+        let claims = new Array();
         for(let i=0; i<res.payload.claims.length; i++){
             try{
                 let claim = new _claim.Claim(res.payload.claims[i]);
                 let passportId = res.passportId;
-                if (claim.verifySignature(passportId)) {
-                    claim.signedById = await _crypto.getPassportIdForPublicKey(claim.signedByKey);
-                    verifiedClaims.push(claim);
-                }
-                else{
-                    console.log("Claim signature invalid, skipping.");
-                }
+                claim.signedById = await _crypto.getPassportIdForPublicKey(claim.signedByKey);
+                claim.signatureValid = (await claim.verifySignature(passportId) != false);
+                claims.push(claim);
             }
             catch(err){
                 console.log("Error with claim: " + err.message + ", skipping.")
@@ -89,55 +85,11 @@ class Auth{
             authResponse: {
                 passportId: res.passportId,
                 publicKey: res.publicKey,
-                tokenVerified:  res.payload.token === verifyToken,
-                claims: verifiedClaims,
-                blockchainAddresses: res.payload.networks,
-                missingClaimTypes: this._getMissingRequiredClaimTypes(claimTypeIds, verifiedClaims),
-                missingBlockchainAddresses: this._getMissingBlockchainAddresses(networks, res.payload.networks)
+                tokenVerified:  res.payload.token === token,
+                claims,
+                blockchainAddresses: res.payload.networks
             }
         }
-    }
-
-    _getMissingBlockchainAddresses(networks, blockchainAddresses){
-        let missingBlockchainAddresses = new Array();
-        if(networks && networks.length > 0){
-            for(let i=0; i<networks.length; i++){
-                if(!this._checkBlockchainAddressExists(networks[i], blockchainAddresses)){
-                    missingBlockchainAddresses.push(networks[i]);
-                }
-            }
-        }
-        return missingBlockchainAddresses;
-    }
-
-    _getMissingRequiredClaimTypes(claimTypeIds, claims){
-        let missingClaimTypeIds = new Array();
-
-        if(claimTypeIds && claimTypeIds.length > 0){
-            for(let i=0; i<claimTypeIds.length; i++){
-                if(!this._checkClaimTypeExists(claimTypeIds[i],claims)){
-                    missingClaimTypeIds.push(claimTypeIds[i]);
-                }
-            }
-        }
-
-        return missingClaimTypeIds;
-    }
-
-    _checkBlockchainAddressExists(network, blockchainAddresses){
-        for(let i=0; i<blockchainAddresses.length; i++){
-            if(blockchainAddresses[i].network.toLowerCase() === network.toLowerCase())
-                return true;
-        }
-        return false;
-    }
-
-    _checkClaimTypeExists(claimTypeId,claimPackages){
-        for(let i=0; i<claimPackages.length; i++){
-            if(claimPackages[i].typeId === claimTypeId || claimPackages[i].claimTypeId === claimTypeId)
-                return true;
-        }
-        return false;
     }
 };
 

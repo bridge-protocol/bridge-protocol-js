@@ -39,10 +39,8 @@ async verifyPassportChallengeRequest(message)
 ### verifyPassportChallengeResponse()
 Verify a received passport challenge response
 ```
-async verifyPassportChallengeResponse(passport, password, message, verifyToken, claimTypeIds, networks)
+async verifyPassportChallengeResponse(passport, password, message, t)
 ```
 - **passport** - (<a href='sdk-models-passport'>Passport</a>) - the passport verifying the encrypted challenge response
 - **password** (string) - password to unlock the private key of the passport verifying the encrypted challenge response
-- **verifyToken** (string) - unique token to verify the challenge response
-- **claimTypeIds** (string[]) - the claim types to verify were provided in the response
-- **networks** (string[]) - the networks types to verify were provided in the response
+- **token** (string) - unique token to verify the challenge response
