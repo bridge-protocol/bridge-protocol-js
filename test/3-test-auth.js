@@ -130,28 +130,25 @@ describe("Partner verifies the auth response and gets the passport and claim dat
      });
 
     it("should verify the token matches what was sent", function(){
-        expect(res.authResponse.tokenVerified).equals(true);
-    });
-
-    it("should check there are no missing claim types", function(){
-        expect(res.authResponse.missingClaimTypes).length == 0;
-    });
-
-    it("should check there are no missing requested blockchain addresses", function(){
-        expect(res.authResponse.missingBlockchainAddresses).length == 0;
+        expect(res.tokenVerified).equals(true);
     });
 
     it("should be able to read the claims. blockchain address and passport data", async function(){
-        expect(res.authResponse).to.have.property("passportId",_userPassport.id);
-        expect(res.authResponse.claims).length == 1;
-        expect(res.authResponse.claims[0]).to.have.property("claimTypeId",3);
-        expect(res.authResponse.claims[0]).to.have.property("claimValue","someuser@bridgeprotocol.io");
-        expect(res.authResponse.claims[0]).to.have.property("createdOn").not.null;
-        expect(res.authResponse.claims[0]).to.have.property("expiresOn").not.null;
-        expect(res.authResponse.claims[0]).to.have.property("signedById").not.null;
-        expect(res.authResponse.blockchainAddresses).length == 1;
-        expect(res.authResponse.blockchainAddresses[0].network.toLowerCase()).equals("neo");
-        expect(res.authResponse.blockchainAddresses[0]).to.have.property("address").not.null;
+        expect(res).to.have.property("passportId",_userPassport.id);
+        expect(res.claims).length == 1;
+        expect(res.claims[0]).to.have.property("claimTypeId",3);
+        expect(res.claims[0]).to.have.property("claimValue","someuser@bridgeprotocol.io");
+        expect(res.claims[0]).to.have.property("createdOn").not.null;
+        expect(res.claims[0]).to.have.property("expiresOn").not.null;
+        expect(res.claims[0]).to.have.property("isValid").not.null;
+        expect(res.claims[0]).to.have.property("isExpired").not.null;
+        expect(res.claims[0]).to.have.property("signature").not.null;
+        expect(res.claims[0]).to.have.property("signedByKey").not.null;
+        expect(res.claims[0]).to.have.property("signedById").not.null;
+        expect(res.claims[0]).to.have.property("signatureValid").not.null;
+        expect(res.blockchainAddresses).length == 1;
+        expect(res.blockchainAddresses[0].network.toLowerCase()).equals("neo");
+        expect(res.blockchainAddresses[0]).to.have.property("address").not.null;
     });
 });
 
