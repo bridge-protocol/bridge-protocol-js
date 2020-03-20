@@ -5,7 +5,7 @@ sidebar_label: Claim and Profile Type
 ---
 The Claim and Profile endpoints allow for retrieval of Bridge known type definitions.
 
-## GET /claim/types
+### GET /claim/types
 Retrieves the type definitions for all known Claim types on the Bridge Network
 
 ```
@@ -23,7 +23,7 @@ Retrieves the type definitions for all known Claim types on the Bridge Network
 
 ---
 
-## GET /profile/types
+### GET /profile/types
 Retrieves the type definitions for all known Profile types on the Bridge Network
 ```
 [
