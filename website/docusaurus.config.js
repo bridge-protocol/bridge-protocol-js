@@ -21,11 +21,6 @@ module.exports = {
           position: 'left',
         },
         {
-          href: 'https://github.com/bridge-protocol/bridge-passport-browser-extension/blob/master/docs/Bridge%20Passport%20Browser%20Extension%20v2.0%20User%20Guide%20and%20Feature%20Overview%20-%20Google%20Docs.pdf',
-          label: 'Browser Extension Docs',
-          position: 'left',
-        },
-        {
           href: 'https://github.com/bridge-protocol',
           label: 'GitHub',
           position: 'left',
