@@ -7,6 +7,8 @@ The Bridge Protcol is the core messaging protocol that handles the encoding, sig
 
 <img class='centered' src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/message-overview.jpg?raw=true'></img>
 
+---
+
 ## Message Structure
 <img src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/message-structure.jpg?raw=true'></img>
 

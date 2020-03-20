@@ -15,6 +15,8 @@ This example will demonstrate how to create a new Bridge Passport with generated
 
 ##
 
+---
+
 ### Loading Existing Passports
 <p class="nobottommargin">
 Once created and exported, this example demonstrates how to import and load an existing passport from disk.
@@ -22,6 +24,8 @@ Once created and exported, this example demonstrates how to import and load an e
 <a href="https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/examples/passport-load.js">View Example on GitHub</a>
 
 ##
+
+---
 
 ### Creating Signed and Encrypted Claim Packages
 <p class="nobottommargin">
@@ -31,6 +35,8 @@ For Bridge verification partners or for third parties wishing to issue their own
 
 ##
 
+---
+
 ### Passport to Passport Claims Import
 <p class="nobottommargin">
 Once secure claim packages are created, they need to be transmitted to the target passport and the target passport must import those claims so they can be included in the passport.  This example demonstrates how to create a claims import request from the claims issuing passport and send it to a target passport that will then verify the request and included claims and import those claims to the passport.
@@ -39,7 +45,7 @@ Once secure claim packages are created, they need to be transmitted to the targe
 
 ##
 
-##
+---
 
 ### Passport to Passport Authentication
 <p class="nobottommargin">
@@ -48,6 +54,8 @@ When a passport wants to request information about another passport to be used f
 <a href="https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/examples/authentication.js">View Example on GitHub</a>
 
 ##
+
+---
 
 ### Passport to Passport Payments
 <p class="nobottommargin">

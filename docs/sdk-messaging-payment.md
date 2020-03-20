@@ -18,6 +18,8 @@ async createPaymentRequest(passport, password, network, amount, address, identif
 - **address** (string) - the address to send payment to
 - **identifier** (string) - a unique identifier of the payment to asynchronously verify the payment once it has been committed to the blockchain
 
+---
+
 ### createPaymentResponse()
 Create an encrypted payment response to be sent back to the sending passport
 ```
@@ -33,12 +35,16 @@ async createPaymentResponse(passport, password, network, from, amount, address, 
 - **transactionId** (string) - the resulting blockchain transaction id of the payment
 - **targetPublicKey** (string) - the public key of the passport that sent the payment request
 
+---
+
 ### verifyPaymentRequest()
 Verify a signed payment request received by a sending passport
 ```
 async verifyPaymentRequest(message)
 ```
 - **message** (string) - the received signed payment request message
+
+---
 
 ### verifyPaymentResponse()
 Verify the encrypted payment response received from the target passport

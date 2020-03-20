@@ -14,6 +14,7 @@ The Bridge Passport is the container holds all of a user's keys, blockchain wall
 - **Blockchain Wallets** - The collection of blockchain wallets used for blockchain transactions
 - **Claim Packages** - The collection of encrypted claim packages containing the claims for the passport
 
+---
 
 ## Export and Backup
 The Bridge Protocol can be exported to a JSON file to include all keys, blockchain wallets, and encrypted claims packages to provide portability and allow for backups.  When the passport is exported, all Bridge Protocol and blockchain wallet private keys are encrypted using the passphrase that was provided when the passport was created.  Claim packages are encrypted for the Bridge Passport by the original sender, so no additional encryption is necessary on export.

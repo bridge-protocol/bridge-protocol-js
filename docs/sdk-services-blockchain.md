@@ -14,6 +14,8 @@ async publishPassport(wallet, passport)
 - **wallet** (<a href='sdk-models-wallet'>Wallet</a>) - blockchain wallet to use for publishing
 - **passport** (<a href='sdk-models-passport'>Passport</a>) - passport to publish
 
+---
+
 ### getAddressForPassport()
 Retrieve the published blockchain address for the specified passport from the Bridge Keyserver contract
 ```
@@ -21,6 +23,8 @@ async getAddressForPassport(network, passportId)
 ```
 - **network** (string) - the blockchain network to retrieve the address from
 - **passportId** (string) - the passport id of the passport to retrieve the address for
+
+---
 
 ### getPassportForAddress()
 Retrieve the published passport id for the wallet blockchain address from the Bridge Keyserver contract
@@ -30,6 +34,8 @@ async getPassportForAddress(network, address)
 - **network** (string) - the blockchain network to retrieve the passport id from
 - **address** (string) - the blockchain address to retrieve the passport id for
 
+---
+
 ### unpublishPassport()
 Unpublish the passport and wallet address combination from the blockchain using the Bridge Keyserver contract
 ```
@@ -38,6 +44,7 @@ async unpublishPassport(passport, wallet)
 - **passport** (<a href='sdk-models-passport'>Passport</a>) - passport to publish
 - **wallet** (<a href='sdk-models-wallet'>Wallet</a>) - blockchain wallet to use for publishing
 
+---
 
 ### getBalances()
 Retrieve BRDG token and related blockchain gas balances
@@ -47,6 +54,8 @@ async getBalances(network, address)
 - **network** (string) - the blockchain network to retrieve balances from
 - **address** (string) - the blockchain address to retrieve the balances for
 
+---
+
 ### getRecentTransactions()
 Retrieve recent BRDG token blockchain transactions
 ```
@@ -54,6 +63,8 @@ async getRecentTransactions(network, address)
 ```
 - **network** (string) - the blockchain network to retrieve the transactions from
 - **address** (string) - the blockchain address to retrieve the transactions for
+
+---
 
 ### sendPayment()
 Send a BRDG token payment transaction
@@ -65,6 +76,8 @@ async sendPayment(wallet, amount, recipient, paymentIdentifier, wait)
 - **recipient** (string) - the blockchain address to send payment to
 - **paymentIdentifier** (string) - the unique identifier of the payment
 - **wait** (bool) - whether or not to poll and wait for completion or immediately return the transmitted blockchain transaction id without waiting for completion
+
+---
 
 ### verifyPayment()
 Verify a BRDG token payment transaction info
@@ -78,6 +91,8 @@ async verifyPayment(network, hash, from, to, amount, paymentIdentifier)
 - **amount** (int) - the amount of BRDG that was sent
 - **paymentIdentifier** (string) - the unique identifier of the payment
 
+---
+
 ### addClaim()
 Publish a Bridge Verified claim to the blockhain using the Bridge Keyserver contract
 ```
@@ -88,6 +103,8 @@ async addClaim(passport, password, wallet, claim, hashOnly)
 - **wallet** (<a href='sdk-models-wallet'>Wallet</a>) - blockchain wallet to use for adding the claim
 - **hashOnly** (bool) - whether or not to publish a SHA256 hash representing the claim value instead of the actual claim value
 
+---
+
 ### removeClaim()
 Unpublish a Bridge Verified claim to the blockhain using the Bridge Keyserver contract
 ```
@@ -95,6 +112,8 @@ async removeClaim(wallet, claimTypeId)
 ```
 - **wallet** (<a href='sdk-models-wallet'>Wallet</a>) - blockchain wallet to remove the claim from
 - **claimtypeId** (string) - the claim type to remove
+
+---
 
 ### getClaim()
 Retrieve a published Bridge Verified claim from the blockhain using the Bridge Keyserver contract

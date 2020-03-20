@@ -7,6 +7,8 @@ The authentication protocol is used by a passport that wishes to challenge anoth
 
 <img class='centered' src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/message-authchallenge.jpg?raw=true'></img>
 
+---
+
 ## Creating a Passport Challenge Request
 
 A Bridge Passport can challenge another passport for information including the passport identifier, specific claim types, and blockchain addresses.
@@ -22,6 +24,8 @@ let authRequest = await Bridge.Messaging.Auth.createPassportChallengeRequest(pas
 - **requiredBlockchainAddresses** - The blockchain network addresses being requested of the target passport
 - **authRequest** - The message payload of the generated challenge request to be sent to the target passport
 
+---
+
 ## Receiving the Passport Challenge Request
 When a passport challenge request message is received, the message and sender passport information need to be verified
 
@@ -33,6 +37,8 @@ let passportInfo = await Bridge.Services.Passport.getDetails(passport, password,
 - **verifiedAuthRequest** - the verified challenge request message
 - **passportInfo** - the information received from the Bridge Network about the passport that sent the request message
 
+---
+
 ## Sending the Passport Challenge Response
 Once the sender is verified, the passport can retrieve the claim and blockchain address data requested and send generate an encrypted response message with the requested information.
 ```
@@ -43,6 +49,8 @@ let authResponse = await Bridge.Messaging.Auth.createPassportChallengeResponse(p
 - **claims** - the passport claims to be included in the challenge response
 - **addresses** - the passport blockchain addresses to be included in the challenge response
 - **authResponse** - the challenge response message to be sent back to the requesting passport
+
+---
 
 ## Receiving the Passport Challenge Response
 When the challenge response is received, the message integrity needs to be verified, the message is decrypted, the sender is verified, and the provided claim integrity is verified.

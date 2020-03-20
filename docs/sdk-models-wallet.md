@@ -25,6 +25,8 @@ async create(password, privateKey)
 - **password** (string) - the password used to encrypt and decrypt the private key
 - **privateKey** (string) - if provided the wallet will be an imported blockchain wallet, otherwise a new private key is generated
 
+---
+
 ### unlock()
 Unlocks the wallet / private key with the specified password.  If successful, the unlocked property is set to the unlocked wallet object.
 
@@ -33,6 +35,8 @@ async unlock(password)
 ```
 
 - **password** (string) - the password to unlock the private key / wallet
+
+---
 
 ### export()
 Returns a secure representation of the wallet with the unlocked wallet / private key excluded.

@@ -31,6 +31,8 @@ async encrypt(targetPublicKey, passportPrivateKey, password)
 - **passportPrivateKey** (string)- the private key of the passport encrypting the claim
 - **password** (string)- the password to unlock the private key of the passport encrypting the claim
 
+---
+
 ### fromClaimPackage()
 Decrypts and loads the claim from an encrypted claim package
 ```
@@ -40,12 +42,16 @@ async fromClaimPackage(claimPackage, privateKey, password)
 - **privateKey** (string) - the private key of the loading passport
 - **password** (string) - the password to unlock the private key of the loading passport
 
+---
+
 ### verifySignature()
 Verifies the signature of the claim is valid
 ```
 async verifySignature(passportId)
 ```
 - **passportId** (string) - the passport context to verify the signature for
+
+---
 
 ### getSignatureString()
 Retrieves the unique fingerprint for the claim used for signing and integrity verification

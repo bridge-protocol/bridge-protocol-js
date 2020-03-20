@@ -16,6 +16,8 @@ async createClaimsImportRequest(passport, password, claimPackages)
 - **password** (string) - the password to unlock the passport receiving the claims import request
 - **claimPackages** (<a href='sdk-models-claimpackage'>ClaimPackage</a>[]) - the claim packages signed and encrypted for the receiving passport
 
+---
+
 ### verifyClaimsImportRequest()
 Verify a received claims import request from a passport
 ```

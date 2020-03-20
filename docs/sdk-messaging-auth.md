@@ -18,6 +18,8 @@ async createPassportChallengeRequest(passport, password, token, claimTypes, netw
 - **claimTypes** (string[]) - the claim types to be requested from the target passport
 - **networks** (string[]) - the blockchain networks to request addresses for from the target passport
 
+---
+
 ### createPassportChallengeResponse()
 Create a passport challenge response
 ```
@@ -29,12 +31,16 @@ async createPassportChallengeResponse(passport, password, targetPublicKey, token
 - **claims** (<a href='sdk-models-claim'>Claim</a>[]) - the claims to send in response to the request
 - **networks** (string[]) - the networks to provide blockchain addresses for in response to the request
 
+---
+
 ### verifyPassportChallengeRequest()
 Verify a received passport challenge request
 ```
 async verifyPassportChallengeRequest(message) 
 ```
 - **message** (string) - the received signed passport challenge request
+
+---
 
 ### verifyPassportChallengeResponse()
 Verify a received passport challenge response

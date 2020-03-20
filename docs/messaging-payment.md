@@ -8,6 +8,8 @@ The payment protocol is used by a passport that wishes to request payments in BR
 
 <img class='centered' src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/message-payment.jpg?raw=true'></img>
 
+---
+
 ## Creating a Payment Request
 A passport can request payment from another passport by creating a payment request.
 ```
@@ -16,6 +18,8 @@ let paymentRequest = await Bridge.Messaging.Payment.createPaymentRequest(passpor
 ```
 - **wallet** - the blockchain wallet to request payment be sent to
 - **paymentRequest** -  the payment request message to be sent to the target passport
+
+---
 
 ## Receiving a Payment Request
 The receiving passport will receive the payment request and verify the integrity of the message and the passport that sent the request.
@@ -26,6 +30,8 @@ let passportDetails = await Bridge.Services.Passport.getDetails(passport, passwo
 - **paymentRequest** - the payment request message received from the sending passport
 - **verifiedPaymentRequest** - the integrity verified data transmitted via the payment request message
 - **passportDetails** - the information received from the Bridge Network about the passport that sent the request message
+
+---
 
 ## Creating a Payment Response
 The receiving passport will send the requested payment on the requested blockchain network and create a response message that includes the blockchain transaction information about the payment.
@@ -38,6 +44,8 @@ let paymentResponse = await Bridge.Messaging.Payment.createPaymentResponse(passp
 - **wallet** - the blockchain wallet to send payment from
 - **transactionId** - the resulting transaction identifier for the blockchain payment transaction
 - **paymentResponse** - the payment response message to be sent back to the sender to confirm the payment transaction
+
+---
 
 ## Verifying a Payment Response
 The passport that sent the payment request recieves the payment response and verifies the blockchain transaction information for the payment.

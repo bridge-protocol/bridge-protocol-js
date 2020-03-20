@@ -17,7 +17,7 @@ module.exports = {
         {
           to: 'docs/bridge-overview',
           activeBasePath: 'docs',
-          label: 'SDK Docs',
+          label: 'Docs',
           position: 'left',
         },
         {

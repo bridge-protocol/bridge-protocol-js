@@ -7,6 +7,8 @@ The claims import protocol is used by a passport that wishes to sign and provide
 
 <img class='centered' src='https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/docs/images/message-claimsimport.jpg?raw=true'></img>
 
+---
+
 ## Creating a Claims Import Request
 The verification provdier will create the import request to allow the recipient passport to accept and import the claims
 ```
@@ -14,6 +16,8 @@ let claimsImportRequest = await Bridge.Messaging.Claim.createClaimsImportRequest
 ```
 - **claimPackages** - the signed and encrypted claim packages to be sent to the target passport
 - **claimsImportRequest** - the claims import request message
+
+---
 
 ## Verifying the Claims Import Request
 The recieving passport will verify the integrity of the import request by ensuring the message was signed by the verified passport that transmitted the import request.  The claim packages will be verified for integrity and available to import to the receiving passport.

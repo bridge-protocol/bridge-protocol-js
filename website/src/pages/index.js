@@ -62,7 +62,7 @@ function Home() {
         <div className="container">
           <div className="hero-logo">
             <img src="/img/bridge-white.png"></img>
-            <h1>SECURE DIGITAL IDENTITY PROTOCOL</h1>
+            <h1>Secure Portable Digital Identity</h1>
           </div>
           <div className={styles.buttons}>
             <Link

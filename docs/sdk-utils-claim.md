@@ -17,6 +17,8 @@ async createClaimPackagesFromClaims(claims, targetPublicKey, passportPublicKey, 
 - **passportPrivateKey** - the private key of the signing and encrypting passport
 - **password** - the password to unlock the private key of the signing and encrypting passport
 
+---
+
 ### verifyClaimPackagesForImport()
 Verifies the integrity of claim packages to ensure they are suitable for import to the passport
 ```

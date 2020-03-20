@@ -4,7 +4,7 @@ module.exports = {
     'Bridge Passport': ['bridge-passport', 'passport-key', 'passport-claim', 'passport-wallet'],
     'Bridge Network': ['network','marketplace'],
     'Bridge Protocol': ['messaging', 'messaging-auth', 'messaging-claimsimport','messaging-payment'],
-    'Bridge Core SDK':[
+    'Bridge JavaScript SDK':[
       'sdk',
       'sdk-examples',
       {
@@ -32,7 +32,7 @@ module.exports = {
         }]
       }
     ],
-    'Bridge Microservice': [
+    'Bridge REST Microservice': [
         'integration',
         { type:'category',
           label: 'Endpoints',

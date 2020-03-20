@@ -25,6 +25,8 @@ async fromClaim(claim, targetPublicKey, passportPublicKey, passportPrivateKey, p
 - **passportPrivateKey** (string) - the private key of the signing and encrypting passport
 - **password** (string) - the password to unlock the private key of the signing and encrypting passport
 
+---
+
 ### decrypt()
 Decrypts the claim package and returns a <a href='sdk-models-claim'>Claim</a>
 ```

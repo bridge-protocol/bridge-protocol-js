@@ -15,6 +15,8 @@ async getAllTypes(useApi, passport, passphrase)
 - **passport** (<a href='sdk-models-passport'>Passport</a>) - passport context used for API authentication, only required if useApi=true
 - **passphrase** (string) - password used to unlock context passport private key, only required if useApi=true
 
+---
+
 ### getType()
 Retrieve the specified known claim type definition
 ```
