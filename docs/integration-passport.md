@@ -15,6 +15,35 @@ Retrieves the passport public key of the passport context the microservice is ru
 
 ---
 
+### POST /passport/details
+Retrieves the passport details about a passport by id
+
+##### Example Request:
+```
+{
+    "passportId":"d7bc3488073454a6ce32b13a1e8cda6a8bddf16d"
+}
+```
+- **passportId** (string) - the passport to get the details of
+
+##### Example Response:
+```
+{
+    "id":"d7bc3488073454a6ce32b13a1e8cda6a8bddf16d",
+    "isBlacklisted":false,
+    "blacklistReason":null,
+    "isNetworkPartner":true,
+    "isVerificationPartner":true,
+    "partnerName": "Bridge Protocol Corporation",
+    "partnerAddresses": [ 
+        "https://*.bridgeprotocol.io"
+    ]
+}
+```
+
+
+---
+
 ### POST /passport/idfromkey
 Retrieves the passport id from any passport public key
 
