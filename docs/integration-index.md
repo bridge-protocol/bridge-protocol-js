@@ -1,7 +1,7 @@
 ---
 id: integration-index
-title: Claim and Profile Type
-sidebar_label: Claim and Profile Type
+title: Claim and Profile Types
+sidebar_label: Claims and Profiles
 ---
 The Claim and Profile endpoints allow for retrieval of Bridge known type definitions.
 
