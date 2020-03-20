@@ -371,7 +371,7 @@ class NEO {
 
             let secondaryPassportId = await this.getPassportForAddress(secondaryAddress);
             if(!secondaryPassportId)
-                throw new Error("Passport is not registeredd");
+                throw new Error("Passport is not registered");
             const secondaryAddressScriptHash = this._getAddressScriptHash(secondaryAddress);
             const addressScriptHash = this._getAddressScriptHash(wallet.address);
             const account = new _neon.wallet.Account(wallet.privateKey);
