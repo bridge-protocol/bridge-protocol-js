@@ -244,7 +244,7 @@ var passport = class Passport
 
     async _initWallets(wallets){
         if(!wallets || wallets.length == 0)
-            return unlockedWallets;
+            return [];
         
         for(let i=0; i<wallets.length; i++){
             wallets[i] = new _wallet.Wallet(wallets[i].network, wallets[i].address, wallets[i].key);
