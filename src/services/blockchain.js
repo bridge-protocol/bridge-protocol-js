@@ -1,4 +1,5 @@
 const _constants = require('../constants').Constants;
+const _api = require('../utils/api');
 const _neo = require('../utils/neo').NEO;
 const _eth = require('../utils/ethereum').Ethereum;
 const _neoApi = require('./neo').NEOApi;
@@ -147,11 +148,10 @@ class Blockchain {
         }
 
         if (wallet.network.toLowerCase() === "neo") {
-            //For NEO we create a signed preapproval transaction then the user signs and relays
-            let tx = await _neoApi.getAddClaimTransaction(passport, password, claim, wallet.address, hashOnly);
+            //For Bridge creates a signed preapproval transaction that the user signs and relays
+            let tx = await this.getClaimPublishApproval(passport, password, wallet, claim, hashOnly);
             if(tx == null)
                 throw new Error("Unable to add claim: integrity or signer check failed.");
-            
             //Secondarily sign it and relay the signed transaction
             let signed = await _neo.secondarySignAddClaimTransaction(tx, wallet);
             return await _neo.sendAddClaimTransaction({ transaction: signed.serialize(), hash: signed.hash });
@@ -159,7 +159,8 @@ class Blockchain {
         else if(wallet.network.toLowerCase() == "eth"){
              //For ETH the user publishes the claim then requests an approval to publish
             await _eth.publishClaim(wallet, claim, hashOnly);
-            //TODO: Send a request to the Bridge API to approve the publish
+            //Bridge verify and approve the prepublish
+            return await this.getClaimPublishApproval(passport, password, wallet, claim, hashOnly);
         }
 
         return null;
@@ -181,7 +182,28 @@ class Blockchain {
         }
     }
 
-    //Bridge approval function
+    //Bridge approval API call
+    async getClaimPublishApproval(passport, password, wallet, claim, hashOnly) {
+        let apiBaseUrl = _constants.bridgeApiUrl + "blockchain/";
+
+        claim.createdOn = claim.createdOn.toString();
+        var obj = {
+            network: wallet.network,
+            claim,
+            address: wallet.address,
+            hashOnly
+        };
+
+        var api = new _api.APIUtility(apiBaseUrl, passport, password);
+        let res = await api.callApi("POST", "approveclaimpublish", obj);
+
+        if(res == false)
+            res = null;
+
+        return res;
+    }
+
+    //Bridge approval function, internal
     async approveClaimPublish(wallet, address, claim, hashOnly)
     {
         if(!wallet)

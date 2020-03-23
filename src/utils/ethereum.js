@@ -170,12 +170,12 @@ class Ethereum {
         if(!claim.claimTypeId)
             throw new Error("Claim is required.");
         if(!claim.claimValue)
-            throw new Error("Claimm value is required");
-        if(!Number.isInteger(claim.createdOn) || claim.createdOn <= 0)
-            throw new Error("Date must be an integer");
+            throw new Error("Claim value is required");
+        if(!claim.createdOn)
+            throw new Error("Claim created on date is required.");
 
         let claimType = claim.claimTypeId.toString();
-        let claimDate = claim.createdOn;
+        let claimDate = parseInt(claim.createdOn);
         let claimValue = claim.claimValue;
         if(hashOnly)
             claimValue = _crypto.getHash(claimValue);
@@ -193,13 +193,13 @@ class Ethereum {
             throw new Error("Date must be an integer");
 
         let claimType = claim.claimTypeId;
-        let claimDate = claim.createdOn;
+        let claimDate = parseInt(claim.createdOn);
         let claimValue = claim.claimValue;
         if(hashOnly)
             claimValue = _crypto.getHash(claimValue);
 
         const data = _contract.methods.publishClaim(claimType, claimDate, claimValue).encodeABI();
-        return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, nonce);
+        return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, true, nonce);
     }
 
     async removeClaim(wallet, claimType, nonce){
