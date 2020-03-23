@@ -354,6 +354,24 @@ class NEO {
         return await this.verifyTransfer(info, recipient, amount, identifier);
     }
 
+    async getTransactionStatus(txid) {
+        let complete = false;
+        let success = false;
+
+        console.log("Getting status for NEO " + txid);
+
+        //Get the transaction info
+        let info = await this._getTransactionInfo(txid);
+        if(info){
+            complete = true;
+        }
+        if (info && Array.isArray(info.tx) && info.log.txid) {
+            success = true;
+        }
+
+        return { complete, success };
+    }
+
     //Bridge is the only accepted passport to sign this transaction
     async createApprovedClaimTransaction(wallet, claim, secondaryAddress, hashOnly) {
         return new Promise(async (resolve, reject) => {

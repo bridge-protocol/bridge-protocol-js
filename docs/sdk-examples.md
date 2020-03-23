@@ -63,6 +63,11 @@ When a passport wants to request payment in BRDG a request needs to be made for 
 </p>
 <a href="https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/examples/payment.js">View Example on GitHub</a>
 
+---
 
-
+### Blockchain Interaction
+<p class="nobottommargin">
+A passport and verified claims can be published to both NEO and Ethereum blockchains in addition to transferring tokens.  This example demonstrates how to use the Bridge SDK to interact with Bridge Smart Contract functionality on both blockchains.
+</p>
+<a href="https://github.com/bridge-protocol/bridge-protocol-js/blob/ethereum-publishing/examples/blockchain.js">View Example on GitHub</a>
 

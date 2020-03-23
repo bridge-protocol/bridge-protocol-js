@@ -139,6 +139,20 @@ class Blockchain {
         }
     }
 
+    async getTransactionStatus(network, hash){
+        if(!network)
+            throw new Error("network not provided");
+        if(!hash)
+            throw new Error("hash not provided");
+
+        if (network.toLowerCase() === "neo") {
+            return await _neo.getTransactionStatus(hash);
+        }
+        else if(network.toLowerCase() === "eth"){
+            return await _eth.getTransactionStatus(hash);
+        }
+    }
+
     async addClaim(passport, password, wallet, claim, hashOnly) {
         if (!wallet) {
             throw new Error("walletnot provided");
@@ -148,6 +162,7 @@ class Blockchain {
         }
 
         if (wallet.network.toLowerCase() === "neo") {
+            console.log("Retrieving Bridge claim publish transaction...")
             //For Bridge creates a signed preapproval transaction that the user signs and relays
             let tx = await this.getClaimPublishApproval(passport, password, wallet, claim, hashOnly);
             if(tx == null)
@@ -157,13 +172,37 @@ class Blockchain {
             return await _neo.sendAddClaimTransaction({ transaction: signed.serialize(), hash: signed.hash });
         }
         else if(wallet.network.toLowerCase() == "eth"){
-             //For ETH the user publishes the claim then requests an approval to publish
+            //For ETH the user publishes the claim then requests an approval to publish
             await _eth.publishClaim(wallet, claim, hashOnly);
+
+            console.log("Claim publish request received.  Sending Bridge claim publish approval request.")
+
             //Bridge verify and approve the prepublish
-            return await this.getClaimPublishApproval(passport, password, wallet, claim, hashOnly);
+            let txid = await this.getClaimPublishApproval(passport, password, wallet, claim, hashOnly);
+            if(txid == null)
+                throw new Error("Unable to get publish approval: transaction failed.");
+
+            //Poll to wait for complettion
+            return await this.pollTransactionComplete(wallet.network, txid);
         }
 
         return null;
+    }
+
+    async pollTransactionComplete(network, txid){
+        let blockchain = this;
+        return new Promise(function (resolve, reject) {
+            (async function waitForComplete(){
+                let res = await blockchain.getTransactionStatus(network, txid);
+                if(res.complete){
+                    console.log("Transaction found and complete");
+                    return resolve(res);
+                }
+
+                console.log("Transaction not complete. Waiting and retrying.");
+                setTimeout(waitForComplete, 15000);
+            })();
+        });
     }
 
     async removeClaim(wallet, claimTypeId) {

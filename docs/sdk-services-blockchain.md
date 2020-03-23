@@ -93,6 +93,16 @@ async verifyPayment(network, hash, from, to, amount, paymentIdentifier)
 
 ---
 
+### getTransactionStatus()
+Retrieves the completion and success status of a blockchain transaction
+```
+async getTransactionStatus(network, hash)
+```
+- **network** (string) - the blockchain network to verify the payment from
+- **hash** (string) - the unique blockchain hash / transaction identifier
+
+---
+
 ### addClaim()
 Publish a Bridge Verified claim to the blockhain using the Bridge Keyserver contract
 ```

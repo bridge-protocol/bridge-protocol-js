@@ -124,6 +124,30 @@ class Ethereum {
         return await this._broadcastTransaction(wallet, _bridgeTokenContractAddress, data, wait, nonce);
     }
 
+    async getTransactionStatus(hash){
+        let complete = false;
+        let success = false;
+
+        console.log("Getting status for ETH " + hash);
+
+        let completeRes = await this._callEtherscan("&module=transaction&action=gettxreceiptstatus&txhash=" + hash);
+        if(completeRes && completeRes.status === "1" && completeRes.result && completeRes.result.status === "1")
+            complete = true;
+        else{
+            console.log("Could not get the receipt status.");
+            return { complete: false, success: false };
+        }
+            
+
+        let successRes = await this._callEtherscan("&module=transaction&action=getstatus&txhash=0x15f8e5ea1079d9a0bb04a4c58ae5fe7654b5b2b4463375ff7ffb490aa0032f3a" + hash);
+        if(successRes && successRes.status === "1" && successRes.result && successRes.result.isError === "0")
+            success = true;
+        else
+            console.log("Could not get the success status, possibly not verified on the blockchain yet.");
+
+        return { complete, success };
+    }
+
     async verifyTransferFromHash(hash, from, to, amount, memo){
         let info = await this._getTransactionInfo(hash);
         if(!info){
@@ -181,7 +205,7 @@ class Ethereum {
             claimValue = _crypto.getHash(claimValue);
 
         const data = _contract.methods.approvePublishClaim(account, claimType, claimDate, claimValue).encodeABI();
-        return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, nonce);
+        return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, false, nonce);
     }
 
     async publishClaim(wallet, claim, hashOnly, nonce){
@@ -207,12 +231,12 @@ class Ethereum {
             throw new Error("Claim type is required.");
 
         const data = _contract.methods.removeClaim(claimType).encodeABI();
-        return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, nonce);
+        return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, true, nonce);
     }
 
     async publishPassport(wallet, passport, nonce){
         const data = _contract.methods.publishPassport(passport).encodeABI();
-        return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, nonce);
+        return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, true, nonce);
     }
 
     async getPassportForAddress(address){
@@ -226,7 +250,7 @@ class Ethereum {
     
     async unpublishPassport(wallet, nonce){
         const data = _contract.methods.unpublishPassport().encodeABI();
-        return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, nonce);
+        return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, true, nonce);
     }
 
     async getClaimForAddress(address, claimType){

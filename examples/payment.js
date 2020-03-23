@@ -55,17 +55,19 @@ async function Init() {
     });
 }
 
-async function pollVerifyPayment(verifiedPaymentResponse, callback){
-    let verified = await _bridge.Services.Blockchain.verifyPayment(verifiedPaymentResponse.network, verifiedPaymentResponse.transactionId, verifiedPaymentResponse.from, verifiedPaymentResponse.address, verifiedPaymentResponse.amount, verifiedPaymentResponse.identifier);
-    if(verified.complete){
-        callback(verified.success);
-        return;
-    }
-        
-    setTimeout(async function () {
-        console.log("Transaction not complete. Waiting and retrying.");
-        return await pollVerifyPayment(verifiedPaymentResponse, callback);
-    }, 5000);
+async function pollVerifyPayment(verifiedPaymentResponse){
+    return new Promise(function (resolve, reject) {
+        (async function waitForComplete(){
+            let res = await _bridge.Services.Blockchain.verifyPayment(verifiedPaymentResponse.network, verifiedPaymentResponse.transactionId, verifiedPaymentResponse.from, verifiedPaymentResponse.address, verifiedPaymentResponse.amount, verifiedPaymentResponse.identifier);
+            if(res.complete){
+                console.log("Transaction found and complete");
+                return resolve(res.success);
+            }
+            
+            console.log("Transaction not complete. Waiting and retrying.");
+            setTimeout(waitForComplete, 5000);
+        })();
+    });
 }
 
 async function getPaymentRequest(passport, network, amount){
