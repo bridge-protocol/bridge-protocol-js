@@ -49,6 +49,9 @@ var wallet = class Wallet
     }
 
     async unlock(password){
+        if(this.unlocked) //If we're unlocked, don't need to unlock
+            return true;
+
         console.log(`unlocking wallet for ${this.network}`);
         if(this.network.toLowerCase() === "neo"){
             this.unlocked = await _neo.unlockWallet(this, password);

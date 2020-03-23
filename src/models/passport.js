@@ -166,8 +166,9 @@ var passport = class Passport
     }
 
     getClaimPackages(claimTypeIds){
+        //Get all
         if(!claimTypeIds)
-            throw new Error("no claimTypeIds specified");
+            return this.claims;
 
         let claims = new Array();
         for(let i=0; i<claimTypeIds.length; i++){
