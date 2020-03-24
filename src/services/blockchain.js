@@ -2,7 +2,7 @@ const _constants = require('../constants').Constants;
 const _api = require('../utils/api');
 const _neo = require('../utils/neo').NEO;
 const _eth = require('../utils/ethereum').Ethereum;
-const _neoApi = require('./neo').NEOApi;
+
 
 class Blockchain {
     async publishPassport(wallet, passport)
@@ -95,7 +95,7 @@ class Blockchain {
 
         if (wallet.network.toLowerCase() === "neo") {
             //Amount is 100000000 = 1 for NEO
-            amount = (amount * 100000000);
+            amount = amount * 100000000;
             let res = await _neo.sendBrdg(wallet, recipient, amount, paymentIdentifier, wait);
 
             //If we aren't waiting, just return the hash

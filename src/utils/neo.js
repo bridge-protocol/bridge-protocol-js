@@ -87,7 +87,7 @@ class NEO {
             if(tx.asset === _brdgHash.replace("0x","")){
                 transactions.push({
                     hash: tx.txid,
-                    timmeStamp: tx.time,
+                    timeStamp: tx.time,
                     amount: tx.amount,
                     from: tx.address_from,
                     to: tx.address_to,

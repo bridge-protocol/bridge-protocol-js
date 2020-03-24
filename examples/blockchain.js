@@ -15,10 +15,10 @@ const _bridge = require("../src/index");
 const _password = "123";
 
 async function Init() {
-    let blockchain = "eth"; //Switch to "eth" for Ethereum
+    let blockchain = "neo"; //Switch to "eth" for Ethereum
 
     //Load existing wallet
-    let passport = await loadPassport('./new-passport.json', _password);
+    let passport = await loadPassport('./passport.json', _password);
 
     //Unlock the wallet
     let wallet = await getUnlockedWallet(passport, blockchain, _password);
