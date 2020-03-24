@@ -21,7 +21,7 @@ class ClaimApi{
             return res.claimType;
         }
         else{
-            return this.getClaimTypeById(_constants.claimTypes, claimTypeId);
+            return this._getClaimTypeById(_constants.claimTypes, claimTypeId);
         }
     }
 
