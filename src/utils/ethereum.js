@@ -152,7 +152,7 @@ class Ethereum {
         let info = await this._getTransactionInfo(hash);
         if(!info){
             console.log("Unable to retrieve transaction info for " + hash);
-            return false;
+            return { complete: false, success: false };
         }
 
         return this.verifyTransfer(info, from, to, amount, memo);

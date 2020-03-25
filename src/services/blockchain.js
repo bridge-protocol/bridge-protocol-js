@@ -121,8 +121,6 @@ class Blockchain {
         if(!hash)
             throw new Error("hash not provided.");
         if(!from)
-            throw new Error("from not unlocked");
-        if(!from)
             throw new Error("from not provided");
         if(!amount)
             throw new Error("amount not provided.");
@@ -132,7 +130,7 @@ class Blockchain {
         if (network.toLowerCase() === "neo") {
             //Amount is 100000000 = 1 for NEO
             amount = (amount * 100000000);
-            return await _neo.verifyTransferFromHash(hash, to, amount, paymentIdentifier);
+            return await _neo.verifyTransferFromHash(hash, from, to, amount, paymentIdentifier);
         }
         else if(network.toLowerCase() === "eth"){
             return await _eth.verifyTransferFromHash(hash, from, to, amount, paymentIdentifier);

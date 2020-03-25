@@ -255,7 +255,7 @@ class NEO {
         });
     }
 
-    async verifyTransfer(info, recipient, amount, identifier) {
+    async verifyTransfer(info, sender, recipient, amount, identifier) {
         if (!recipient)
             recipient = _bridgeContractAddress;
         if (!amount) {
@@ -297,11 +297,11 @@ class NEO {
             };
             if (remark == null) {
                 console.log("remark not found on transaction");
-                return { complete: true, success: false, txid };
+                return { complete: true, success: false };
             }
             if (!remark.includes(identifier)) {
                 console.log("transaction remark does not match requested identifier");
-                return { complete: true, success: false, txid };
+                return { complete: true, success: false };
             }
         }
 
@@ -314,24 +314,23 @@ class NEO {
                     if (notify.values && Array.isArray(notify.values)) {
                         //Look for spend tx to the smart contract
                         if (notify.contract == _bridgeContractHash && notify.values[0] == "spend" && notify.values.length == 6) {
-                            //let from = notify.values[1];
                             let to = notify.values[3];
                             let amt = notify.values[4];
 
                             if (amt >= amount && to == recipient) {
                                 console.log("transaction confirmed");
-                                return { complete: true, success: true, txid };
+                                return { complete: true, success: true };
                             }
                         }
                         //Look for a straight nep5 transfer
                         if (notify.contract == _brdgHash && notify.values[0] == "transfer" && notify.values.length == 4) {
-                            //let from = notify.values[1];
+                            let from = notify.values[1];
                             let to = notify.values[2];
                             let amt = notify.values[3];
 
-                            if (amt >= amount && to == recipient) {
+                            if (amt >= amount && to == recipient && from == sender) {
                                 console.log("transaction confirmed");
-                                return { complete: true, success: true, txid };
+                                return { complete: true, success: true };
                             }
                         }
                     }
@@ -340,10 +339,10 @@ class NEO {
         }
 
         console.log("transaction could not be confirmed");
-        return { complete: true, success: false, txid };
+        return { complete: true, success: false };
     }
 
-    async verifyTransferFromHash(txid, recipient, amount, identifier) {
+    async verifyTransferFromHash(txid, sender, recipient, amount, identifier) {
         //Get the transaction info
         let info = await this._getTransactionInfo(txid);
         if (info == null) {
@@ -351,7 +350,7 @@ class NEO {
             return { complete: false, success: false };
         }
 
-        return await this.verifyTransfer(info, recipient, amount, identifier);
+        return await this.verifyTransfer(info, sender, recipient, amount, identifier);
     }
 
     async getTransactionStatus(txid) {
