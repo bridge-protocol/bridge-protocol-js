@@ -5,8 +5,39 @@ sidebar_label: Blockchain
 ---
 The blockchain endpoints exposes blockchain functionality to verify payment and approve Bridge Verified Claim publish transactions (Bridge only)
 
+
+### POST /blockchain/walletaddress
+Get the blockchain address for the specified network that the service context is running under
+
+##### Example Request:
+```
+{
+    "network":"NEO",
+}
+```
+- **network** (string) - the blockchain network of the wallet
+
+
+### POST /blockchain/sendpayment
+Send a BRDG token payment transaction on the blockchain
+
+##### Example Request:
+```
+{
+    "network":"NEO",
+    "to":"AXbopuA5SPv5EVQP5REer4kdwMXpjRC7YQ",
+    "amount":1,
+    "identifier":"12345"
+}
+```
+- **network** (string) - the blockchain network of the payment
+- **to** (string) - the blockchain address the payment is to be sent to
+- **amount** (int) - the payment amount
+- **identifier** (string) - the unique identifier of the transaction
+
+
 ### POST /blockchain/verifypayment
-Verify a payment transaction on the blockcahin
+Verify a BRDG token payment transaction on the blockchain
 
 ##### Example Request:
 ```
@@ -40,7 +71,7 @@ Verify a payment transaction on the blockcahin
 ---
 
 ### POST /blockchain/createclaimpublish
-Create a dual-sign transaction to allow publish a claim in the Bridge Keyserver Contract on NEO.  
+Create a dual-sign verified claim publish transaction to allow publish a claim in the Bridge Keyserver Contract on NEO.  
 
 ##### Example Request:
 ```
@@ -63,7 +94,7 @@ Create a dual-sign transaction to allow publish a claim in the Bridge Keyserver 
 ---
 
 ### POST /blockchain/approveclaimpublish
-Approve the publishing of a claim in the Bridge Keyserver Contract on Ethereum. 
+Approve the publishing of a verified claim in the Bridge Keyserver Contract on Ethereum. 
 
 ##### Example Request:
 ```
