@@ -51,10 +51,11 @@ class ApplicationApi
         return null;
     }
 
-    async updatePaymentTransaction(passport, passphrase, applicationId, network, transactionId){
+    async updatePaymentTransaction(passport, passphrase, applicationId, network, sender, transactionId){
         var obj = {
             applicationId,
             network,
+            sender,
             transactionId
         };
         var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
