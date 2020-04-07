@@ -90,6 +90,31 @@ class Blockchain {
         return null;
     }
 
+    async transferNativeToken(wallet, amount, recipient, paymentIdentifier, wait, costOnly){
+        if (!wallet)
+            throw new Error("wallet not provided.");
+        if(!wallet.unlocked)
+            throw new Error("wallet not unlocked");
+        if (!amount)
+            throw new Error("amount not provided.");
+
+        if (wallet.network.toLowerCase() === "neo") {
+            throw new Error("not implemented");
+        }
+        else if(wallet.network.toLowerCase() === "eth"){
+            let info = await _eth.sendEth(wallet, recipient, amount, paymentIdentifier, wait, null, costOnly);
+            if(costOnly)
+                return info;
+
+            //If we aren't waiting, just return the hash
+            if(!wait)
+                return info;
+
+            //let verify = await _eth.verifyTransfer(info, wallet.address, recipient, amount, paymentIdentifier);
+            //return verify.success;
+        }
+    }
+
     async sendPayment(wallet, amount, recipient, paymentIdentifier, wait, costOnly) {
         //Recipient can be null, it will default to bridge contract address
         if (!wallet)

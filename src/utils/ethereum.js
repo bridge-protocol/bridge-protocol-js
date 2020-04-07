@@ -119,6 +119,15 @@ class Ethereum {
         return txs;
     }
 
+    async sendEth(wallet, recipient, amount, identifier, wait, nonce, costOnly)
+    {
+        if(costOnly){
+            return amount + .00006;
+        }
+
+        return await this._broadcastTransaction(wallet, recipient, identifier, wait, nonce, amount);
+    }
+
     async sendBrdg(wallet, recipient, amount, memo, wait, nonce, costOnly){
         let tx = _token.methods.transferWithMemo(recipient, amount, memo);
         if(costOnly){
@@ -316,28 +325,27 @@ class Ethereum {
         });
     };
 
-    async _broadcastTransaction(wallet, contract, data, wait, nonce){
+    async _broadcastTransaction(wallet, address, data, wait, nonce, ether){
         if(!wallet.unlocked)
             throw new Error("Wallet is not unlocked.");
+        if(!address)
+            throw new Error("Address or contract is not specified.");
 
-        if(!contract)
-            throw new Error("Contract is not specified.");
-
-        if(!data)
-            throw new Error("No contract data provided.");
-
-        let address = wallet.unlocked.getAddressString();
+        let walletAddress = wallet.unlocked.getAddressString();
         let privateKey = wallet.unlocked.getPrivateKey();
         return new Promise((resolve,reject) => {
-            _web3.eth.getTransactionCount(address, (err, txCount) => {
+            _web3.eth.getTransactionCount(walletAddress, (err, txCount) => {
                 if(!nonce || txCount > nonce)
                     nonce = txCount;
+
+                if(!ether)
+                    ether = 0;
 
                 // Build the transaction
                 const txObject = {
                     nonce:    _web3.utils.toHex(nonce), 
-                    to:       contract,
-                    value:    _web3.utils.toHex(_web3.utils.toWei("0", "ether")),
+                    to:       address,
+                    value:    _web3.utils.toHex(_web3.utils.toWei(ether.toString(), "ether")),
                     gasLimit: _web3.utils.toHex(_gasLimit),
                     gasPrice: _web3.utils.toHex(_web3.utils.toWei(_gasPriceGwei.toString(), "gwei")),
                     data: data  

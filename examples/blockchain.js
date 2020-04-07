@@ -27,7 +27,10 @@ async function Init() {
     let balances = await getBalances(wallet);
     console.log("Balances: " + JSON.stringify(balances));
 
-    // Publish the address
+    //Transfer native token to ourselves
+    await _bridge.Services.Blockchain.transferNativeToken(wallet, .001, wallet.address, "12345", true);
+
+    //Publish the address
     await publishPassport(passport, wallet);
 
     // Send a payment back to ourselves
