@@ -90,7 +90,7 @@ class Blockchain {
         return null;
     }
 
-    async transferNativeToken(wallet, amount, recipient, paymentIdentifier, wait, costOnly){
+    async transferGas(wallet, amount, recipient, paymentIdentifier, wait, costOnly){
         if (!wallet)
             throw new Error("wallet not provided.");
         if(!wallet.unlocked)
