@@ -20,7 +20,7 @@ class Constants {
         this.neoscanPollRetries = 20;
         this.bridgeEthereumContractAddress = "0x1D1F756dE9aCea82BFb61d84B14Aa01215B8F1c0";
         this.bridgeEthereumERC20Address = "0x9DDf7f5475A15fFC3FBD3906060BE0C0A47180d0";
-	this.bridgeEthereumAddress = "0xf905ced682cfa232a841a13af4e041649f0876e5";
+	    this.bridgeEthereumAddress = "0xf905ced682cfa232a841a13af4e041649f0876e5";
         this.bridgeEthereumChain = "rinkeby";
         this.defaultEthereumGasLimit = 3000000;
         this.defaultEthereumGasPriceGwei = 6;

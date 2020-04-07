@@ -8,7 +8,7 @@ module.exports = {
     entry: './src/index.js',
     plugins: [new LicenseCheckerWebpackPlugin({ outputFilename: "ThirdPartyNotices.txt" })],
     output: {
-       path: path.resolve(__dirname, 'dist'),
+       path: path.resolve(__dirname),
        filename: 'bridgeprotocol-sdk.js',
        libraryTarget: 'commonjs',
        library: 'BridgeProtocol'

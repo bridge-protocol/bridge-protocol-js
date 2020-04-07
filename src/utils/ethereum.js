@@ -119,9 +119,15 @@ class Ethereum {
         return txs;
     }
 
-    async sendBrdg(wallet, recipient, amount, memo, wait, nonce){
-        const data = _token.methods.transferWithMemo(recipient, amount, memo).encodeABI();
-        return await this._broadcastTransaction(wallet, _bridgeTokenContractAddress, data, wait, nonce);
+    async sendBrdg(wallet, recipient, amount, memo, wait, nonce, costOnly){
+        let tx = _token.methods.transferWithMemo(recipient, amount, memo);
+        if(costOnly){
+            return .00006;
+        }
+        else{
+            let data = tx.encodeABI();
+            return await this._broadcastTransaction(wallet, _bridgeTokenContractAddress, data, wait, nonce);
+        }
     }
 
     async getTransactionStatus(hash){
@@ -190,7 +196,7 @@ class Ethereum {
     //End asset and transaction management functions
 
     //Smart contract for passport and claims management
-    async approvePublishClaim(wallet, account, claim, hashOnly, nonce){
+    async approvePublishClaim(wallet, account, claim, hashOnly, nonce, costOnly){
         if(!claim.claimTypeId)
             throw new Error("Claim is required.");
         if(!claim.claimValue)
@@ -204,11 +210,17 @@ class Ethereum {
         if(hashOnly)
             claimValue = _crypto.getHash(claimValue);
 
-        const data = _contract.methods.approvePublishClaim(account, claimType, claimDate, claimValue).encodeABI();
-        return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, false, nonce);
+        let tx = _contract.methods.approvePublishClaim(account, claimType, claimDate, claimValue);
+        if(costOnly){
+            return .0002;
+        }
+        else{
+            let data = tx.encodeABI();
+            return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, false, nonce);
+        }
     }
 
-    async publishClaim(wallet, claim, hashOnly, nonce){
+    async publishClaim(wallet, claim, hashOnly, nonce, costOnly){
         if(!claim.claimTypeId)
             throw new Error("Claim is required.");
         if(!claim.claimValue)
@@ -222,21 +234,39 @@ class Ethereum {
         if(hashOnly)
             claimValue = _crypto.getHash(claimValue);
 
-        const data = _contract.methods.publishClaim(claimType, claimDate, claimValue).encodeABI();
-        return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, true, nonce);
+        let tx = _contract.methods.publishClaim(claimType, claimDate, claimValue);
+        if(costOnly){
+            return .00015;
+        }
+        else{
+            const data = tx.encodeABI();
+            return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, true, nonce);
+        }
     }
 
-    async removeClaim(wallet, claimType, nonce){
+    async removeClaim(wallet, claimType, nonce, costOnly){
         if(!claimType)
             throw new Error("Claim type is required.");
 
-        const data = _contract.methods.removeClaim(claimType).encodeABI();
-        return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, true, nonce);
+        let tx = _contract.methods.removeClaim(claimType);
+        if(costOnly){
+            return .00006;
+        }
+        else{
+            let data = tx.encodeABI();
+            return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, true, nonce);
+        }
     }
 
-    async publishPassport(wallet, passport, nonce){
-        const data = _contract.methods.publishPassport(passport).encodeABI();
-        return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, true, nonce);
+    async publishPassport(wallet, passport, nonce, costOnly){
+        let tx = _contract.methods.publishPassport(passport);
+        if(costOnly){
+            return .00006;
+        }
+        else{
+            let data = tx.encodeABI();
+            return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, true, nonce);
+        }
     }
 
     async getPassportForAddress(address){
@@ -248,9 +278,15 @@ class Ethereum {
         return await _contract.methods.getAddressForPassport(passportId).call();
     }
     
-    async unpublishPassport(wallet, nonce){
-        const data = _contract.methods.unpublishPassport().encodeABI();
-        return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, true, nonce);
+    async unpublishPassport(wallet, nonce, costOnly){
+        let tx = _contract.methods.unpublishPassport();
+        if(costOnly){
+            return .00006;
+        }
+        else{
+            const data = tx.encodeABI();
+            return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, true, nonce);
+        }
     }
 
     async getClaimForAddress(address, claimType){

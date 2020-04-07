@@ -1,0 +1,10 @@
+.git/
+.vscode/
+dist/
+docs/
+examples/
+test/
+website/
+.gitignore*
+.npmignore*
+webpack.config.*

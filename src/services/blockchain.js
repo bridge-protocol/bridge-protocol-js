@@ -5,7 +5,7 @@ const _eth = require('../utils/ethereum').Ethereum;
 
 
 class Blockchain {
-    async publishPassport(wallet, passport)
+    async publishPassport(wallet, passport, costOnly)
     {
         if (!wallet)
             throw new Error("wallet not provided for publish.");
@@ -13,10 +13,13 @@ class Blockchain {
             throw new Error("wallet not unlocked");
 
         if (wallet.network.toLowerCase() === "neo") {
+            if(costOnly)
+                return 0;
+
             return await _neo.publishPassport(wallet, passport);
         }
         else if(wallet.network.toLowerCase() === "eth"){
-            return await _eth.publishPassport(wallet, passport.id);
+            return await _eth.publishPassport(wallet, passport.id, null, costOnly);
         }
 
         return null;
@@ -50,17 +53,20 @@ class Blockchain {
         }
     }
 
-    async unpublishPassport(passport, wallet){
+    async unpublishPassport(passport, wallet, costOnly){
         if(!wallet)
             throw new Error("wallet not provided");
         if(!wallet.unlocked)
             throw new Error("wallet not unlocked");
 
         if(wallet.network.toLowerCase() === "neo"){
+            if(costOnly)
+                return 0;
+
             return await _neo.unpublishPassport(wallet, passport);
         }
         else if(wallet.network.toLowerCase() === "eth"){
-            return await _eth.unpublishPassport(wallet);
+            return await _eth.unpublishPassport(wallet, null, costOnly);
         }
     }
 
@@ -84,7 +90,7 @@ class Blockchain {
         return null;
     }
 
-    async sendPayment(wallet, amount, recipient, paymentIdentifier, wait) {
+    async sendPayment(wallet, amount, recipient, paymentIdentifier, wait, costOnly) {
         //Recipient can be null, it will default to bridge contract address
         if (!wallet)
             throw new Error("wallet not provided.");
@@ -94,6 +100,9 @@ class Blockchain {
             throw new Error("amount not provided.");
 
         if (wallet.network.toLowerCase() === "neo") {
+            if(costOnly)
+                return 0;
+
             //Amount is 100000000 = 1 for NEO
             amount = amount * 100000000;
             let res = await _neo.sendBrdg(wallet, recipient, amount, paymentIdentifier, wait);
@@ -106,7 +115,9 @@ class Blockchain {
             return verify.success;
         }
         else if(wallet.network.toLowerCase() === "eth"){
-            let info = await _eth.sendBrdg(wallet, recipient, amount, paymentIdentifier, wait);
+            let info = await _eth.sendBrdg(wallet, recipient, amount, paymentIdentifier, wait, null, costOnly);
+            if(costOnly)
+                return info;
 
             //If we aren't waiting, just return the hash
             if(!wait)
@@ -151,7 +162,7 @@ class Blockchain {
         }
     }
 
-    async addClaim(passport, password, wallet, claim, hashOnly) {
+    async addClaim(passport, password, wallet, claim, hashOnly, costOnly) {
         if (!wallet) {
             throw new Error("walletnot provided");
         }
@@ -160,6 +171,9 @@ class Blockchain {
         }
 
         if (wallet.network.toLowerCase() === "neo") {
+            if(costOnly)
+                return 0;
+
             console.log("Retrieving Bridge claim publish transaction...")
             //For Bridge creates a signed preapproval transaction that the user signs and relays
             let tx = await this.getClaimPublishApproval(passport, password, wallet, claim, hashOnly);
@@ -170,10 +184,16 @@ class Blockchain {
             return await _neo.sendAddClaimTransaction({ transaction: signed.serialize(), hash: signed.hash });
         }
         else if(wallet.network.toLowerCase() == "eth"){
+            //We need to account for both transaction costs
+            let publishCost = await _eth.publishClaim(wallet, claim, hashOnly, null, true);
+            if(costOnly)
+                return publishCost * 2;
+
             //For ETH the user publishes the claim then requests an approval to publish
             await _eth.publishClaim(wallet, claim, hashOnly);
+            console.log("Claim publish request received.  Sending Bridge claim publish approval request.");
 
-            console.log("Claim publish request received.  Sending Bridge claim publish approval request.")
+            //TODO: pay the approve cost and wait for the transaction, attach the transaction id to the claim publish
 
             //Bridge verify and approve the prepublish
             let txid = await this.getClaimPublishApproval(passport, password, wallet, claim, hashOnly);
@@ -203,7 +223,7 @@ class Blockchain {
         });
     }
 
-    async removeClaim(wallet, claimTypeId) {
+    async removeClaim(wallet, claimTypeId, costOnly) {
         if (!wallet) {
             throw new Error("wallet not provided");
         }
@@ -212,10 +232,13 @@ class Blockchain {
         }
 
         if (wallet.network.toLowerCase() === "neo") {
+            if(costOnly)
+                return 0;
+
             await _neo.removeClaim(wallet, claimTypeId);
         }
         else if(wallet.network.toLowerCase() === "eth"){
-            await _eth.removeClaim(wallet, claimTypeId);
+            return await _eth.removeClaim(wallet, claimTypeId, null, costOnly);
         }
     }
 
@@ -241,18 +264,21 @@ class Blockchain {
     }
 
     //Bridge approval function, internal
-    async approveClaimPublish(wallet, address, claim, hashOnly)
+    async approveClaimPublish(wallet, address, claim, hashOnly, costOnly)
     {
         if(!wallet)
             throw new Error("wallet not provided");
 
         if(wallet.network.toLowerCase() == "neo"){
+            if(costOnly)
+                return 0;
+
             //For NEO we create a signed preapproval transaction then the user signs and relays
             return await _neo.createApprovedClaimTransaction(wallet, claim, address, hashOnly);
         }
         else if(wallet.network.toLowerCase() == "eth"){
             //For ETH the user publishes the claim then requests an approval to publish
-            return await _eth.approvePublishClaim(wallet, address, claim, hashOnly);
+            return await _eth.approvePublishClaim(wallet, address, claim, hashOnly, null, costOnly);
         }
     }
 
