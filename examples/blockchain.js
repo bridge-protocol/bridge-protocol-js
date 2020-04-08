@@ -31,22 +31,22 @@ async function Init() {
     await transferGas(wallet, .0001);
 
     // Publish the address
-    await publishPassport(passport, wallet, true);
+    await publishPassport(passport, wallet);
 
     // Send a payment back to ourselves
-    await sendPayment(wallet, 1, wallet.address, true);
+    await sendPayment(wallet, 1, wallet.address);
 
     // See the transactions
-    await getTransactions(wallet, true);
+    await getTransactions(wallet);
 
     // Publish the claim
-    await publishClaim(passport, _password, wallet, "3", false, true);
+    await publishClaim(passport, _password, wallet, "3", false);
 
     // Unpublish the claim
-    await unpublishClaim(wallet, "3", true);
+    await unpublishClaim(wallet, "3");
 
     // Unpublish the passport
-    await unpublishPassport(passport, wallet, true);
+    await unpublishPassport(passport, wallet);
 }
 
 async function transferGas(wallet, amount, costOnly)
@@ -68,7 +68,7 @@ async function transferGas(wallet, amount, costOnly)
 
 async function publishClaim(passport, password, wallet, claimTypeId, hashOnly, costOnly){
     let claim = await passport.getDecryptedClaim("3", password);
-    console.log("Adding claim " + JSON.stringify(claim) + " on " + wallet.network + " for " + wallet.address);
+    console.log("Adding claim type " + claimTypeId + " on " + wallet.network + " for " + wallet.address);
 
     //Get the cost
     let cost = await _bridge.Services.Blockchain.addClaim(passport, password, wallet, claim, hashOnly, true);

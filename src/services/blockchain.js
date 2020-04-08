@@ -109,8 +109,11 @@ class Blockchain {
             if(!wait)
                 return info;
 
-            let verify = await _eth.verifyEthPaymentFromHash(info.transactionHash, wallet.address, recipient, amount, paymentIdentifier);
-            return verify.success;
+            let verify = await this.verifyGasTransfer(wallet.network, info.transactionHash, wallet.address, recipient, amount, paymentIdentifier);
+            if(verify.success)
+                return info.transactionHash;
+
+            return null;
         }
     }
 
@@ -237,10 +240,14 @@ class Blockchain {
             await _eth.publishClaim(wallet, claim, hashOnly);
             console.log("Claim publish request received.  Sending Bridge claim publish approval request.");
 
-            //TODO: pay the approve cost and wait for the transaction, attach the transaction id to the claim publish
+            //TODO: Method to check if there's a publish request in the contract for the claim identifier that hasn't been verified
+            //So if the transaction fails, it can be retried without re-paying for the claim publish step
+            let gasTxId = await this.transferGas(wallet, approveCost, _constants.bridgeEthereumAddress, claim.identifier, true);
+            if(!gasTxId)
+                throw new Error("gas transfer transaction failed");
 
             //Bridge verify and approve the prepublish
-            let txid = await this.getClaimPublishApproval(passport, password, wallet, claim, hashOnly);
+            let txid = await this.getClaimPublishApproval(passport, password, gasTxId, wallet, claim, hashOnly);
             if(txid == null)
                 throw new Error("Unable to get publish approval: transaction failed.");
 
@@ -287,7 +294,7 @@ class Blockchain {
     }
 
     //Bridge approval API call
-    async getClaimPublishApproval(passport, password, wallet, claim, hashOnly) {
+    async getClaimPublishApproval(passport, password, transactionId, wallet, claim, hashOnly) {
         let apiBaseUrl = _constants.bridgeApiUrl + "blockchain/";
 
         claim.createdOn = claim.createdOn.toString();
@@ -295,7 +302,8 @@ class Blockchain {
             network: wallet.network,
             claim,
             address: wallet.address,
-            hashOnly
+            hashOnly,
+            transactionId
         };
 
         var api = new _api.APIUtility(apiBaseUrl, passport, password);

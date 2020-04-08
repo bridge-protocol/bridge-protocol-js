@@ -10,6 +10,10 @@ var claim = class Claim
             this._load(claim);
     };
 
+    get identifier(){
+        return this.createdOn.toString() + this.claimTypeId.toString() + this.claimValue.toString();
+    }
+
     get isExpired(){
         if(this.expiresOn == null){
             throw new Error("expiration not set");

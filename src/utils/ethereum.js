@@ -238,7 +238,7 @@ class Ethereum {
 
         //Get the value in gwei
         let value = _web3.utils.fromWei(info.value, "ether");
-        if(value == amount)
+        if(parseFloat(value) == parseFloat(amount))
             amountValid = true;
         
         //Check the input data for our identifier
