@@ -172,17 +172,17 @@ class Ethereum {
         return { complete, success };
     }
 
-    async verifyTransferFromHash(hash, from, to, amount, memo){
+    async verifyTokenPaymentFromHash(hash, from, to, amount, memo){
         let info = await this._getTransactionInfo(hash);
         if(!info){
             console.log("Unable to retrieve transaction info for " + hash);
             return { complete: false, success: false };
         }
 
-        return this.verifyTransfer(info, from, to, amount, memo);
+        return this.verifyTokenPayment(info, from, to, amount, memo);
     }
 
-    async verifyTransfer(info, from, to, amount, memo){
+    async verifyTokenPayment(info, from, to, amount, memo){
         let senderValid = false;
         let recipientValid = false;
         let amountValid = false;
@@ -207,6 +207,44 @@ class Ethereum {
                 amountValid = amount == amountTopic;
             }
         }
+
+        let success = senderValid && recipientValid && amountValid && memoValid;
+        return { complete: true, success };
+    };
+
+    async verifyEthPaymentFromHash(hash, from, to, amount, memo){
+        let info = await _web3.eth.getTransaction(hash);
+        if(!info){
+            console.log("Unable to retrieve transaction info for " + hash);
+            return { complete: false, success: false };
+        }
+
+        return this.verifyEthPayment(info, from, to, amount, memo);
+    }
+
+    async verifyEthPayment(info, from, to, amount, memo){
+        let senderValid = false;
+        let recipientValid = false;
+        let amountValid = false;
+        let memoValid = false;
+
+        //Check the sender
+        if(info.from.toUpperCase() == from.toUpperCase())
+            senderValid = true;
+
+        //Check the recipient
+        if(info.to.toUpperCase() == to.toUpperCase())
+            recipientValid = true;
+
+        //Get the value in gwei
+        let value = _web3.utils.fromWei(info.value, "ether");
+        if(value == amount)
+            amountValid = true;
+        
+        //Check the input data for our identifier
+        let input = _web3.utils.hexToUtf8(info.input);
+        if(input.includes(memo))
+            memoValid = true;
 
         let success = senderValid && recipientValid && amountValid && memoValid;
         return { complete: true, success };

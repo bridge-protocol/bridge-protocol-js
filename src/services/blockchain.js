@@ -109,8 +109,8 @@ class Blockchain {
             if(!wait)
                 return info;
 
-            //let verify = await _eth.verifyTransfer(info, wallet.address, recipient, amount, paymentIdentifier);
-            //return verify.success;
+            let verify = await _eth.verifyEthPaymentFromHash(info.transactionHash, wallet.address, recipient, amount, paymentIdentifier);
+            return verify.success;
         }
     }
 
@@ -147,7 +147,7 @@ class Blockchain {
             if(!wait)
                 return info;
 
-            let verify = await _eth.verifyTransfer(info, wallet.address, recipient, amount, paymentIdentifier);
+            let verify = await _eth.verifyTokenPayment(info, wallet.address, recipient, amount, paymentIdentifier);
             return verify.success;
         }
     }
@@ -168,7 +168,25 @@ class Blockchain {
             return await _neo.verifyTransferFromHash(hash, from, to, amount, paymentIdentifier);
         }
         else if(network.toLowerCase() === "eth"){
-            return await _eth.verifyTransferFromHash(hash, from, to, amount, paymentIdentifier);
+            return await _eth.verifyTokenPaymentFromHash(hash, from, to, amount, paymentIdentifier);
+        }
+    }
+
+    async verifyGasTransfer(network, hash, from, to, amount, paymentIdentifier){
+        if(!hash)
+            throw new Error("hash not provided.");
+        if(!from)
+            throw new Error("from not provided");
+        if(!amount)
+            throw new Error("amount not provided.");
+        if(!paymentIdentifier)
+            throw new Error("payment identifier not provided.");
+
+        if (network.toLowerCase() === "neo") {
+            throw new Error("not implemented");
+        }
+        else if(network.toLowerCase() === "eth"){
+            return await _eth.verifyEthPaymentFromHash(hash, from, to, amount, paymentIdentifier);
         }
     }
 

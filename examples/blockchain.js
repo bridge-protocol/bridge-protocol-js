@@ -28,7 +28,7 @@ async function Init() {
     console.log("Balances: " + JSON.stringify(balances));
 
     //Transfer gas to ourselves
-    await transferGas(wallet, .5, true);
+    await transferGas(wallet, .0001);
 
     // Publish the address
     await publishPassport(passport, wallet, true);
@@ -80,7 +80,7 @@ async function publishClaim(passport, password, wallet, claimTypeId, hashOnly, c
     else{
         let balances = await getWalletBalances(wallet);
         if(balances.gas < cost){
-            console.log("Insufficient GAS: " + balances.gas + " Cost: " + cost);
+            console.log("Insufficient GAS/ETH: " + balances.gas + " Cost: " + cost);
             return;
         }
 
@@ -102,7 +102,7 @@ async function unpublishClaim(wallet, claimTypeId, costOnly){
     else{
         let balances = await getWalletBalances(wallet);
         if(balances.gas < cost){
-            console.log("Insufficient GAS: " + balances.gas + " Cost: " + cost);
+            console.log("Insufficient GAS/ETH: " + balances.gas + " Cost: " + cost);
             return;
         }
 
@@ -128,8 +128,8 @@ async function sendPayment(wallet, amount, address, costOnly){
     }
     else{
         let balances = await getWalletBalances(wallet);
-        if(balances.gas < 0){
-            console.log("Insufficient GAS: " + balances.gas + " Cost: " + cost);
+        if(balances.gas < cost){
+            console.log("Insufficient GAS/ETH: " + balances.gas + " Cost: " + cost);
             return;
         }
 
@@ -164,7 +164,7 @@ async function publishPassport(passport, wallet, costOnly){
     else{
         let balances = await getWalletBalances(wallet);
         if(balances.gas < cost){
-            console.log("Insufficient GAS: " + balances.gas + " Cost: " + cost);
+            console.log("Insufficient GAS/ETH: " + balances.gas + " Cost: " + cost);
             return;
         }
 
