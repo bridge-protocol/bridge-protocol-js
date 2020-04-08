@@ -8,3 +8,4 @@ website/
 .gitignore*
 .npmignore*
 webpack.config.*
+*.tgz
