@@ -62,12 +62,13 @@ async getStatus(passport, passphrase, applicationId)
 ### updatePaymentTransaction()
 Updates an existing verification request with payment transaction information for network fee payment
 ```
-async updatePaymentTransaction(passport, passphrase, applicationId, network, transactionId)
+async updatePaymentTransaction(passport, passphrase, applicationId, network, sender, transactionId)
 ```
 - **passport** (<a href='sdk-models-passport'>Passport</a>) - passport context used for API authentication
 - **passphrase** (string) - password used to unlock context passport private key
 - **applicationId** (string) - the unique identifier of the verification request
 - **network** (string) - the network payment was sent on
+- **sender** (string) - the address the payment was sent from
 - **transactionId** (string) - the blockchain transaction id of the payment
 
 ---
