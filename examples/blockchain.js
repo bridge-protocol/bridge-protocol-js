@@ -15,10 +15,10 @@ const _bridge = require("../src/index");
 const _password = "123";
 
 async function Init() {
-    let blockchain = "eth"; //Switch to "eth" for Ethereum
+    let blockchain = "eth"; //Switch to "neo" for NEO
 
     //Load existing wallet
-    let passport = await loadPassport('./new-passport.json', _password);
+    let passport = await loadPassport('./passport.json', _password);
 
     //Unlock the wallet
     let wallet = await getUnlockedWallet(passport, blockchain, _password);
@@ -27,26 +27,43 @@ async function Init() {
     let balances = await getBalances(wallet);
     console.log("Balances: " + JSON.stringify(balances));
 
-    //Transfer native token to ourselves
-    await _bridge.Services.Blockchain.transferGas(wallet, .001, wallet.address, "12345", true);
+    //Transfer gas to ourselves
+    await transferGas(wallet, .5, true);
 
-    //Publish the address
-    await publishPassport(passport, wallet);
+    // Publish the address
+    await publishPassport(passport, wallet, true);
 
     // Send a payment back to ourselves
-    await sendPayment(wallet, 1, wallet.address);
+    await sendPayment(wallet, 1, wallet.address, true);
 
     // See the transactions
-    await getTransactions(wallet);
+    await getTransactions(wallet, true);
 
     // Publish the claim
-    await publishClaim(passport, _password, wallet, "3", false);
+    await publishClaim(passport, _password, wallet, "3", false, true);
 
     // Unpublish the claim
-    await unpublishClaim(wallet, "3");
+    await unpublishClaim(wallet, "3", true);
 
     // Unpublish the passport
-    await unpublishPassport(passport, wallet);
+    await unpublishPassport(passport, wallet, true);
+}
+
+async function transferGas(wallet, amount, costOnly)
+{
+    if(wallet.network.toLowerCase() === "neo")  
+        return; //Not implemented, no need without GAS costs in 2.0
+
+    //Get the cost
+    let cost = await _bridge.Services.Blockchain.transferGas(wallet, amount, wallet.address, "13a23d41-c89a-40e3-9736-a78d99d005b7", true, true);
+    console.log("Cost: " + cost + " GAS/ETH");
+
+    if(costOnly){
+        return;
+    }
+
+    console.log("Transferring " + amount + " GAS/ETH");
+    await _bridge.Services.Blockchain.transferGas(wallet, amount, wallet.address, "13a23d41-c89a-40e3-9736-a78d99d005b7", true);
 }
 
 async function publishClaim(passport, password, wallet, claimTypeId, hashOnly, costOnly){
@@ -103,7 +120,7 @@ async function getClaim(network, address, claimTypeId){
 async function sendPayment(wallet, amount, address, costOnly){
     console.log("Sending " + amount + " BRDG to " + address + " on " + wallet.network);
     
-    let cost = await _bridge.Services.Blockchain.sendPayment(wallet, amount, address, '12345', true, true);
+    let cost = await _bridge.Services.Blockchain.sendPayment(wallet, amount, address, '13a23d41-c89a-40e3-9736-a78d99d005b7', true, true);
     console.log("Cost: " + cost + " GAS/ETH");
 
     if(costOnly){
@@ -111,13 +128,13 @@ async function sendPayment(wallet, amount, address, costOnly){
     }
     else{
         let balances = await getWalletBalances(wallet);
-        if(balances.gas < cost){
+        if(balances.gas < 0){
             console.log("Insufficient GAS: " + balances.gas + " Cost: " + cost);
             return;
         }
 
         console.log("Sending payment");
-        await _bridge.Services.Blockchain.sendPayment(wallet, amount, address, '12345', true);
+        await _bridge.Services.Blockchain.sendPayment(wallet, amount, address, '13a23d41-c89a-40e3-9736-a78d99d005b7', true);
         await getBalances(wallet);
     }
 }

@@ -3,7 +3,6 @@ const _api = require('../utils/api');
 const _neo = require('../utils/neo').NEO;
 const _eth = require('../utils/ethereum').Ethereum;
 
-
 class Blockchain {
     async publishPassport(wallet, passport, costOnly)
     {
@@ -211,8 +210,10 @@ class Blockchain {
         else if(wallet.network.toLowerCase() == "eth"){
             //We need to account for both transaction costs
             let publishCost = await _eth.publishClaim(wallet, claim, hashOnly, null, true);
+            let approveCost = await _eth.approvePublishClaim(wallet, wallet.address, claim, hashOnly, null, true);
+            let totalCost = parseFloat(publishCost) + parseFloat(approveCost);
             if(costOnly)
-                return publishCost * 2;
+                return totalCost.toFixed(9);
 
             //For ETH the user publishes the claim then requests an approval to publish
             await _eth.publishClaim(wallet, claim, hashOnly);

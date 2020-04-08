@@ -19,6 +19,15 @@ const _contract = new _web3.eth.Contract(_abi, _bridgeContractAddress);
 const _token = new _web3.eth.Contract(_tokenAbi, _bridgeTokenContractAddress);
 
 class Ethereum {
+    get gasPrice(){
+        return _gasPriceGwei * .000000001;
+    }
+
+    getTransactionCost(gas){
+        let cost = gas * this.gasPrice;
+        return cost.toFixed(9);
+    }
+
     //Wallet Management Functions
     createWallet(password, privateKeyString){
         let wallet;
@@ -122,7 +131,7 @@ class Ethereum {
     async sendEth(wallet, recipient, amount, identifier, wait, nonce, costOnly)
     {
         if(costOnly){
-            return amount + .00006;
+            return this.getTransactionCost(22000);
         }
 
         return await this._broadcastTransaction(wallet, recipient, identifier, wait, nonce, amount);
@@ -131,7 +140,7 @@ class Ethereum {
     async sendBrdg(wallet, recipient, amount, memo, wait, nonce, costOnly){
         let tx = _token.methods.transferWithMemo(recipient, amount, memo);
         if(costOnly){
-            return .00006;
+            return this.getTransactionCost(32000);
         }
         else{
             let data = tx.encodeABI();
@@ -221,7 +230,7 @@ class Ethereum {
 
         let tx = _contract.methods.approvePublishClaim(account, claimType, claimDate, claimValue);
         if(costOnly){
-            return .0002;
+            return this.getTransactionCost(57000);
         }
         else{
             let data = tx.encodeABI();
@@ -245,7 +254,8 @@ class Ethereum {
 
         let tx = _contract.methods.publishClaim(claimType, claimDate, claimValue);
         if(costOnly){
-            return .00015;
+            let len = Buffer.byteLength(claimValue, 'utf8');
+            return this.getTransactionCost((len * 2100)); //Use character length of the value, storage cost will be variable
         }
         else{
             const data = tx.encodeABI();
@@ -259,7 +269,7 @@ class Ethereum {
 
         let tx = _contract.methods.removeClaim(claimType);
         if(costOnly){
-            return .00006;
+            return this.getTransactionCost(30000);
         }
         else{
             let data = tx.encodeABI();
@@ -270,7 +280,7 @@ class Ethereum {
     async publishPassport(wallet, passport, nonce, costOnly){
         let tx = _contract.methods.publishPassport(passport);
         if(costOnly){
-            return .00006;
+            return this.getTransactionCost(29000);
         }
         else{
             let data = tx.encodeABI();
@@ -290,7 +300,7 @@ class Ethereum {
     async unpublishPassport(wallet, nonce, costOnly){
         let tx = _contract.methods.unpublishPassport();
         if(costOnly){
-            return .00006;
+            return this.getTransactionCost(24000);
         }
         else{
             const data = tx.encodeABI();
