@@ -214,7 +214,6 @@ class NEO {
         });
     }
 
-    //Amount is 100000000 = 1
     async sendBrdg(wallet, recipient, amount, paymentIdentifier, wait) {
         let neo = this;
         return new Promise(async (resolve, reject) => {
@@ -226,6 +225,9 @@ class NEO {
                 reject("amount not provided");
             if (!recipient)
                 recipient = _bridgeContractAddress;
+
+            //NEO is 8 decimals
+            amount = amount * 100000000;
 
             try {
                 let addressScriptHash = this._getAddressScriptHash(wallet.address);
@@ -261,7 +263,6 @@ class NEO {
         if (!amount) {
             throw new Error("amount not provided");
         }
-
         if (!info) {
             console.log("transaction info was null");
             return { complete: true, success: false };

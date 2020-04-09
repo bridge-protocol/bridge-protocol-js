@@ -33,8 +33,8 @@ async function Init() {
     // Publish the address
     await publishPassport(passport, wallet);
 
-    // Send a payment back to ourselves
-    await sendPayment(wallet, 1, wallet.address);
+    //Send a payment back to ourselves
+    await sendPayment(wallet, 1.2522, wallet.address);
 
     // See the transactions
     await getTransactions(wallet);
@@ -134,7 +134,7 @@ async function sendPayment(wallet, amount, address, costOnly){
         }
 
         console.log("Sending payment");
-        await _bridge.Services.Blockchain.sendPayment(wallet, amount, address, '13a23d41-c89a-40e3-9736-a78d99d005b7', true);
+        let res = await _bridge.Services.Blockchain.sendPayment(wallet, amount, address, '13a23d41-c89a-40e3-9736-a78d99d005b7', true);
         await getBalances(wallet);
     }
 }
