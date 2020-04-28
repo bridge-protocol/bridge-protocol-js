@@ -143,7 +143,7 @@ class Ethereum {
 
         let tx = _token.methods.transferWithMemo(recipient, amount, memo);
         if(costOnly){
-            return this.getTransactionCost(32000);
+            return this.getTransactionCost(50000);
         }
         else{
             let data = tx.encodeABI();
@@ -324,7 +324,7 @@ class Ethereum {
     async publishPassport(wallet, passport, nonce, costOnly){
         let tx = _contract.methods.publishPassport(passport);
         if(costOnly){
-            return this.getTransactionCost(29000);
+            return this.getTransactionCost(120000);
         }
         else{
             let data = tx.encodeABI();

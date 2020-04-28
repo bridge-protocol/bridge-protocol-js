@@ -42,7 +42,7 @@ class Constants {
 		    "visualWatchlistSearch",
 		    "accreditedInvestorVerification"
                 ],
-                "infoUrl": "https://bridgeprotocol.azurewebsites.net/verification"
+                "infoUrl": "https://bridge-protocol.azurewebsites.net/verification"
             },
         ]
     }
