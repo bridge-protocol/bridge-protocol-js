@@ -207,7 +207,7 @@ class Blockchain {
 
     async addClaim(passport, password, wallet, claim, hashOnly, costOnly) {
         if (!wallet) {
-            throw new Error("walletnot provided");
+            throw new Error("wallet not provided");
         }
         if (!claim) {
             throw new Error("claim not provided");
@@ -219,7 +219,7 @@ class Blockchain {
 
             console.log("Retrieving Bridge claim publish transaction...")
             //For Bridge creates a signed preapproval transaction that the user signs and relays
-            let tx = await this.getClaimPublishApproval(passport, password, wallet, claim, hashOnly);
+            let tx = await this.getClaimPublishApproval(passport, password, null, wallet, claim, hashOnly);
             if(tx == null)
                 throw new Error("Unable to add claim: integrity or signer check failed.");
             //Secondarily sign it and relay the signed transaction
@@ -294,7 +294,6 @@ class Blockchain {
     //Bridge approval API call
     async getClaimPublishApproval(passport, password, transactionId, wallet, claim, hashOnly) {
         let apiBaseUrl = _constants.bridgeApiUrl + "blockchain/";
-
         claim.createdOn = claim.createdOn.toString();
         var obj = {
             network: wallet.network,
