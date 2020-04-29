@@ -118,7 +118,7 @@ class Ethereum {
             txs.push({
                 hash: tx.hash,
                 timeStamp: tx.timeStamp,
-                amount: tx.value,
+                amount: _web3.utils.fromWei(tx.value),
                 from: tx.from,
                 to: tx.to,
                 url: _etherscanUrl + "/tx/" + tx.hash
