@@ -15,38 +15,38 @@ const _bridge = require("../src/index");
 const _password = "123";
 
 async function Init() {
-    let blockchain = "eth"; //Switch to "neo" for NEO
+    let blockchain = "neo"; //Switch to "neo" for NEO
 
     //Load existing wallet
-    let passport = await loadPassport('./passport.json', _password);
+    let passport = await loadPassport('./test-passport.json', _password);
 
     //Unlock the wallet
     let wallet = await getUnlockedWallet(passport, blockchain, _password);
 
-    // //Get the balances of the wallet
-    let balances = await getBalances(wallet);
-    console.log("Balances: " + JSON.stringify(balances));
+    // // //Get the balances of the wallet
+    // let balances = await getBalances(wallet);
+    // console.log("Balances: " + JSON.stringify(balances));
 
-    //Transfer gas to ourselves
-    await transferGas(wallet, .0001);
+    // //Transfer gas to ourselves
+    // await transferGas(wallet, .0001);
 
-    // Publish the address
-    await publishPassport(passport, wallet);
+    // // Publish the address
+    // await publishPassport(passport, wallet);
 
-    //Send a payment back to ourselves
-    await sendPayment(wallet, 1.2522, wallet.address);
+    // //Send a payment back to ourselves
+    // await sendPayment(wallet, 1.2522, wallet.address);
 
-    // See the transactions
-    await getTransactions(wallet);
+    // // See the transactions
+    // await getTransactions(wallet);
 
     // Publish the claim
     await publishClaim(passport, _password, wallet, "3", false);
 
     // Unpublish the claim
-    await unpublishClaim(wallet, "3");
+    // await unpublishClaim(wallet, "3");
 
-    // Unpublish the passport
-    await unpublishPassport(passport, wallet);
+    // // Unpublish the passport
+    // await unpublishPassport(passport, wallet);
 }
 
 async function transferGas(wallet, amount, costOnly)

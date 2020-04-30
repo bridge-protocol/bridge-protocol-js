@@ -485,7 +485,7 @@ class NEO {
             _neon.api.signTx(config)
                 .then(c => {
                     //TODO: this may need to be sorted, something strange about witness order vs scripts order with NEO
-                    //c.tx.scripts.reverse();
+                    c.tx.scripts.reverse();
                     resolve(c.tx);
                 })
                 .catch(c => {

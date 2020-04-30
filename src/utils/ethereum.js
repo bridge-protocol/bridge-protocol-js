@@ -274,7 +274,7 @@ class Ethereum {
 
         let tx = _contract.methods.approvePublishClaim(account, claimType, claimDate, claimValue);
         if(costOnly){
-            return this.getTransactionCost(57000);
+            return this.getTransactionCost(60000);
         }
         else{
             let data = tx.encodeABI();
@@ -351,6 +351,24 @@ class Ethereum {
             return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, true, nonce);
         }
     }
+
+    async getUnapprovedClaimForAddress(address, claimType){
+        let account = address;
+        let res = await _contract.methods.getUnapprovedClaim(account, claimType.toString()).call();
+        if(res.length == 0)
+            return null;
+
+        res = res.replace(/\0/g,"").trim();
+        let idx1 = res.indexOf(" ");
+        let idx2 = res.indexOf(" ", idx1+1);
+        let claim = {
+            type: res.substring(0, idx1),
+            date: res.substring(idx1+1,idx2),
+            value: res.substring(idx2+1, res.length)
+        };
+
+        return claim;
+    };
 
     async getClaimForAddress(address, claimType){
         let account = address;

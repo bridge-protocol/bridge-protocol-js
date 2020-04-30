@@ -227,19 +227,29 @@ class Blockchain {
             return await _neo.sendAddClaimTransaction({ transaction: signed.serialize(), hash: signed.hash });
         }
         else if(wallet.network.toLowerCase() == "eth"){
+            let pending = await _eth.getUnapprovedClaimForAddress(wallet.address, claim.claimTypeId);
+            let pendingClaim = (pending != null && pending.value == claim.claimValue.toString() && pending.date == claim.createdOn.toString());
+
             //We need to account for both transaction costs
             let publishCost = await _eth.publishClaim(wallet, claim, hashOnly, null, true);
             let approveCost = await _eth.approvePublishClaim(wallet, wallet.address, claim, hashOnly, null, true);
-            let totalCost = parseFloat(publishCost) + parseFloat(approveCost);
+            let sendGasCost = await _eth.sendEth(wallet, wallet.address, approveCost, "identifier", false, null, true);
+            let totalCost = parseFloat(publishCost) + parseFloat(approveCost) + parseFloat(sendGasCost);
+            if(pendingClaim) //We already have a pending publish, just get it approved and don't re-send the first tx
+                totalCost = parseFloat(approveCost) + parseFloat(sendGasCost);
             if(costOnly)
                 return totalCost.toFixed(9);
 
-            //For ETH the user publishes the claim then requests an approval to publish
-            await _eth.publishClaim(wallet, claim, hashOnly);
-            console.log("Claim publish request received.  Sending Bridge claim publish approval request.");
+            if(!pendingClaim){
+                //For ETH the user publishes the claim then requests an approval to publish
+                console.log("Pending claim not found, publishing");
+                await _eth.publishClaim(wallet, claim, hashOnly);
+            }
+            else{
+                console.log("Pending claim found, skipping to approval");
+            }
 
-            //TODO: Method to check if there's a publish request in the contract for the claim identifier that hasn't been verified
-            //So if the transaction fails, it can be retried without re-paying for the claim publish step
+            console.log("Claim publish request received.  Sending Bridge claim publish approval request.");
             let gasTxId = await this.transferGas(wallet, approveCost, _constants.bridgeEthereumAddress, claim.identifier, true);
             if(!gasTxId)
                 throw new Error("gas transfer transaction failed");
