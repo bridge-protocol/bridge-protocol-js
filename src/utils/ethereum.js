@@ -166,7 +166,7 @@ class Ethereum {
         }
             
 
-        let successRes = await this._callEtherscan("&module=transaction&action=getstatus&txhash=0x15f8e5ea1079d9a0bb04a4c58ae5fe7654b5b2b4463375ff7ffb490aa0032f3a" + hash);
+        let successRes = await this._callEtherscan("&module=transaction&action=getstatus&txhash=" + hash);
         if(successRes && successRes.status === "1" && successRes.result && successRes.result.isError === "0")
             success = true;
         else
