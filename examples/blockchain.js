@@ -18,7 +18,7 @@ async function Init() {
     let blockchain = "eth"; //Switch to "neo" for NEO
 
     //Load existing wallet
-    let passport = await loadPassport('../../Files/testnet-swaps-passport.json', _password);
+    let passport = await loadPassport('./passport.json', _password);
 
     //Unlock the wallet
     let wallet = await getUnlockedWallet(passport, "eth", _password);
@@ -49,38 +49,34 @@ async function Init() {
     await unpublishPassport(passport, wallet);
 
     //Send a token swap request to NEO
-    let neoWallet = await getUnlockedWallet(passport, "neo", _password);
-    await sendSwapRequest(neoWallet, 1, wallet.address, false);
+    //let neoWallet = await getUnlockedWallet(passport, "neo", _password);
+    //let ethWallet = await getUnlockedWallet(passport, "eth", _password);
+    //await sendSwapRequest(neoWallet, ethWallet, 1, false);
 }
 
-async function sendSwapRequest(wallet, amount, targetAddress, costOnly){
-    let targetNetwork = "eth";
-    if(wallet.network.toLowerCase() === "eth")
-        targetNetwork = "neo";
+async function sendSwapRequest(walletFrom, walletTo, amount, costOnly){
 
-    console.log("Sending swap request for " + amount + " BRDG from " + wallet.network + ":" + wallet.address + " to " + targetNetwork + ":" + targetAddress);
-
-    let swapAddress = _bridge.Constants.neoSwapAddress;
-    if(wallet.network.toLowerCase() === "eth")
-        swapAddress = _bridge.Constants.ethereumSwapAddress;
-
-    let cost = await _bridge.Services.Blockchain.sendPayment(wallet, amount, swapAddress, targetAddress, false, true);
+    let cost = await _bridge.Services.Blockchain.sendSwapRequest(walletFrom, walletTo, amount, true);
     console.log("Cost: " + cost + " GAS/ETH");
 
     if(costOnly){
         return;
     }
-    else{
-        let balances = await getWalletBalances(wallet);
-        if(balances.gas < cost){
-            console.log("Insufficient GAS/ETH: " + balances.gas + " Cost: " + cost);
-            return;
-        }
 
-        console.log("Sending payment");
-        let hash = await await _bridge.Services.Blockchain.sendPayment(wallet, amount, swapAddress, targetAddress, false, false); //This will be long running, no need to wait
-        console.log(hash);
+    let balances;
+    if(walletFrom.network.toLowerCase() === "neo"){
+        balances = await getWalletBalances(walletTo); //We've got to take the GAS from the ETH wallet
     }
+    else 
+        balances = await getWalletBalances(walletFrom);
+
+    if(balances.gas < cost){
+        console.log("Insufficient GAS/ETH: " + balances.gas + " Cost: " + cost);
+        return;
+    }
+
+    let res = await _bridge.Services.Blockchain.sendSwapRequest(walletFrom, walletTo, amount, false);
+    console.log(JSON.stringify(res));
 }
 
 async function transferGas(wallet, amount, costOnly)

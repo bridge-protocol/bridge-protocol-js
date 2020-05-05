@@ -152,6 +152,50 @@ class Blockchain {
             return verify.success;
         }
     }
+    
+    async sendSwapRequest(walletFrom, walletTo, amount, costOnly){
+        if(!walletFrom)
+            throw new Error("wallet from not provided");
+        if(!walletTo)
+            throw new Error("wallet to not provided");
+        if(!amount || amount <= 0)
+            throw new Error("valid amount not provided");
+
+        let swapAddress = null;
+        let swapInfo = null;
+        if(walletFrom.network.toLowerCase() === "neo"){
+            swapAddress = _constants.neoSwapAddress;
+
+            //To do a NEO to ETH transfer, the GAS fees of the swap transfer needs to be prepaid to the swap service
+            //The fee being calculated is all the ETH GAS fees required as prepayment on the backend ETH swap
+            //NEO will have no GAS transfer costs for the BRDG to be transfered to the swap address
+            let brdgSendCost = await _eth.sendBrdg(walletTo, _constants.ethereumSwapAddress, amount, "costonly", false, null, true);
+            let gasTransferCost = await _eth.sendEth(walletTo, _constants.ethereumSwapAddress, brdgSendCost, "costonly", false, null, true);
+            let cost = parseFloat(brdgSendCost) + parseFloat(gasTransferCost);
+            if(costOnly)
+                return cost;
+
+            //Send a gas prepayment tx to the swap address
+            let gasTx = await _eth.sendEth(walletTo, _constants.ethereumSwapAddress, cost, walletFrom.address, false, null, false);
+            
+            //The gas prepayment tx and the target NEO address for the swap
+            swapInfo = walletTo.address + "-" + gasTx;
+        }
+        else if(walletFrom.network.toLowerCase() === "eth"){
+            swapAddress = _constants.ethereumSwapAddress;
+            
+            //The cost will be the price of the GAS to transfer the BRDG to the swap address
+            let cost = await _eth.sendBrdg(walletFrom, _constants.ethereumSwapAddress, amount, "costonly", false, null, true);
+            if(costOnly)
+                return cost;
+
+            //No prepayment transaction, just the target ETH address for the swap
+            swapInfo = walletTo.address;
+        }
+
+        console.log("Sending swap request for " + amount + " BRDG from " + walletFrom.network + ":" + walletFrom.address + " to " + walletTo.network + ":" + walletTo.address + " identifier:" + swapInfo);
+        return await this.sendPayment(walletFrom, amount, swapAddress, swapInfo, false, false); //This will be long running, no need to wait
+    }
 
     async verifyPayment(network, hash, from, to, amount, paymentIdentifier){
         if(!hash)
