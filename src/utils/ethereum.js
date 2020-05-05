@@ -11,7 +11,6 @@ const _etherscanApiUrl = _constants.etherscanApiUrl;
 const _etherscanUrl = _constants.etherscanUrl;
 const _chain = _constants.bridgeEthereumChain;
 const _gasLimit = _constants.defaultEthereumGasLimit;
-const _gasPriceGwei = _constants.defaultEthereumGasPriceGwei;
 const _bridgeContractAddress = _constants.bridgeEthereumContractAddress;
 const _bridgeTokenContractAddress = _constants.bridgeEthereumERC20Address;
 const _web3 = new Web3(new Web3.providers.HttpProvider(_rpcUrl));
@@ -19,15 +18,6 @@ const _contract = new _web3.eth.Contract(_abi, _bridgeContractAddress);
 const _token = new _web3.eth.Contract(_tokenAbi, _bridgeTokenContractAddress);
 
 class Ethereum {
-    get gasPrice(){
-        return _gasPriceGwei * .000000001;
-    }
-
-    getTransactionCost(gas){
-        let cost = gas * this.gasPrice;
-        return cost.toFixed(9);
-    }
-
     //Wallet Management Functions
     createWallet(password, privateKeyString){
         let wallet;
@@ -131,7 +121,7 @@ class Ethereum {
     async sendEth(wallet, recipient, amount, identifier, wait, nonce, costOnly)
     {
         if(costOnly){
-            return this.getTransactionCost(22000);
+            return await this._getTransactionCost(22000);
         }
 
         return await this._broadcastTransaction(wallet, recipient, identifier, wait, nonce, amount);
@@ -143,7 +133,7 @@ class Ethereum {
 
         let tx = _token.methods.transferWithMemo(recipient, amount, memo);
         if(costOnly){
-            return this.getTransactionCost(50000);
+            return await this._getTransactionCost(50000);
         }
         else{
             let data = tx.encodeABI();
@@ -274,7 +264,7 @@ class Ethereum {
 
         let tx = _contract.methods.approvePublishClaim(account, claimType, claimDate, claimValue);
         if(costOnly){
-            return this.getTransactionCost(60000);
+            return await this._getTransactionCost(60000);
         }
         else{
             let data = tx.encodeABI();
@@ -299,7 +289,7 @@ class Ethereum {
         let tx = _contract.methods.publishClaim(claimType, claimDate, claimValue);
         if(costOnly){
             let len = Buffer.byteLength(claimValue, 'utf8');
-            return this.getTransactionCost((len * 2100)); //Use character length of the value, storage cost will be variable
+            return await this._getTransactionCost((len * 2100)); //Use character length of the value, storage cost will be variable
         }
         else{
             const data = tx.encodeABI();
@@ -313,7 +303,7 @@ class Ethereum {
 
         let tx = _contract.methods.removeClaim(claimType);
         if(costOnly){
-            return this.getTransactionCost(30000);
+            return await this._getTransactionCost(30000);
         }
         else{
             let data = tx.encodeABI();
@@ -324,7 +314,7 @@ class Ethereum {
     async publishPassport(wallet, passport, nonce, costOnly){
         let tx = _contract.methods.publishPassport(passport);
         if(costOnly){
-            return this.getTransactionCost(120000);
+            return await this._getTransactionCost(120000);
         }
         else{
             let data = tx.encodeABI();
@@ -344,7 +334,7 @@ class Ethereum {
     async unpublishPassport(wallet, nonce, costOnly){
         let tx = _contract.methods.unpublishPassport();
         if(costOnly){
-            return this.getTransactionCost(24000);
+            return await this._getTransactionCost(24000);
         }
         else{
             const data = tx.encodeABI();
@@ -397,14 +387,32 @@ class Ethereum {
         });
     };
 
+    async _getTransactionCost(gas){
+        let gasPrice = await this._getGasPrice();
+        gasPrice = _web3.utils.fromWei(gasPrice, "gwei");
+        let cost = gas * gasPrice;
+        return cost.toFixed(9);
+    }
+
+    async _getGasPrice(){
+        let gasPriceGwei = 10;
+        let res = await this._callEtherscan("&module=gastracker&action=gasoracle");
+        if(res && res.status == "1" && res.result && res.result.SafeGasPrice){
+            gasPriceGwei = parseInt(res.result.SafeGasPrice) * 2;
+        }
+        return gasPriceGwei.toString();
+    }
+
     async _broadcastTransaction(wallet, address, data, wait, nonce, ether){
         if(!wallet.unlocked)
             throw new Error("Wallet is not unlocked.");
         if(!address)
             throw new Error("Address or contract is not specified.");
-
+        
         let walletAddress = wallet.unlocked.getAddressString();
         let privateKey = wallet.unlocked.getPrivateKey();
+        let gasPrice = await this._getGasPrice();
+        
         return new Promise((resolve,reject) => {
             _web3.eth.getTransactionCount(walletAddress, (err, txCount) => {
                 if(!nonce || txCount > nonce)
@@ -412,14 +420,14 @@ class Ethereum {
 
                 if(!ether)
                     ether = 0;
-
+                
                 // Build the transaction
                 const txObject = {
                     nonce:    _web3.utils.toHex(nonce), 
                     to:       address,
                     value:    _web3.utils.toHex(_web3.utils.toWei(ether.toString(), "ether")),
                     gasLimit: _web3.utils.toHex(_gasLimit),
-                    gasPrice: _web3.utils.toHex(_web3.utils.toWei(_gasPriceGwei.toString(), "gwei")),
+                    gasPrice: _web3.utils.toHex(_web3.utils.toWei(gasPrice, "gwei")),
                     data: data  
                 }
                 // Sign the transaction
@@ -428,14 +436,10 @@ class Ethereum {
                 
                 const serializedTx = tx.serialize();
                 const raw = "0x" + serializedTx.toString("hex");
-                
-                // Broadcast the transaction
-                _web3.eth.sendSignedTransaction(raw)
-                    .on('transactionHash',(hash) => {
-                        console.log("Transaction " + hash + " sent.  Waiting for completion.");
-                        if(!wait)
-                            resolve(hash);
-                    })
+
+                if(wait)
+                {
+                    _web3.eth.sendSignedTransaction(raw)
                     .on('receipt', (info) => {
                         console.log("transaction confirmed");
                         resolve(info);
@@ -444,6 +448,18 @@ class Ethereum {
                         console.log("transaction could not be confirmed: " + err); 
                         resolve(null); 
                     });
+                }
+                else
+                {
+                    _web3.eth.sendSignedTransaction(raw)
+                    .on('transactionHash',(hash) => {
+                        resolve(hash);
+                    })
+                    .catch((err) => { 
+                        console.log("transaction could not be confirmed: " + err); 
+                        resolve(null); 
+                    });
+                }
             });
         });
     }
