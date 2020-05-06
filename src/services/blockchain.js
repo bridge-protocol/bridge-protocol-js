@@ -173,7 +173,7 @@ class Blockchain {
             let gasTransferCost = await _eth.sendEth(walletTo, _constants.ethereumSwapAddress, brdgSendCost, "costonly", false, null, true);
             let cost = parseFloat(brdgSendCost) + parseFloat(gasTransferCost);
             if(costOnly)
-                return cost;
+                return cost.toFixed(9);
 
             //Send a gas prepayment tx to the swap address
             let gasTx = await _eth.sendEth(walletTo, _constants.ethereumSwapAddress, cost, walletFrom.address, false, null, false);
@@ -187,7 +187,7 @@ class Blockchain {
             //The cost will be the price of the GAS to transfer the BRDG to the swap address
             let cost = await _eth.sendBrdg(walletFrom, _constants.ethereumSwapAddress, amount, "costonly", false, null, true);
             if(costOnly)
-                return cost;
+                return parseFloat(cost).toFixed(9);
 
             //No prepayment transaction, just the target ETH address for the swap
             swapInfo = walletTo.address;
