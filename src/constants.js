@@ -18,16 +18,16 @@ class Constants {
         this.neoscanApiUrl = "https://neoscan.io/api/main_net/v1";
         this.neoscanPollInterval = 15000;
         this.neoscanPollRetries = 20;
-        this.bridgeEthereumContractAddress = "0xF90328D2D0fE5D2C7178Bf57e1FDFb628c2808e7"; //TODO: Mainnet
-        this.bridgeEthereumERC20Address = "0xD3E50b548bA556Bd76f7661EB4Dd5eBFE2010722"; //TODO: Mainnet
-	this.bridgeEthereumAddress = "0x2B2Af72aa3d4c5Ed16571058F9aCE298bbAa9876";
-        this.bridgeEthereumChain = "rinkeby"; //TODO: Mainnet
+        this.bridgeEthereumContractAddress = "0xE3CEE08c911bD94844c401E22Efdab08A35119E2";
+        this.bridgeEthereumERC20Address = "0xb736bA66aAd83ADb2322D1f199Bfa32B3962f13C";
+        this.bridgeEthereumAddress = "0x2B2Af72aa3d4c5Ed16571058F9aCE298bbAa9876";
+        this.bridgeEthereumChain = "mainnet";
         this.defaultEthereumGasLimit = 3000000;
-        this.ethereumJsonRpcUrl = "https://rinkeby.infura.io/v3/abb847143b1346b7bff7277bdf8d160f"; //TODO: Mainnet
-        this.etherscanUrl = "https://rinkeby.etherscan.io"; //TODO: Mainnet
-        this.etherscanApiUrl = "http://api-rinkeby.etherscan.io/api?apikey=WTPNVNH25I8GWVXJMFHRYDJ8BCSAS18FRF"; //TODO: Mainnet
-        this.ethereumSwapAddress = "0xcd8f3adf1f681d3ab519dc527ce51840efd0c495"; //TODO: Mainnet
-        this.neoSwapAddress = "AZ9d92GFqgsE7sA6257Rx8Rps8uvzpXNqE"; //TODO: Mainnet
+        this.ethereumJsonRpcUrl = "https://mainnet.infura.io/v3/abb847143b1346b7bff7277bdf8d160f";
+        this.etherscanUrl = "https://etherscan.io";
+        this.etherscanApiUrl = "http://api.etherscan.io/api?apikey=WTPNVNH25I8GWVXJMFHRYDJ8BCSAS18FRF";
+        this.ethereumSwapAddress = "0xcd8f3adf1f681d3ab519dc527ce51840efd0c495";
+        this.neoSwapAddress = "AWo5hq5uZs9dTvYZkYBLvo4pWV6f9a5BMu";
     }
 
     getPartners() {
