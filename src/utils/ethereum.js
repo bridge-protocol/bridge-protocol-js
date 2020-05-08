@@ -405,6 +405,7 @@ class Ethereum {
         if(gasPriceGwei < 10)
             gasPriceGwei = 10;
 
+        console.log("Proposed gas price: " + gasPriceGwei + " gwei");
         return gasPriceGwei.toString();
     }
 
