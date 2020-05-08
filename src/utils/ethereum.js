@@ -400,6 +400,10 @@ class Ethereum {
         if(res && res.status == "1" && res.result && res.result.SafeGasPrice){
             gasPriceGwei = parseInt(res.result.SafeGasPrice) * 2;
         }
+
+        if(gasPriceGwei < 10)
+            gasPriceGwei = 10;
+
         return gasPriceGwei.toString();
     }
 
