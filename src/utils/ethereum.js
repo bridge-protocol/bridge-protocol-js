@@ -397,10 +397,11 @@ class Ethereum {
     async _getGasPrice(){
         let gasPriceGwei = 10;
         let res = await this._callEtherscan("&module=gastracker&action=gasoracle");
-        if(res && res.status == "1" && res.result && res.result.SafeGasPrice){
-            gasPriceGwei = parseInt(res.result.SafeGasPrice) * 2;
+        if(res && res.status == "1" && res.result && res.result.ProposeGasPrice){
+            gasPriceGwei = parseInt(res.result.ProposeGasPrice);
         }
 
+        //Just in case something goes wrong
         if(gasPriceGwei < 10)
             gasPriceGwei = 10;
 
