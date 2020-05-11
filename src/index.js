@@ -17,7 +17,8 @@ exports.Services = {
     Claim: require('./services/claim').ClaimApi,
     Partner: require('./services/partner').PartnerApi,
     Passport: require('./services/passport').PassportApi,
-    Profile: require('./services/profile').ProfileApi
+    Profile: require('./services/profile').ProfileApi,
+    TokenSwap: require('./services/tokenswap').TokenSwapApi
 };
 exports.Utils = {
     Claim: require('./utils/claim').Claim,
