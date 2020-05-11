@@ -391,7 +391,10 @@ class Ethereum {
         let gasPrice = await this._getGasPrice();
         gasPrice = _web3.utils.fromWei(gasPrice, "gwei");
         let cost = gas * gasPrice;
-        return cost.toFixed(9);
+        cost = cost.toFixed(9);
+
+        console.log("Estimated cost: " + cost);
+            return cost;
     }
 
     async _getGasPrice(){

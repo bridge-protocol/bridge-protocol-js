@@ -170,13 +170,23 @@ class Blockchain {
             //The fee being calculated is all the ETH GAS fees required as prepayment on the backend ETH swap
             //NEO will have no GAS transfer costs for the BRDG to be transfered to the swap address
             let brdgSendCost = await _eth.sendBrdg(walletTo, _constants.ethereumSwapAddress, amount, "costonly", false, null, true);
+	        console.log("BRDG transfer cost: " + brdgSendCost); 
+
             let gasTransferCost = await _eth.sendEth(walletTo, _constants.ethereumSwapAddress, brdgSendCost, "costonly", false, null, true);
+	        console.log("GAS transfer cost: " + gasTransferCost); 
+
             let cost = parseFloat(brdgSendCost) + parseFloat(gasTransferCost);
+            cost = cost.toFixed(9);
+	        console.log("Total swap transaction prepayment cost:" + cost);
+
             if(costOnly)
-                return cost.toFixed(9);
+                return cost;
 
             //Send a gas prepayment tx to the swap address
             let gasTx = await _eth.sendEth(walletTo, _constants.ethereumSwapAddress, cost, walletFrom.address, false, null, false);
+            console.log("Ethereum GAS tx: " + gasTx);
+            if(gasTx == null)
+                throw new Error("Unable to send swap request: Ethereum gas transaction failed, see console for details.");
             
             //The gas prepayment tx and the target NEO address for the swap
             swapInfo = walletTo.address + "-" + gasTx;

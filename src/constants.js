@@ -22,7 +22,7 @@ class Constants {
         this.bridgeEthereumERC20Address = "0xb736bA66aAd83ADb2322D1f199Bfa32B3962f13C";
         this.bridgeEthereumAddress = "0x2B2Af72aa3d4c5Ed16571058F9aCE298bbAa9876";
         this.bridgeEthereumChain = "mainnet";
-        this.defaultEthereumGasLimit = 3000000;
+        this.defaultEthereumGasLimit = 5000000;
         this.ethereumJsonRpcUrl = "https://mainnet.infura.io/v3/abb847143b1346b7bff7277bdf8d160f";
         this.etherscanUrl = "https://etherscan.io";
         this.etherscanApiUrl = "http://api.etherscan.io/api?apikey=WTPNVNH25I8GWVXJMFHRYDJ8BCSAS18FRF";
