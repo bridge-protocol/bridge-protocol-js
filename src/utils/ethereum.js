@@ -398,15 +398,16 @@ class Ethereum {
     }
 
     async _getGasPrice(){
-        let gasPriceGwei = 10;
-        let res = await this._callEtherscan("&module=gastracker&action=gasoracle");
-        if(res && res.status == "1" && res.result && res.result.ProposeGasPrice){
-            gasPriceGwei = parseInt(res.result.ProposeGasPrice);
-        }
+        //Just fix gas price at 12 for now
+        let gasPriceGwei = 12;
+        //let res = await this._callEtherscan("&module=gastracker&action=gasoracle");
+        //if(res && res.status == "1" && res.result && res.result.ProposeGasPrice){
+        //    gasPriceGwei = parseInt(res.result.ProposeGasPrice);
+        //}
 
         //Just in case something goes wrong
-        if(gasPriceGwei < 10)
-            gasPriceGwei = 10;
+        //if(gasPriceGwei < 10)
+            //gasPriceGwei = 10;
 
         console.log("Proposed gas price: " + gasPriceGwei + " gwei");
         return gasPriceGwei.toString();
@@ -438,7 +439,8 @@ class Ethereum {
                     gasLimit: _web3.utils.toHex(_gasLimit),
                     gasPrice: _web3.utils.toHex(_web3.utils.toWei(gasPrice, "gwei")),
                     data: data  
-                }
+                };
+
                 // Sign the transaction
                 const tx = new _tx(txObject, {"chain":_chain});
                 tx.sign(privateKey);
@@ -455,18 +457,18 @@ class Ethereum {
                     })
                     .catch((err) => { 
                         console.log("transaction could not be confirmed: " + err); 
-                        resolve(null); 
+                        reject(err);
                     });
                 }
                 else
                 {
                     _web3.eth.sendSignedTransaction(raw)
                     .on('transactionHash',(hash) => {
+                        console.log("transaction confirmed");
                         resolve(hash);
                     })
                     .catch((err) => { 
-                        console.log("transaction could not be confirmed: " + err); 
-                        resolve(null); 
+                        reject(err);
                     });
                 }
             });

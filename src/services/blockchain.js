@@ -141,6 +141,7 @@ class Blockchain {
         }
         else if(wallet.network.toLowerCase() === "eth"){
             let info = await _eth.sendBrdg(wallet, recipient, amount, paymentIdentifier, wait, null, costOnly);
+            console.log(info);
             if(costOnly)
                 return info;
 
