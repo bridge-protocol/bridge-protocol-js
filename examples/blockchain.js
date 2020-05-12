@@ -48,6 +48,9 @@ async function Init() {
     // Unpublish the passport
     await unpublishPassport(passport, wallet);
 
+    // Get gas price
+    let gasPrice = await _bridge.Services.Blockchain.getOracleGasPrice("eth");
+
     //Send a token swap request to NEO
     //let neoWallet = await getUnlockedWallet(passport, "neo", _password);
     //let ethWallet = await getUnlockedWallet(passport, "eth", _password);

@@ -407,6 +407,13 @@ class Blockchain {
 
         return null;
     }
+
+    async getOracleGasPrice(network){
+        if(network.toLowerCase() === "neo")
+            return null;
+        else if(network.toLowerCase() === "eth")
+            return await _eth.getOracleGasPrice();
+    }
 };
 
 exports.Blockchain = new Blockchain();
