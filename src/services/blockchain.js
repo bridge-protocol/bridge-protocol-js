@@ -2,6 +2,8 @@ const _constants = require('../constants').Constants;
 const _api = require('../utils/api');
 const _neo = require('../utils/neo').NEO;
 const _eth = require('../utils/ethereum').Ethereum;
+const _claimService = require('./claim.js').ClaimApi;
+const _tokenSwapService = require('./tokenswap.js').TokenSwapApi;
 
 class Blockchain {
     async publishPassport(wallet, passport, costOnly)
@@ -153,60 +155,6 @@ class Blockchain {
             return verify.success;
         }
     }
-    
-    async sendSwapRequest(walletFrom, walletTo, amount, costOnly){
-        if(!walletFrom)
-            throw new Error("wallet from not provided");
-        if(!walletTo)
-            throw new Error("wallet to not provided");
-        if(!amount || amount <= 0)
-            throw new Error("valid amount not provided");
-
-        let swapAddress = null;
-        let swapInfo = null;
-        if(walletFrom.network.toLowerCase() === "neo"){
-            swapAddress = _constants.neoSwapAddress;
-
-            //To do a NEO to ETH transfer, the GAS fees of the swap transfer needs to be prepaid to the swap service
-            //The fee being calculated is all the ETH GAS fees required as prepayment on the backend ETH swap
-            //NEO will have no GAS transfer costs for the BRDG to be transfered to the swap address
-            let brdgSendCost = await _eth.sendBrdg(walletTo, _constants.ethereumSwapAddress, amount, "costonly", false, null, true);
-	        console.log("BRDG transfer cost: " + brdgSendCost); 
-
-            let gasTransferCost = await _eth.sendEth(walletTo, _constants.ethereumSwapAddress, brdgSendCost, "costonly", false, null, true);
-	        console.log("GAS transfer cost: " + gasTransferCost); 
-
-            let cost = parseFloat(brdgSendCost) + parseFloat(gasTransferCost);
-            cost = cost.toFixed(9);
-	        console.log("Total swap transaction prepayment cost:" + cost);
-
-            if(costOnly)
-                return cost;
-
-            //Send a gas prepayment tx to the swap address
-            let gasTx = await _eth.sendEth(walletTo, _constants.ethereumSwapAddress, cost, walletFrom.address, false, null, false);
-            console.log("Ethereum GAS tx: " + gasTx);
-            if(gasTx == null)
-                throw new Error("Unable to send swap request: Ethereum gas transaction failed, see console for details.");
-            
-            //The gas prepayment tx and the target NEO address for the swap
-            swapInfo = walletTo.address + "-" + gasTx;
-        }
-        else if(walletFrom.network.toLowerCase() === "eth"){
-            swapAddress = _constants.ethereumSwapAddress;
-            
-            //The cost will be the price of the GAS to transfer the BRDG to the swap address
-            let cost = await _eth.sendBrdg(walletFrom, _constants.ethereumSwapAddress, amount, "costonly", false, null, true);
-            if(costOnly)
-                return parseFloat(cost).toFixed(9);
-
-            //No prepayment transaction, just the target ETH address for the swap
-            swapInfo = walletTo.address;
-        }
-
-        console.log("Sending swap request for " + amount + " BRDG from " + walletFrom.network + ":" + walletFrom.address + " to " + walletTo.network + ":" + walletTo.address + " identifier:" + swapInfo);
-        return await this.sendPayment(walletFrom, amount, swapAddress, swapInfo, false, false); //This will be long running, no need to wait
-    }
 
     async verifyPayment(network, hash, from, to, amount, paymentIdentifier){
         if(!hash)
@@ -260,67 +208,6 @@ class Blockchain {
         }
     }
 
-    async addClaim(passport, password, wallet, claim, hashOnly, costOnly) {
-        if (!wallet) {
-            throw new Error("wallet not provided");
-        }
-        if (!claim) {
-            throw new Error("claim not provided");
-        }
-
-        if (wallet.network.toLowerCase() === "neo") {
-            if(costOnly)
-                return 0;
-
-            console.log("Retrieving Bridge claim publish transaction...")
-            //For Bridge creates a signed preapproval transaction that the user signs and relays
-            let tx = await this.getClaimPublishApproval(passport, password, null, wallet, claim, hashOnly);
-            if(tx == null)
-                throw new Error("Unable to add claim: integrity or signer check failed.");
-            //Secondarily sign it and relay the signed transaction
-            let signed = await _neo.secondarySignAddClaimTransaction(tx, wallet);
-            return await _neo.sendAddClaimTransaction({ transaction: signed.serialize(), hash: signed.hash });
-        }
-        else if(wallet.network.toLowerCase() == "eth"){
-            let pending = await _eth.getUnapprovedClaimForAddress(wallet.address, claim.claimTypeId);
-            let pendingClaim = (pending != null && pending.value == claim.claimValue.toString() && pending.date == claim.createdOn.toString());
-
-            //We need to account for both transaction costs
-            let publishCost = await _eth.publishClaim(wallet, claim, hashOnly, null, true);
-            let approveCost = await _eth.approvePublishClaim(wallet, wallet.address, claim, hashOnly, null, true);
-            let sendGasCost = await _eth.sendEth(wallet, wallet.address, approveCost, "identifier", false, null, true);
-            let totalCost = parseFloat(publishCost) + parseFloat(approveCost) + parseFloat(sendGasCost);
-            if(pendingClaim) //We already have a pending publish, just get it approved and don't re-send the first tx
-                totalCost = parseFloat(approveCost) + parseFloat(sendGasCost);
-            if(costOnly)
-                return totalCost.toFixed(9);
-
-            if(!pendingClaim){
-                //For ETH the user publishes the claim then requests an approval to publish
-                console.log("Pending claim not found, publishing");
-                await _eth.publishClaim(wallet, claim, hashOnly);
-            }
-            else{
-                console.log("Pending claim found, skipping to approval");
-            }
-
-            console.log("Claim publish request received.  Sending Bridge claim publish approval request.");
-            let gasTxId = await this.transferGas(wallet, approveCost, _constants.bridgeEthereumAddress, claim.identifier, true);
-            if(!gasTxId)
-                throw new Error("gas transfer transaction failed");
-
-            //Bridge verify and approve the prepublish
-            let txid = await this.getClaimPublishApproval(passport, password, gasTxId, wallet, claim, hashOnly);
-            if(txid == null)
-                throw new Error("Unable to get publish approval: transaction failed.");
-
-            //Poll to wait for complettion
-            return await this.pollTransactionComplete(wallet.network, txid);
-        }
-
-        return null;
-    }
-
     async pollTransactionComplete(network, txid){
         let blockchain = this;
         return new Promise(function (resolve, reject) {
@@ -356,53 +243,32 @@ class Blockchain {
         }
     }
 
-    //Bridge approval API call
-    async getClaimPublishApproval(passport, password, transactionId, wallet, claim, hashOnly) {
-        let apiBaseUrl = _constants.bridgeApiUrl + "blockchain/";
-        claim.createdOn = claim.createdOn.toString();
-        var obj = {
-            network: wallet.network,
-            claim,
-            address: wallet.address,
-            hashOnly,
-            transactionId
-        };
-
-        var api = new _api.APIUtility(apiBaseUrl, passport, password);
-        let res = await api.callApi("POST", "approveclaimpublish", obj);
-
-        if(res == false)
-            res = null;
-
-        return res;
-    }
-
-    //Bridge approval function, internal
-    async approveClaimPublish(wallet, address, claim, hashOnly, costOnly)
-    {
-        if(!wallet)
-            throw new Error("wallet not provided");
-
-        if(wallet.network.toLowerCase() == "neo"){
-            if(costOnly)
-                return 0;
-
-            //For NEO we create a signed preapproval transaction then the user signs and relays
-            return await _neo.createApprovedClaimTransaction(wallet, claim, address, hashOnly);
-        }
-        else if(wallet.network.toLowerCase() == "eth"){
-            //For ETH the user publishes the claim then requests an approval to publish
-            return await _eth.approvePublishClaim(wallet, address, claim, hashOnly, null, costOnly);
-        }
-    }
-
     //Public get claim for any address
     async getClaim(network, claimTypeId, address) {
         if (network.toLowerCase() === "neo") {
-            return await _neo.getClaimForAddress(address, claimTypeId);
+            let claim = await _neo.getClaimForAddress(address, claimTypeId);
+            return{
+                claim,
+                verified: claim != null
+            };
         }
         else if(network.toLowerCase() === "eth"){
-            return await _eth.getClaimForAddress(address, claimTypeId);
+            let pending = await _eth.getUnapprovedClaimForAddress(wallet.address, claim.claimTypeId);
+            let published = await _eth.getClaimForAddress(address, claimTypeId);
+
+            let claim = null;
+            let verified = false;
+            if(pending != null)
+                claim = pending;
+            if(published != null){
+                claim = published;
+                verified = true;
+            }
+                
+            return{
+                claim,
+                verified
+            };
         }
 
         return null;
@@ -413,6 +279,150 @@ class Blockchain {
             return null;
         else if(network.toLowerCase() === "eth")
             return await _eth.getOracleGasPrice();
+    }
+
+    //Bridge internal use, transaction will fail with non-bridge signatures
+    //For NEO we create a signed preapproval transaction then the user signs and relays
+    async createClaimPublishTransaction(wallet, address, claim, hashOnly, costOnly)
+    {
+        if(!wallet)
+            throw new Error("wallet not provided");
+
+        if(wallet.network.toLowerCase() == "neo"){
+            if(costOnly)
+                return 0;
+
+            return await _neo.createApprovedClaimTransaction(wallet, claim, address, hashOnly);
+        }
+    }
+
+    async sendTokenSwapTransaction(walletFrom, walletTo, amount, costOnly){
+        if(!walletFrom)
+            throw new Error("wallet from not provided");
+        if(!walletTo)
+            throw new Error("wallet to not provided");
+        if(!amount || amount <= 0)
+            throw new Error("valid amount not provided");
+
+        //Send the transaction
+
+        //Call the API to update the transaction info
+
+
+
+
+        //let swapAddress = null;
+        //let swapInfo = null;
+
+        // if(walletFrom.network.toLowerCase() === "neo"){
+        //     swapAddress = _constants.neoSwapAddress;
+
+        //     //To do a NEO to ETH transfer, the GAS fees of the swap transfer needs to be prepaid to the swap service
+        //     //The fee being calculated is all the ETH GAS fees required as prepayment on the backend ETH swap
+        //     //NEO will have no GAS transfer costs for the BRDG to be transfered to the swap address
+        //     let brdgSendCost = await _eth.sendBrdg(walletTo, _constants.ethereumSwapAddress, amount, "costonly", false, null, true);
+	    //     console.log("BRDG transfer cost: " + brdgSendCost); 
+
+        //     let gasTransferCost = await _eth.sendEth(walletTo, _constants.ethereumSwapAddress, brdgSendCost, "costonly", false, null, true);
+	    //     console.log("GAS transfer cost: " + gasTransferCost); 
+
+        //     let cost = parseFloat(brdgSendCost) + parseFloat(gasTransferCost);
+        //     cost = cost.toFixed(9);
+	    //     console.log("Total swap transaction prepayment cost:" + cost);
+
+        //     if(costOnly)
+        //         return cost;
+
+        //     //Send a gas prepayment tx to the swap address
+        //     let gasTx = await _eth.sendEth(walletTo, _constants.ethereumSwapAddress, cost, walletFrom.address, false, null, false);
+        //     console.log("Ethereum GAS tx: " + gasTx);
+        //     if(gasTx == null)
+        //         throw new Error("Unable to send swap request: Ethereum gas transaction failed, see console for details.");
+            
+        //     //The gas prepayment tx and the target NEO address for the swap
+        //     swapInfo = walletTo.address + "-" + gasTx;
+        // }
+        // else if(walletFrom.network.toLowerCase() === "eth"){
+        //     swapAddress = _constants.ethereumSwapAddress;
+            
+        //     //The cost will be the price of the GAS to transfer the BRDG to the swap address
+        //     let cost = await _eth.sendBrdg(walletFrom, _constants.ethereumSwapAddress, amount, "costonly", false, null, true);
+        //     if(costOnly)
+        //         return parseFloat(cost).toFixed(9);
+
+        //     //No prepayment transaction, just the target ETH address for the swap
+        //     swapInfo = walletTo.address;
+        // }
+
+        //console.log("Sending swap request for " + amount + " BRDG from " + walletFrom.network + ":" + walletFrom.address + " to " + walletTo.network + ":" + walletTo.address + " identifier:" + swapInfo);
+        //return await this.sendPayment(walletFrom, amount, swapAddress, swapInfo, false, false); //This will be long running, no need to wait
+
+        return null;
+    }
+
+    async sendClaimPublishTransaction(passport, password, wallet, costOnly) {
+        if (!wallet) {
+            throw new Error("wallet not provided");
+        }
+
+        //Send the transaction
+
+        //Call the API to update the transaction info
+
+
+
+
+        // if (wallet.network.toLowerCase() === "neo") {
+        //     if(costOnly)
+        //         return 0;
+
+        //     console.log("Retrieving Bridge claim publish transaction...")
+        //     //For Bridge creates a signed preapproval transaction that the user signs and relays
+        //     let tx = await this.getClaimPublishApproval(passport, password, null, wallet, claim, hashOnly);
+        //     if(tx == null)
+        //         throw new Error("Unable to add claim: integrity or signer check failed.");
+        //     //Secondarily sign it and relay the signed transaction
+        //     let signed = await _neo.secondarySignAddClaimTransaction(tx, wallet);
+        //     return await _neo.sendAddClaimTransaction({ transaction: signed.serialize(), hash: signed.hash });
+        // }
+        // else if(wallet.network.toLowerCase() == "eth"){
+        //     let pending = await _eth.getUnapprovedClaimForAddress(wallet.address, claim.claimTypeId);
+        //     let pendingClaim = (pending != null && pending.value == claim.claimValue.toString() && pending.date == claim.createdOn.toString());
+
+        //     //We need to account for both transaction costs
+        //     let publishCost = await _eth.publishClaim(wallet, claim, hashOnly, null, true);
+        //     let approveCost = await _eth.approvePublishClaim(wallet, wallet.address, claim, hashOnly, null, true);
+        //     let sendGasCost = await _eth.sendEth(wallet, wallet.address, approveCost, "identifier", false, null, true);
+        //     let totalCost = parseFloat(publishCost) + parseFloat(approveCost) + parseFloat(sendGasCost);
+        //     if(pendingClaim) //We already have a pending publish, just get it approved and don't re-send the first tx
+        //         totalCost = parseFloat(approveCost) + parseFloat(sendGasCost);
+        //     if(costOnly)
+        //         return totalCost.toFixed(9);
+
+        //     if(!pendingClaim){
+        //         //For ETH the user publishes the claim then requests an approval to publish
+        //         console.log("Pending claim not found, publishing");
+        //         await _eth.publishClaim(wallet, claim, hashOnly);
+        //     }
+        //     else{
+        //         console.log("Pending claim found, skipping to approval");
+        //     }
+
+        //     console.log("Claim publish request received.  Sending Bridge claim publish approval request.");
+        //     let gasTxId = await this.transferGas(wallet, approveCost, _constants.bridgeEthereumAddress, claim.identifier, true);
+        //     if(!gasTxId)
+        //         throw new Error("gas transfer transaction failed");
+
+        //     //Bridge verify and approve the prepublish
+        //     let txid = await this.getClaimPublishApproval(passport, password, gasTxId, wallet, claim, hashOnly);
+        //     if(txid == null)
+        //         throw new Error("Unable to get publish approval: transaction failed.");
+
+        //     //Poll to wait for complettion
+        //     return await this.pollTransactionComplete(wallet.network, txid);
+        // }
+
+        return null;
     }
 };
 

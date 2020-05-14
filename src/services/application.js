@@ -4,20 +4,9 @@ const _apiBaseUrl = _constants.bridgeApiUrl + "application/";
 
 class ApplicationApi
 {
-    async getActiveApplications(passport, passphrase){
+    async getApplicationList(passport, passphrase){
         var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
-        var res = await api.callApi("GET", "true", null);
-
-        if(res.applications){
-            return res.applications;
-        }
-
-        return null; 
-    }
-
-    async getAllApplications(passport, passphrase){
-        var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
-        var res = await api.callApi("GET", "false", null);
+        var res = await api.callApi("GET", "all", null);
 
         if(res.applications){
             return res.applications;
@@ -26,9 +15,9 @@ class ApplicationApi
         return null;
     }
 
-    async getApplication(passport, passphrase, applicationId){
+    async getApplication(passport, passphrase, id){
         var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
-        var res = await api.callApi("GET", applicationId + "/details", null);
+        var res = await api.callApi("GET", id, null);
 
         if(res.application){
             return res.application;
@@ -37,12 +26,14 @@ class ApplicationApi
         return null;
     }
 
-    async createApplication(passport, passphrase, partner){
+    async createApplication(passport, passphrase, partner, network, address){
         var obj = {
-            partner
+            partner,
+            network,
+            address
         };
         var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
-        var res = await api.callApi("POST", "create/", obj);
+        var res = await api.callApi("POST", "create", obj);
 
         if(res.application){
             return res.application;
@@ -51,15 +42,13 @@ class ApplicationApi
         return null;
     }
 
-    async updatePaymentTransaction(passport, passphrase, applicationId, network, sender, transactionId){
+    async updatePaymentTransaction(passport, passphrase, id, transactionId){
         var obj = {
-            applicationId,
-            network,
-            sender,
+            id,
             transactionId
         };
         var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
-        var res = await api.callApi("POST", "updatetransaction/", obj);
+        var res = await api.callApi("POST", "update", obj);
 
         if(res.application){
             return res.application;
@@ -68,23 +57,12 @@ class ApplicationApi
         return null;
     }
 
-    async retrySend(passport, passphrase, applicationId){
+    async retry(passport, passphrase, id){
         var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
-        var res = await api.callApi("GET", applicationId + "/retry/", null);
+        var res = await api.callApi("GET", id + "/retry", null);
         
         if(res.application){
             return res.application;
-        }
-
-        return null;
-    }
-
-    async getStatus(passport, passphrase, applicationId){
-        var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
-        var res = await api.callApi("GET", applicationId + "/status/", null);
-
-        if(res.status){
-            return res.status;
         }
 
         return null;
