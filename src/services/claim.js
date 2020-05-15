@@ -91,6 +91,11 @@ class ClaimApi{
         return await api.callApi("GET", "publish/" + id + "/transaction", null);
     }
 
+    async remove(passport, passphrase, id){
+        var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
+        return await api.callApi("GET", "publish/" + id  + "/remove", null);
+    }
+
     async retry(passport, passphrase, id){
         var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
         return await api.callApi("GET", "publish/" + id  + "/retry", null);

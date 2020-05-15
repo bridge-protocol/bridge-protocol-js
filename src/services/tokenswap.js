@@ -64,6 +64,11 @@ class TokenSwapApi
         return null;
     }
 
+    async remove(passport, passphrase, id){
+        var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
+        await api.callApi("GET", id + "/remove", null);
+    }
+
     async retry(passport, passphrase, id){
         var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
         await api.callApi("GET", id + "/retry", null);

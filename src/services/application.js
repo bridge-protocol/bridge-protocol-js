@@ -57,6 +57,17 @@ class ApplicationApi
         return null;
     }
 
+    async remove(passport, passphrase, id){
+        var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
+        var res = await api.callApi("GET", id + "/remove", null);
+        
+        if(res.application){
+            return res.application;
+        }
+
+        return null;
+    }
+
     async retry(passport, passphrase, id){
         var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
         var res = await api.callApi("GET", id + "/retry", null);

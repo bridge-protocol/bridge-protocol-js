@@ -15,13 +15,13 @@ const _password = "123";
 
 async function Init() {
     //Load existing wallet
-    let passport = await loadPassport('./passport.json', _password);
+    let passport = await loadPassport('./test-passport.json', _password);
 
     //Unlock the wallet
     let wallet = await getUnlockedWallet(passport, "neo", _password);
     let wallet2 = passport.getWalletForNetwork("eth");
 
-    //await applicationServices(passport, wallet);
+    await applicationServices(passport, wallet);
     //await claimPublishServices(passport, wallet);
     //await tokenSwapServices(passport, wallet, wallet2.address, 1);
 }
