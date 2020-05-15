@@ -253,7 +253,7 @@ class Blockchain {
             };
         }
         else if(network.toLowerCase() === "eth"){
-            let pending = await _eth.getUnapprovedClaimForAddress(wallet.address, claim.claimTypeId);
+            let pending = await _eth.getUnapprovedClaimForAddress(address, claimTypeId);
             let published = await _eth.getClaimForAddress(address, claimTypeId);
 
             let claim = null;
