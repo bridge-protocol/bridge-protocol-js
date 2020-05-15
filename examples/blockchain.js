@@ -50,18 +50,6 @@ async function Init() {
 
     // Get gas price
     let gasPrice = await _bridge.Services.Blockchain.getOracleGasPrice("eth");
-
-    //Send a token swap request to NEO
-    //let neoWallet = await getUnlockedWallet(passport, "neo", _password);
-    //let ethWallet = await getUnlockedWallet(passport, "eth", _password);
-    //await sendSwapRequest(neoWallet, ethWallet, 1, false);
-
-    //Get token swap info
-    let ethInfo = await _bridge.Services.TokenSwap.getTokenSwapInfo("eth", "0x3db6cd7dd6d1f6f1318d24d033dbef59417685336830664f96ec624bebd82607", passport, _password);
-    console.log(JSON.stringify(ethInfo));
-
-    let neoInfo = await _bridge.Services.TokenSwap.getTokenSwapInfo("neo","afed062ce6bed8d34567d512494f870750a2156fe73e1e2b32914d601677c3b4", passport, _password);
-    console.log(JSON.stringify(neoInfo));
 }
 
 async function sendSwapRequest(walletFrom, walletTo, amount, costOnly){
