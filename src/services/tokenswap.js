@@ -4,32 +4,52 @@ const _apiBaseUrl = _constants.bridgeApiUrl + "tokenswap/";
 
 class TokenSwapApi
 {
-    async getTokenSwapList(){
+    async getTokenSwapList(passport, passphrase){
         var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
-        return await api.callApi("GET", null, null);
+        let res = await api.callApi("GET", "all", null);
+
+        if(res.tokenSwap)
+            return res.tokenSwap;
+
+        return null;
     }
 
-    async getPendingTokenSwapList(){
+    async getPendingTokenSwapList(passport, passphrase){
         var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
-        return await api.callApi("GET", "pending", null);
+        let res = await api.callApi("GET", "pending", null);
+        
+        if(res.tokenSwap)
+            return res.tokenSwap;
+
+        return null;
     }
 
-    async getTokenSwap(id){
+    async getTokenSwap(passport, passphrase, id){
         var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
-        return await api.callApi("GET", id, null);
+        let res = await api.callApi("GET", id, null);
+
+        if(res.tokenSwap)
+            return res.tokenSwap;
+
+        return null;
     }
 
-    async createTokenSwap(network, address, amount){
+    async createTokenSwap(passport, passphrase, network, address, receivingAddress, amount){
         let obj = {
             network,
             address,
+            receivingAddress,
             amount
         };
         var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
-        return await api.callApi("POST", "create", obj);
+        let res = await api.callApi("POST", "create", obj);
+        if(res.tokenSwap)
+            return res.tokenSwap;
+
+        return null;
     }
 
-    async updatePaymentTransaction(id, transactionId, gasTransactionId)
+    async updatePaymentTransaction(passport, passphrase, id, transactionId, gasTransactionId)
     {
         let obj = {
             id,
@@ -37,12 +57,16 @@ class TokenSwapApi
             gasTransactionId
         };
         var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
-        return await api.callApi("POST", "update", obj);
+        let res = await api.callApi("POST", "update", obj);
+        if(res.tokenSwap)
+            return res.tokenSwap;
+
+        return null;
     }
 
-    async retry(id){
+    async retry(passport, passphrase, id){
         var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
-        return await api.callApi("GET", id + "/retry", null);
+        await api.callApi("GET", id + "/retry", null);
     }
 };
 

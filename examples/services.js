@@ -3,7 +3,7 @@
 //- File: services.js
 //- Description: 
 //  Demonstrate the use of Bridge Network API's to interact with
-//  Verification Requests, Claims, Profiles, Token Swaps, etc 
+//  Verification Requests, Claims, and Token Swaps 
 //- Prerequisites: claims-import.js 
 //                 Verified Claim Type 3 (verified by Bridge)
 //                 NEO wallet with GAS + BRDG
@@ -14,16 +14,38 @@ const _bridge = require("../src/index");
 const _password = "123";
 
 async function Init() {
-    let blockchain = "eth"; //Switch to "neo" for NEO
-
     //Load existing wallet
-    let passport = await loadPassport('./test-passport.json', _password);
+    let passport = await loadPassport('./passport.json', _password);
 
     //Unlock the wallet
-    let wallet = await getUnlockedWallet(passport, "eth", _password);
+    let wallet = await getUnlockedWallet(passport, "neo", _password);
+    let wallet2 = passport.getWalletForNetwork("eth");
 
     //await applicationServices(passport, wallet);
     //await claimPublishServices(passport, wallet);
+    //await tokenSwapServices(passport, wallet, wallet2.address, 1);
+}
+
+async function tokenSwapServices(passport, wallet, receivingAddress, amount){
+    let swapList = await _bridge.Services.TokenSwap.getTokenSwapList(passport, _password);
+    let pendingSwaps = await _bridge.Services.TokenSwap.getPendingTokenSwapList(passport, _password);
+
+    let tokenSwap = await _bridge.Services.TokenSwap.createTokenSwap(passport, _password, wallet.network, wallet.address, receivingAddress, amount);
+
+    let transactionId = "BRDG12345";
+
+    //Send the gas transaction to prepay the transfer fee (neo -> eth only)
+    let gasTransactionId = null;
+    if(wallet.network.toLowerCase() === "neo")
+        gasTransactionId = "GAS12345";
+
+    tokenSwap = await _bridge.Services.TokenSwap.updatePaymentTransaction(passport, _password, tokenSwap.id, transactionId, gasTransactionId);
+
+    //Get the details
+    tokenSwap = await _bridge.Services.TokenSwap.getTokenSwap(passport, _password, tokenSwap.id);
+
+    //Retry if pending retry for token stats
+    await _bridge.Services.TokenSwap.retry(passport, _password, tokenSwap.id);
 }
 
 async function claimPublishServices(passport, wallet){
@@ -33,8 +55,15 @@ async function claimPublishServices(passport, wallet){
 
     //Create
     let claim = await passport.getDecryptedClaim("3", _password);
-    //let claimPublish = await _bridge.Services.Claim.createClaimPublish(passport, _password, wallet.network, wallet.address, claim);
 
+    let claimPublish;
+    try{
+        claimPublish = await _bridge.Services.Claim.createClaimPublish(passport, _password, wallet.network, wallet.address, claim);
+    }
+    catch(err){
+        console.log(err)
+    }
+ 
     //Send the network fee BRDG transaction using blockchain
     let transactionId = "BRDG12345";
 
@@ -44,9 +73,7 @@ async function claimPublishServices(passport, wallet){
         gasTransactionId = "GAS12345";
 
     //Update the transaction info
-    //claimPublish = await _bridge.Services.Claim.updateClaimPaymentTransaction(passport, _password, claimPublish.id, transactionId, gasTransactionId);
-
-    let claimPublish = { id: "c4bc508cb580460793574f206cb2e2de" };
+    claimPublish = await _bridge.Services.Claim.updateClaimPaymentTransaction(passport, _password, claimPublish.id, transactionId, gasTransactionId);
 
     //Get the processing status and details
     claimPublish = await _bridge.Services.Claim.getClaimPublish(passport, _password, claimPublish.id);
