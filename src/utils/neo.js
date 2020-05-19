@@ -114,7 +114,7 @@ class NEO {
     //End asset and transaction management functions
 
     //Smart contract for passport and claims management
-    async publishPassport(wallet, passport){
+    async publishPassport(wallet, passport, wait){
         let neo = this;
         return new Promise(async (resolve, reject) => {
             if (!wallet) {
@@ -142,8 +142,10 @@ class NEO {
                 let tx = await this._createAndSignTransaction(wallet, _bridgeContractHash, 'publish', args);
                 //console.log(JSON.stringify(tx));
 
-                //Relay the transaction
-                resolve(await this._relayTransactionWaitStatus(tx));
+                if(!wait)
+                    resolve(await this._relayTransaction(tx));
+                else
+                    resolve(await this._relayTransactionWaitStatus(tx));
             }
             catch (err) {
                 reject(err);
@@ -179,7 +181,7 @@ class NEO {
         return storage;
     }
 
-    async unpublishPassport(wallet, passport){
+    async unpublishPassport(wallet, passport, wait){
         let neo = this;
         return new Promise(async (resolve, reject) => {
             if (!wallet) {
@@ -204,8 +206,10 @@ class NEO {
                 let tx = await this._createAndSignTransaction(wallet, _bridgeContractHash, 'revoke', args);
                 //console.log(JSON.stringify(tx));
 
-                //Relay the transaction
-                resolve(await this._relayTransactionWaitStatus(tx));
+                if(!wait)
+                    resolve(await this._relayTransaction(tx));
+                else
+                    resolve(await this._relayTransactionWaitStatus(tx));
             }
             catch (err) {
                 reject(err);
@@ -496,15 +500,17 @@ class NEO {
 
     //This is the secondary signed transaction by Bridge for publish
     //If it's not signed by Bridge the smart contract will reject it
-    async sendAddClaimTransaction(tx) {
+    async sendAddClaimTransaction(tx, wait) {
         return new Promise(async (resolve, reject) => {
             if (!tx) {
                 reject("tx not provided");
             }
 
             try {
-                //Relay the transaction
-                resolve(await this._relayTransactionWaitStatus(tx));
+                if(!wait)
+                    resolve(await this._relayTransaction(tx));
+                else
+                    resolve(await this._relayTransactionWaitStatus(tx));
             }
             catch (err) {
                 reject(err);
@@ -513,7 +519,7 @@ class NEO {
         });
     }
 
-    async removeClaim(wallet, claimTypeId) {
+    async removeClaim(wallet, claimTypeId, wait) {
         return new Promise(async (resolve, reject) => {
             if (!claimTypeId) {
                 reject("claimTypeIds not provided");
@@ -537,8 +543,10 @@ class NEO {
                 //claims - [[claimtypeid,claimvalue,createdon]]
                 let tx = await this._createAndSignTransaction(wallet, _bridgeContractHash, 'revokeclaim', args);
 
-                //Relay the transaction
-                resolve(await this._relayTransactionWaitStatus(tx));
+                if(!wait)
+                    resolve(await this._relayTransaction(tx));
+                else
+                    resolve(await this._relayTransactionWaitStatus(tx));
             }
             catch (err) {
                 reject(err);

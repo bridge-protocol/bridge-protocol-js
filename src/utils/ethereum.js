@@ -280,7 +280,7 @@ class Ethereum {
         }
     }
 
-    async publishClaim(wallet, claim, hashOnly, nonce, costOnly){
+    async publishClaim(wallet, claim, hashOnly, wait, nonce, costOnly){
         if(!claim.claimTypeId)
             throw new Error("Claim is required.");
         if(!claim.claimValue)
@@ -301,11 +301,11 @@ class Ethereum {
         }
         else{
             const data = tx.encodeABI();
-            return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, true, nonce);
+            return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, wait, nonce);
         }
     }
 
-    async removeClaim(wallet, claimType, nonce, costOnly){
+    async removeClaim(wallet, claimType, wait, nonce, costOnly){
         if(!claimType)
             throw new Error("Claim type is required.");
 
@@ -315,18 +315,18 @@ class Ethereum {
         }
         else{
             let data = tx.encodeABI();
-            return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, true, nonce);
+            return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, wait, nonce);
         }
     }
 
-    async publishPassport(wallet, passport, nonce, costOnly){
+    async publishPassport(wallet, passport, wait, nonce, costOnly){
         let tx = _contract.methods.publishPassport(passport);
         if(costOnly){
             return await this._getTransactionCost(120000);
         }
         else{
             let data = tx.encodeABI();
-            return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, true, nonce);
+            return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, wait, nonce);
         }
     }
 
@@ -339,14 +339,14 @@ class Ethereum {
         return await _contract.methods.getAddressForPassport(passportId).call();
     }
     
-    async unpublishPassport(wallet, nonce, costOnly){
+    async unpublishPassport(wallet, wait, nonce, costOnly){
         let tx = _contract.methods.unpublishPassport();
         if(costOnly){
             return await this._getTransactionCost(24000);
         }
         else{
             const data = tx.encodeABI();
-            return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, true, nonce);
+            return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, wait, nonce);
         }
     }
 
@@ -428,7 +428,7 @@ class Ethereum {
         let gasPrice = await this._getGasPrice();
         
         return new Promise((resolve,reject) => {
-            _web3.eth.getTransactionCount(walletAddress, (err, txCount) => {
+            _web3.eth.getTransactionCount(walletAddress, "pending", (err, txCount) => {
                 if(!nonce || txCount > nonce)
                     nonce = txCount;
 

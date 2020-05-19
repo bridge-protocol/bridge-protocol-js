@@ -56,11 +56,12 @@ class ClaimApi{
         return null;
     }
 
-    async createClaimPublish(passport, passphrase, network, address, claim){
+    async createClaimPublish(passport, passphrase, network, address, claim, hashOnly){
         let obj = {
             network,
             address,
-            claim
+            claim,
+            hashOnly
         };
         var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
         let res = await api.callApi("POST", "publish/create", obj);
