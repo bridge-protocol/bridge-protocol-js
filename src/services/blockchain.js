@@ -3,6 +3,7 @@ const _api = require('../utils/api');
 const _neo = require('../utils/neo').NEO;
 const _eth = require('../utils/ethereum').Ethereum;
 const _bridgeService = require('./bridge.js').BridgeApi;
+const _passportService = require('./passport.js').PassportApi;
 const _claimService = require('./claim.js').ClaimApi;
 const _tokenSwapService = require('./tokenswap.js').TokenSwapApi;
 const _applicationService = require('./application.js').ApplicationApi;
@@ -284,6 +285,19 @@ class Blockchain {
     }
 
     async sendApplicationRequest(passport, password, wallet, partnerId, costOnly){
+        if (!passport) {
+            throw new Error("passport not provided");
+        }
+        if (!password) {
+            throw new Error("password not provided");
+        }
+        if (!wallet) {
+            throw new Error("wallet not provided");
+        }
+        if (!partnerId) {
+            throw new Error("partnerId not provided");
+        }
+
         let networkFee = await _bridgeService.getBridgeNetworkFee(passport, password);
 
         let recipient = null;
@@ -320,6 +334,22 @@ class Blockchain {
     }
 
     async sendTokenSwapRequest(passport, password, wallet, receivingWallet, amount, costOnly){
+        if (!passport) {
+            throw new Error("passport not provided");
+        }
+        if (!password) {
+            throw new Error("password not provided");
+        }
+        if (!wallet) {
+            throw new Error("wallet not provided");
+        }
+        if (!receivingWallet) {
+            throw new Error("receiving wallet not provided");
+        }
+        if(!amount || amount <= 0){
+            throw new Error("valid amount not provided");
+        }
+
         let swapAddress = null;
         if(wallet.network.toLowerCase() === "neo")
             swapAddress = _constants.neoSwapAddress;
@@ -377,6 +407,19 @@ class Blockchain {
     }
 
     async sendClaimPublishRequest(passport, password, wallet, claim, hashOnly, costOnly){
+        if (!passport) {
+            throw new Error("passport not provided");
+        }
+        if (!password) {
+            throw new Error("password not provided");
+        }
+        if (!wallet) {
+            throw new Error("wallet not provided");
+        }
+        if (!claim) {
+            throw new Error("claim not provided");
+        }
+
         let networkFee = await _bridgeService.getBridgeNetworkFee(passport, password);
         let recipient = null;
         if(wallet.network.toLowerCase() === "neo")
@@ -425,6 +468,38 @@ class Blockchain {
         catch(err){
             error = err.message;
             await _claimService.remove(claimPublish.id);
+        }
+
+        throw new Error(error);
+    }
+
+    async sendPassportPublishRequest(passport, password, wallet, costOnly){
+        if (!passport) {
+            throw new Error("passport not provided");
+        }
+        if (!password) {
+            throw new Error("password not provided");
+        }
+        if (!wallet) {
+            throw new Error("wallet not provided");
+        }
+
+        if(costOnly)
+            return await this.publishPassport(wallet, passport, false, true);
+
+        let passportPublish;
+        let error;
+        try{
+            //Create the claim publish request on the Bridge Network
+            passportPublish = await _passportService.createPassportPublish(passport, password, wallet.network, wallet.address);
+            if(!passportPublish || !passportPublish.id)
+                throw new Error("Unable to create claim publish request");
+
+            return await this.publishPassport(wallet, passport);
+        }
+        catch(err){
+            error = err.message;
+            await _passportService.remove(passport, password, passportPublish.id);
         }
 
         throw new Error(error);
