@@ -490,12 +490,15 @@ class Blockchain {
         let passportPublish;
         let error;
         try{
+            //Send the tx first to make sure it doesn't fail
+            let tx = await this.publishPassport(wallet, passport);
+            
             //Create the claim publish request on the Bridge Network
             passportPublish = await _passportService.createPassportPublish(passport, password, wallet.network, wallet.address);
             if(!passportPublish || !passportPublish.id)
                 throw new Error("Unable to create claim publish request");
 
-            return await this.publishPassport(wallet, passport);
+            return passportPublish;
         }
         catch(err){
             error = err.message;
