@@ -446,13 +446,13 @@ class Blockchain {
         let error;
         try{
             //Create the claim publish request on the Bridge Network
-            claimPublish = await _claimService.createClaimPublish(passport, password, wallet.network, wallet.address, claim);
+            claimPublish = await _claimService.createClaimPublish(passport, password, wallet.network, wallet.address, claim, hashOnly);
             if(!claimPublish || !claimPublish.id)
                 throw new Error("Unable to create claim publish request");
 
             //Pre-publish the claim to the blockchain unverified first
             if(wallet.network.toLowerCase() === "eth")
-                await this.publishClaimTransaction(passport, password, wallet, claim, false, claimPublish.id);
+                await this.publishClaimTransaction(passport, password, wallet, claim, hashOnly, claimPublish.id);
         
             //Send the network fee BRDG transaction using blockchain
             let transactionId = await this.sendPayment(wallet, networkFee, recipient, claimPublish.id);
@@ -467,7 +467,7 @@ class Blockchain {
         }
         catch(err){
             error = err.message;
-            await _claimService.remove(claimPublish.id);
+            await _claimService.remove(passport, password, claimPublish.id);
         }
 
         throw new Error(error);
