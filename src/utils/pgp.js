@@ -179,14 +179,16 @@ async function getKeyring(publicKey, privateKey, passphrase) {
 	var otherKm;
 
 	if (publicKey && privateKey) {
-		try {
-			await mergePrivate(km, privateKey);
-			if (km.is_pgp_locked()) await unlock(km, passphrase);
-		}
-		catch (e) {
+		let merge = await mergePrivate(km, privateKey);
+		if(merge && km.is_pgp_locked())
+			await unlock(km, passphrase);
+		else if(!merge){
 			// if keys don't match, we need a separate key manager for each
 			otherKm = await importKey(privateKey);
-			if (otherKm.is_pgp_locked()) await unlock(otherKm, passphrase);
+
+			if (otherKm.is_pgp_locked()) 
+				await unlock(otherKm, passphrase);
+				
 			result.push(otherKm);
 		}
 	}
@@ -211,8 +213,10 @@ async function getKeyring(publicKey, privateKey, passphrase) {
 		return new Promise((resolve, reject) => {
 			if (!privKey) resolve();
 			keyManager.merge_pgp_private({ armored: privKey }, function (err) {
-				if (err) reject(err);
-				else resolve();
+				if (err)
+					resolve(false);
+				else 
+					resolve(true);
 			});
 		});
 	}

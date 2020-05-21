@@ -887,10 +887,6 @@ class NEO {
     async _getRpcClient(provider) {
         return new Promise((resolve, reject) => {
             try {
-                //Test with a local running node
-                //let nodeUrl = "http://localhost:10332";
-                //let client = _neon.default.create.rpcClient(nodeUrl);
-                //resolve(client);
                 if(!provider)
                     provider = new _neon.api.neoscan.instance("MainNet");
 
