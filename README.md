@@ -12,4 +12,4 @@ The Bridge Protocol SDK encompasses all functionality of the Bridge Passport, Br
 <img src="https://bridge-protocol.github.io/img/overview.jpg">
 
 # Documentation
-Visit <a href="https://bridgeprotocol.githib.io">docs.bridgeprotocol.io</a> to get started.
+Visit <a href="https://docs.bridgeprotocol.io">docs.bridgeprotocol.io</a> to get started.
