@@ -89,7 +89,11 @@ class ClaimApi{
 
     async getClaimPublishTransaction(passport, passphrase, id){
         var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
-        return await api.callApi("GET", "publish/" + id + "/transaction", null);
+        let res = await api.callApi("GET", "publish/" + id + "/transaction", null);
+        if(res.tx)
+            return res.tx;
+
+        return null;
     }
 
     async remove(passport, passphrase, id){
@@ -100,6 +104,11 @@ class ClaimApi{
     async retry(passport, passphrase, id){
         var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
         return await api.callApi("GET", "publish/" + id  + "/retry", null);
+    }
+
+    async completed(passport, passphrase, id){
+        var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
+        return await api.callApi("GET", "publish/" + id  + "/completed", null);
     }
 
     _getClaimTypeById(claimTypes, claimTypeId){

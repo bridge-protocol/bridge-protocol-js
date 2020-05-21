@@ -566,10 +566,11 @@ class NEO {
         let type = claimType;
         let date = 0;
         let value = null;
+
         try{
             let deserialized = await this._deserialize(storage);
             type = _crypto.hexDecode(claimType);
-            date = parseInt(deserialized[1]);
+            date = this._unhexlify(deserialized[1]);
             value = this._unhexlify(deserialized[0]);
         }
         catch(err){

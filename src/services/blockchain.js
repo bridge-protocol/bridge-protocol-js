@@ -532,7 +532,9 @@ class Blockchain {
 
             //Secondarily sign it and relay the signed transaction
             let signed = await _neo.secondarySignAddClaimTransaction(tx, wallet);
-            return await _neo.sendAddClaimTransaction({ transaction: signed.serialize(), hash: signed.hash });
+            let res = await _neo.sendAddClaimTransaction({ transaction: signed.serialize(), hash: signed.hash }, true);
+            if(res && res.txid)
+                await _claimService.completed(passport, password, claimPublishId);
         }
         else if(wallet.network.toLowerCase() == "eth")
         {
