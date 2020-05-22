@@ -32,7 +32,7 @@ var claim = class Claim
         return this._verify();
     }
 
-    get claimValueHash(){
+    get valueHash(){
         if(this.claimValue == null)
             return null;
             

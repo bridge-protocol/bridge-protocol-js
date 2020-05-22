@@ -57,6 +57,10 @@ class ClaimApi{
     }
 
     async createClaimPublish(passport, passphrase, network, address, claim, hashOnly){
+        //Get the calculated hash and include it
+        if(hashOnly)
+            claim.claimValueHash = claim.valueHash;
+
         let obj = {
             network,
             address,
