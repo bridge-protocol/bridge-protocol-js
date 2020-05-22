@@ -32,6 +32,13 @@ var claim = class Claim
         return this._verify();
     }
 
+    get claimValueHash(){
+        if(this.claimValue == null)
+            return null;
+            
+        return _crypto.getHash(this.claimValue.toString());
+    }
+
     async encrypt(targetPublicKey, passportPrivateKey, password){
         let targetPassportId = await _crypto.getPassportIdForPublicKey(targetPublicKey);
         console.log(`encrypting claim for ${targetPassportId}`);

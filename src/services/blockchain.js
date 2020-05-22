@@ -427,9 +427,6 @@ class Blockchain {
         else if (wallet.network.toLowerCase() === "eth")
             recipient = _constants.bridgeEthereumAddress;
 
-        //Calculate the hash for the value
-        claim.claimValueHash = _crypto.getHash(claim.claimValue.toString());
-    
         let publishFee = 0;
         let gasTransferFee = 0;
         let brdgTransferFee = 0;
