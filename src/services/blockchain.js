@@ -256,21 +256,10 @@ class Blockchain {
             };
         }
         else if(network.toLowerCase() === "eth"){
-            let pending = await _eth.getUnapprovedClaimForAddress(address, claimTypeId);
-            let published = await _eth.getClaimForAddress(address, claimTypeId);
-
-            let claim = null;
-            let verified = false;
-            if(pending != null)
-                claim = pending;
-            if(published != null){
-                claim = published;
-                verified = true;
-            }
-                
+            let claim = await _eth.getClaimForAddress(address, claimTypeId);
             return{
                 claim,
-                verified
+                verified: claim != null
             };
         }
 
@@ -432,7 +421,7 @@ class Blockchain {
         let brdgTransferFee = 0;
         if(wallet.network.toLowerCase() === "eth")
         {
-            publishFee = await this.publishClaimTransaction(passport, password, wallet, claim, hashOnly, "costonly", false, true);
+            publishFee = await _eth.getPublishClaimCost(claim, true);
             gasTransferFee = await this.transferGas(wallet, publishFee, recipient, "costonly", false, true);
             brdgTransferFee = await this.sendPayment(wallet, networkFee, recipient, "costonly", false, true);
         }        
@@ -450,10 +439,6 @@ class Blockchain {
             if(!claimPublish || !claimPublish.id)
                 throw new Error("Unable to create claim publish request");
 
-            //Pre-publish the claim to the blockchain unverified first
-            if(wallet.network.toLowerCase() === "eth")
-                await this.publishClaimTransaction(passport, password, wallet, claim, hashOnly, claimPublish.id);
-        
             //Send the network fee BRDG transaction using blockchain
             let transactionId = await this.sendPayment(wallet, networkFee, recipient, claimPublish.id);
         
@@ -508,7 +493,7 @@ class Blockchain {
         throw new Error(error);
     }
     
-    async publishClaimTransaction(passport, password, wallet, claim, hashOnly, claimPublishId, wait, costOnly) {
+    async publishClaimTransaction(passport, password, wallet, claim, claimPublishId, wait, costOnly) {
         if (!wallet) {
             throw new Error("wallet not provided");
         }
@@ -532,14 +517,9 @@ class Blockchain {
 
             //Secondarily sign it and relay the signed transaction
             let signed = await _neo.secondarySignAddClaimTransaction(tx, wallet);
-            let res = await _neo.sendAddClaimTransaction({ transaction: signed.serialize(), hash: signed.hash }, true);
+            let res = await _neo.sendAddClaimTransaction({ transaction: signed.serialize(), hash: signed.hash }, wait);
             if(res && res.txid)
                 await _claimService.completed(passport, password, claimPublishId);
-        }
-        else if(wallet.network.toLowerCase() == "eth")
-        {
-            //Publish the unverified claim to Ethereum
-            return await _eth.publishClaim(wallet, claim, hashOnly, wait, null, costOnly);
         }
 
         return null;

@@ -4,7 +4,7 @@ const _fetch = require('node-fetch');
 const _tx = require("ethereumjs-tx");
 const _wallet = require("ethereumjs-wallet");
 const _util = require("ethereumjs-util");
-const _abi = [{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"string","name":"claimType","type":"string"},{"internalType":"uint256","name":"claimDate","type":"uint256"},{"internalType":"string","name":"claimValue","type":"string"}],"name":"approvePublishClaim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"claimType","type":"string"},{"internalType":"uint256","name":"claimDate","type":"uint256"},{"internalType":"string","name":"claimValue","type":"string"}],"name":"publishClaim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"passport","type":"string"}],"name":"publishPassport","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"claimType","type":"string"}],"name":"removeClaim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"unpublishPassport","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"passport","type":"string"}],"name":"getAddressForPassport","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"string","name":"claimType","type":"string"}],"name":"getClaim","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"getPassportForAddress","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"string","name":"claimType","type":"string"}],"name":"getUnapprovedClaim","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"}];
+const _abi = [{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"string","name":"claimType","type":"string"},{"internalType":"uint256","name":"claimDate","type":"uint256"},{"internalType":"string","name":"claimValue","type":"string"}],"name":"publishClaim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"passport","type":"string"}],"name":"publishPassport","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"claimType","type":"string"}],"name":"removeClaim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"unpublishPassport","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"passport","type":"string"}],"name":"getAddressForPassport","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"string","name":"claimType","type":"string"}],"name":"getClaim","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"getPassportForAddress","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"}];
 const _tokenAbi = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"string","name":"memo","type":"string"}],"name":"Memo","type":"event"},{"inputs":[{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"string","name":"memo","type":"string"}],"name":"transferWithMemo","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}];
 const _rpcUrl = _constants.ethereumJsonRpcUrl;
 const _etherscanApiUrl = _constants.etherscanApiUrl;
@@ -256,53 +256,14 @@ class Ethereum {
     //End asset and transaction management functions
 
     //Smart contract for passport and claims management
-    async approvePublishClaim(wallet, account, claim, hashOnly, nonce, costOnly){
-        if(!claim.claimTypeId)
-            throw new Error("Claim is required.");
-        if(!claim.claimValue)
-            throw new Error("Claim value is required");
-        if(!claim.createdOn)
-            throw new Error("Claim created on date is required.");
-
-        let claimType = claim.claimTypeId.toString();
-        let claimDate = parseInt(claim.createdOn);
-        let claimValue = claim.claimValue;
+    async getPublishClaimCost(claim, hashOnly)
+    {
+        let claimValue = claim.claimValue.toString();
         if(hashOnly)
-            claimValue = claim.claimValueHash;
+            claimValue = claim.valueHash.toString();
 
-        let tx = _contract.methods.approvePublishClaim(account, claimType, claimDate, claimValue);
-        if(costOnly){
-            return await this._getTransactionCost(60000);
-        }
-        else{
-            let data = tx.encodeABI();
-            return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, false, nonce);
-        }
-    }
-
-    async publishClaim(wallet, claim, hashOnly, wait, nonce, costOnly){
-        if(!claim.claimTypeId)
-            throw new Error("Claim is required.");
-        if(!claim.claimValue)
-            throw new Error("Claimm value is required");
-        if(!Number.isInteger(claim.createdOn) || claim.createdOn <= 0)
-            throw new Error("Date must be an integer");
-
-        let claimType = claim.claimTypeId;
-        let claimDate = parseInt(claim.createdOn);
-        let claimValue = claim.claimValue;
-        if(hashOnly)
-            claimValue = claim.claimValueHash;
-
-        let tx = _contract.methods.publishClaim(claimType, claimDate, claimValue);
-        if(costOnly){
-            let len = Buffer.byteLength(claimValue, 'utf8');
-            return await this._getTransactionCost((len * 2100)); //Use character length of the value, storage cost will be variable
-        }
-        else{
-            const data = tx.encodeABI();
-            return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, wait, nonce);
-        }
+        let len = Buffer.byteLength(claimValue, 'utf8');
+        return await this._getTransactionCost((len * 2100)); //Use character length of the value, storage cost will be variable
     }
 
     async removeClaim(wallet, claimType, wait, nonce, costOnly){
@@ -350,28 +311,10 @@ class Ethereum {
         }
     }
 
-    async getUnapprovedClaimForAddress(address, claimType){
-        let account = address;
-        let res = await _contract.methods.getUnapprovedClaim(account, claimType.toString()).call();
-        if(res.length == 0)
-            return null;
-
-        res = res.replace(/\0/g,"").trim();
-        let idx1 = res.indexOf(" ");
-        let idx2 = res.indexOf(" ", idx1+1);
-        let claim = {
-            type: res.substring(0, idx1),
-            date: res.substring(idx1+1,idx2),
-            value: res.substring(idx2+1, res.length)
-        };
-
-        return claim;
-    };
-
     async getClaimForAddress(address, claimType){
         let account = address;
         let res = await _contract.methods.getClaim(account, claimType.toString()).call();
-        if(res.length == 0)
+        if(res.length == 0 || res == " 0 ")
             return null;
 
         res = res.replace(/\0/g,"").trim();
