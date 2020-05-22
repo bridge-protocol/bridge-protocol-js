@@ -426,6 +426,9 @@ class Blockchain {
             recipient = _constants.bridgeAddress;
         else if (wallet.network.toLowerCase() === "eth")
             recipient = _constants.bridgeEthereumAddress;
+
+        //Calculate the hash for the value
+        claim.claimValueHash = _crypto.getHash(claim.claimValue.toString());
     
         let publishFee = 0;
         let gasTransferFee = 0;
@@ -547,7 +550,7 @@ class Blockchain {
 
     //Bridge internal use, transaction will fail with non-bridge signatures
     //For NEO we create a signed preapproval transaction then the user signs and relays
-    async createClaimPublishTransaction(wallet, address, claim, hashOnly, costOnly)
+    async createClaimPublishTransaction(wallet, address, claim, costOnly)
     {
         if(!wallet)
             throw new Error("wallet not provided");
@@ -556,7 +559,7 @@ class Blockchain {
             if(costOnly)
                 return 0;
 
-            return await _neo.createApprovedClaimTransaction(wallet, claim, address, hashOnly);
+            return await _neo.createApprovedClaimTransaction(wallet, claim, address);
         }
     }
 };

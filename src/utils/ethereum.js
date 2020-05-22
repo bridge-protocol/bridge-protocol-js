@@ -268,7 +268,7 @@ class Ethereum {
         let claimDate = parseInt(claim.createdOn);
         let claimValue = claim.claimValue;
         if(hashOnly)
-            claimValue = _crypto.getHash(claimValue);
+            claimValue = claim.claimValueHash;
 
         let tx = _contract.methods.approvePublishClaim(account, claimType, claimDate, claimValue);
         if(costOnly){
@@ -292,7 +292,7 @@ class Ethereum {
         let claimDate = parseInt(claim.createdOn);
         let claimValue = claim.claimValue;
         if(hashOnly)
-            claimValue = _crypto.getHash(claimValue);
+            claimValue = claim.claimValueHash;
 
         let tx = _contract.methods.publishClaim(claimType, claimDate, claimValue);
         if(costOnly){

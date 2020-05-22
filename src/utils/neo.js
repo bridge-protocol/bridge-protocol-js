@@ -399,9 +399,9 @@ class NEO {
             const account = new _neon.wallet.Account(wallet.privateKey);
 
             //Allow publishing the actual or hash value
-            let claimValue = claim.claimValue.toString();
+            let claimValue = claim.claimValue;
             if(hashOnly)
-                claimValue = _crypto.getHash(claimValue);
+                claimValue = claim.claimValueHash;
 
             //invoke <contracthash> "addclaim" [address, identity, claimtypeid, claimvalue, createdon, provider]
             //address
@@ -417,7 +417,7 @@ class NEO {
                     secondaryAddressScriptHash,
                     secondaryPassportId,
                     _crypto.hexEncode(claim.claimTypeId.toString()),
-                    _crypto.hexEncode(claimValue),
+                    _crypto.hexEncode(claimValue.toString()),
                     claim.createdOn,
                     secondaryAddressScriptHash
                 ]
