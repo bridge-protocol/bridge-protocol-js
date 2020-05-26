@@ -1,0 +1,17 @@
+{
+  "id": "extension-passport",
+  "title": "Passport Browser Extension",
+  "description": "<img class='centered' src='/img/extension/passport.jpg'></img>",
+  "source": "@site/docs\\extension-passport.md",
+  "permalink": "/docs/extension-passport",
+  "sidebar_label": "Overview",
+  "sidebar": "gettingStarted",
+  "previous": {
+    "title": "Blockchain",
+    "permalink": "/docs/integration-blockchain"
+  },
+  "next": {
+    "title": "Creating and Opening",
+    "permalink": "/docs/extension-opening"
+  }
+}

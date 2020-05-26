@@ -1,0 +1,17 @@
+{
+  "id": "passport-wallet",
+  "title": "Blockchain Wallets",
+  "description": "A Bridge Passport will contain one or more blockchain wallets to handle on-chain transactions (payments, publishing, etc).  The current supported blockchain wallets are Ethereum and NEO.\r",
+  "source": "@site/docs\\passport-wallet.md",
+  "permalink": "/docs/passport-wallet",
+  "sidebar_label": "Blockchain Wallets",
+  "sidebar": "gettingStarted",
+  "previous": {
+    "title": "Bridge Verified Claims",
+    "permalink": "/docs/passport-claim"
+  },
+  "next": {
+    "title": "Bridge Network",
+    "permalink": "/docs/network"
+  }
+}

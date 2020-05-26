@@ -1,0 +1,8 @@
+{
+  "id": "bridge-claim",
+  "title": "Bridge Verified Claim",
+  "description": "# Claim\r",
+  "source": "@site/docs\\model-claim.md",
+  "permalink": "/docs/bridge-claim",
+  "sidebar_label": "Bridge Verified Claim"
+}

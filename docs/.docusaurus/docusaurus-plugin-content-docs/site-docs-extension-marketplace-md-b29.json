@@ -1,0 +1,17 @@
+{
+  "id": "extension-marketplace",
+  "title": "Marketplace Requests",
+  "description": "<img class='centered' src='/img/extension/passport-marketplace-requests.jpg'></img>\r",
+  "source": "@site/docs\\extension-marketplace.md",
+  "permalink": "/docs/extension-marketplace",
+  "sidebar_label": "Overview",
+  "sidebar": "gettingStarted",
+  "previous": {
+    "title": "Token Swap",
+    "permalink": "/docs/extension-wallets-swap"
+  },
+  "next": {
+    "title": "Marketplace Request Details",
+    "permalink": "/docs/extension-marketplace-details"
+  }
+}

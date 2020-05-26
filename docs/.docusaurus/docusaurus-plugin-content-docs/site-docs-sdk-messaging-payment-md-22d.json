@@ -1,0 +1,17 @@
+{
+  "id": "sdk-messaging-payment",
+  "title": "Payment",
+  "description": "Implements the payment request / response protocol to facilitate blockchain BRDG payments between passports.\r",
+  "source": "@site/docs\\sdk-messaging-payment.md",
+  "permalink": "/docs/sdk-messaging-payment",
+  "sidebar_label": "Payment",
+  "sidebar": "gettingStarted",
+  "previous": {
+    "title": "Claim",
+    "permalink": "/docs/sdk-messaging-claim"
+  },
+  "next": {
+    "title": "Application",
+    "permalink": "/docs/sdk-services-application"
+  }
+}

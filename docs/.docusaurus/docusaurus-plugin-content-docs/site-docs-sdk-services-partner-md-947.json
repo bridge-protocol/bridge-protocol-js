@@ -1,0 +1,17 @@
+{
+  "id": "sdk-services-partner",
+  "title": "Partner",
+  "description": "Service used to retrieve the Bridge Network known network partner passports\r",
+  "source": "@site/docs\\sdk-services-partner.md",
+  "permalink": "/docs/sdk-services-partner",
+  "sidebar_label": "Partner",
+  "sidebar": "gettingStarted",
+  "previous": {
+    "title": "Claim",
+    "permalink": "/docs/sdk-services-claim"
+  },
+  "next": {
+    "title": "Passport",
+    "permalink": "/docs/sdk-services-passport"
+  }
+}

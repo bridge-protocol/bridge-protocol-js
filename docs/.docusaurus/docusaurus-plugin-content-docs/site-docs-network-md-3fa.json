@@ -1,0 +1,17 @@
+{
+  "id": "network",
+  "title": "Bridge Network",
+  "description": "The Bridge Network provides a layer of trust between Bridge Passports.  The Bridge Network exposes a public API that allows for passport information to be retrieved (partner status, blacklist status, etc).  Network and verification partners are vetted and registered with the network as known passports.  Passports may also be blacklisted.\r",
+  "source": "@site/docs\\network.md",
+  "permalink": "/docs/network",
+  "sidebar_label": "Network",
+  "sidebar": "gettingStarted",
+  "previous": {
+    "title": "Blockchain Wallets",
+    "permalink": "/docs/passport-wallet"
+  },
+  "next": {
+    "title": "Bridge Token (BRDG)",
+    "permalink": "/docs/token"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "extension-marketplace-request",
+  "title": "Creating a Marketplace Request",
+  "description": "<img class='centered' src='/img/extension/passport-marketplace-norequests.jpg'></img>\r",
+  "source": "@site/docs\\extension-marketplace-request.md",
+  "permalink": "/docs/extension-marketplace-request",
+  "sidebar_label": "Creating Requests",
+  "sidebar": "gettingStarted",
+  "previous": {
+    "title": "Marketplace Request Details",
+    "permalink": "/docs/extension-marketplace-details"
+  },
+  "next": {
+    "title": "Verification Process",
+    "permalink": "/docs/extension-marketplace-verification"
+  }
+}

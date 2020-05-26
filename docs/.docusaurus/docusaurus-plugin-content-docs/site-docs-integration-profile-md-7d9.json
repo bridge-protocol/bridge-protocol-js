@@ -1,0 +1,17 @@
+{
+  "id": "integration-profile",
+  "title": "Profile Types",
+  "description": "The Profile endpoints allow for retrieval of Bridge known type definitions.\r",
+  "source": "@site/docs\\integration-profile.md",
+  "permalink": "/docs/integration-profile",
+  "sidebar_label": "Profile",
+  "sidebar": "gettingStarted",
+  "previous": {
+    "title": "Claim",
+    "permalink": "/docs/integration-claim"
+  },
+  "next": {
+    "title": "Blockchain",
+    "permalink": "/docs/integration-blockchain"
+  }
+}

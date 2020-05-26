@@ -1,0 +1,17 @@
+{
+  "id": "sdk-models-wallet",
+  "title": "Wallet",
+  "description": "The wallet represents a blockchain wallet used for blockchain transactions.\r",
+  "source": "@site/docs\\sdk-models-wallet.md",
+  "permalink": "/docs/sdk-models-wallet",
+  "sidebar_label": "Wallet",
+  "sidebar": "gettingStarted",
+  "previous": {
+    "title": "Passport",
+    "permalink": "/docs/sdk-models-passport"
+  },
+  "next": {
+    "title": "Auth",
+    "permalink": "/docs/sdk-messaging-auth"
+  }
+}

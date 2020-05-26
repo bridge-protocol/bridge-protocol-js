@@ -1,0 +1,13 @@
+{
+  "id": "bridge-overview",
+  "title": "Bridge Overview",
+  "description": "There are several components that make up the Bridge ecosystem that allow end users to verify and store their personal information, and securely transmit that information via peer-to-peer or blockchain communication.\r",
+  "source": "@site/docs\\bridge-overview.md",
+  "permalink": "/docs/bridge-overview",
+  "sidebar_label": "Overview",
+  "sidebar": "gettingStarted",
+  "next": {
+    "title": "Bridge Passport",
+    "permalink": "/docs/bridge-passport"
+  }
+}

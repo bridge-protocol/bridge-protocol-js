@@ -1,0 +1,17 @@
+{
+  "id": "token",
+  "title": "Bridge Token (BRDG)",
+  "description": "",
+  "source": "@site/docs\\token.md",
+  "permalink": "/docs/token",
+  "sidebar_label": "Token",
+  "sidebar": "gettingStarted",
+  "previous": {
+    "title": "Bridge Network",
+    "permalink": "/docs/network"
+  },
+  "next": {
+    "title": "Bridge Marketplace",
+    "permalink": "/docs/marketplace"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "extension-wallets",
+  "title": "Blockchain Wallets",
+  "description": "<img class='centered' src='/img/extension/passport-wallets.jpg'></img>\r",
+  "source": "@site/docs\\extension-wallets.md",
+  "permalink": "/docs/extension-wallets",
+  "sidebar_label": "Overview",
+  "sidebar": "gettingStarted",
+  "previous": {
+    "title": "Blockchain Publishing",
+    "permalink": "/docs/extension-identity-claimpublish"
+  },
+  "next": {
+    "title": "Wallet Details",
+    "permalink": "/docs/extension-wallets-detail"
+  }
+}

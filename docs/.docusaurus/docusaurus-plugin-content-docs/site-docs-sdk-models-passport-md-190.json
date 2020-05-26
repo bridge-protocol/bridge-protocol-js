@@ -1,0 +1,17 @@
+{
+  "id": "sdk-models-passport",
+  "title": "Passport",
+  "description": "The passport is the container for all passport signing and encryption keys, blockchain wallets, and encrypted claim packages.\r",
+  "source": "@site/docs\\sdk-models-passport.md",
+  "permalink": "/docs/sdk-models-passport",
+  "sidebar_label": "Passport",
+  "sidebar": "gettingStarted",
+  "previous": {
+    "title": "Claim Package",
+    "permalink": "/docs/sdk-models-claimpackage"
+  },
+  "next": {
+    "title": "Wallet",
+    "permalink": "/docs/sdk-models-wallet"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "sdk-services-passport",
+  "title": "Passport",
+  "description": "Service used to retrieve information about a passport from the Bridge Network\r",
+  "source": "@site/docs\\sdk-services-passport.md",
+  "permalink": "/docs/sdk-services-passport",
+  "sidebar_label": "Passport",
+  "sidebar": "gettingStarted",
+  "previous": {
+    "title": "Partner",
+    "permalink": "/docs/sdk-services-partner"
+  },
+  "next": {
+    "title": "Profile",
+    "permalink": "/docs/sdk-services-profile"
+  }
+}

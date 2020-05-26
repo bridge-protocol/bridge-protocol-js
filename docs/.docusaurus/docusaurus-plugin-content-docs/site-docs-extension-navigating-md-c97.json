@@ -1,0 +1,17 @@
+{
+  "id": "extension-navigating",
+  "title": "Navigation",
+  "description": "<img class='centered' src='/img/extension/passport-navigation.jpg'></img>\r",
+  "source": "@site/docs\\extension-navigating.md",
+  "permalink": "/docs/extension-navigating",
+  "sidebar_label": "Navigation",
+  "sidebar": "gettingStarted",
+  "previous": {
+    "title": "Security and Backup",
+    "permalink": "/docs/extension-managing"
+  },
+  "next": {
+    "title": "Third-Party Interaction",
+    "permalink": "/docs/extension-using"
+  }
+}

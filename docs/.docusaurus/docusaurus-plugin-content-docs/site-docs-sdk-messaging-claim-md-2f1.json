@@ -1,0 +1,17 @@
+{
+  "id": "sdk-messaging-claim",
+  "title": "Claim",
+  "description": "Implements the claims import protocol to allow verified claims to be securely communicated between verifier and user passports.\r",
+  "source": "@site/docs\\sdk-messaging-claim.md",
+  "permalink": "/docs/sdk-messaging-claim",
+  "sidebar_label": "Claim",
+  "sidebar": "gettingStarted",
+  "previous": {
+    "title": "Auth",
+    "permalink": "/docs/sdk-messaging-auth"
+  },
+  "next": {
+    "title": "Payment",
+    "permalink": "/docs/sdk-messaging-payment"
+  }
+}

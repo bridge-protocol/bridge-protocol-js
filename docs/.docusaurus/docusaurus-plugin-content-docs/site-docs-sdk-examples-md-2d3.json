@@ -1,0 +1,17 @@
+{
+  "id": "sdk-examples",
+  "title": "Code Examples",
+  "description": "There are several code examples for the most common use cases included in the <a href=\"https://github.com/bridge-protocol/bridge-protocol-js/tree/master/examples\">GitHub Repository</a>\r",
+  "source": "@site/docs\\sdk-examples.md",
+  "permalink": "/docs/sdk-examples",
+  "sidebar_label": "Examples",
+  "sidebar": "gettingStarted",
+  "previous": {
+    "title": "Bridge Core SDK",
+    "permalink": "/docs/sdk"
+  },
+  "next": {
+    "title": "Claim",
+    "permalink": "/docs/sdk-models-claim"
+  }
+}
