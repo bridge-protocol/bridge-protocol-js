@@ -6,7 +6,7 @@ sidebar_label: Network
 
 The Bridge Network provides a layer of trust between Bridge Passports.  The Bridge Network exposes a public API that allows for passport information to be retrieved (partner status, blacklist status, etc).  Network and verification partners are vetted and registered with the network as known passports.  Passports may also be blacklisted.
 
-<img class='centered' src='/img/network.jpg'></img>
+<img class='centered' src='/img/network.png'></img>
 
 ## Network Explorer
 The Bridge Network Explorer gives an up to date overview of activity on the Bridge Network.

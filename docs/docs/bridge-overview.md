@@ -6,7 +6,7 @@ sidebar_label: Overview
 
 There are several components that make up the Bridge ecosystem that allow end users to verify and store their personal information, and securely transmit that information via peer-to-peer or blockchain communication.
 
-<img class='centered' src='/img/overview.jpg'></img>
+<img class='centered' src='/img/overview.png'></img>
 
 ---
 

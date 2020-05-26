@@ -5,7 +5,7 @@ sidebar_label: Authentication
 ---
 The authentication protocol is used by a passport that wishes to challenge another passport to securely transmit information such as verified claims or blockchain addresses.
 
-<img class='centered' src='/img/message-authchallenge.jpg'></img>
+<img class='centered' src='/img/message-authchallenge.png'></img>
 
 ---
 

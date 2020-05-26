@@ -5,12 +5,12 @@ sidebar_label: Protocol
 ---
 The Bridge Protcol is the core messaging protocol that handles the encoding, signing, and encrypting of messages to faciliate secure peer-to-peer communication between Bridge Passports.  All messages are hex encoded for transport.
 
-<img class='centered' src='/img/message-overview.jpg'></img>
+<img class='centered' src='/img/message-overview.png'></img>
 
 ---
 
 ## Message Structure
-<img src='/img/message-structure.jpg'></img>
+<img src='/img/message-structure.png'></img>
 
 - **Public Key** - the public key of the sending passport
 - **Payload** - the message payload (see below for formats)

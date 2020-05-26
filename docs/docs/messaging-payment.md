@@ -6,7 +6,7 @@ sidebar_label: Payment
 
 The payment protocol is used by a passport that wishes to request payments in BRDG token from another passport.
 
-<img class='centered' src='/img/message-payment.jpg'></img>
+<img class='centered' src='/img/message-payment.png'></img>
 
 ---
 
