@@ -15,7 +15,7 @@ module.exports = {
       },
       links: [
         {
-          to: 'docs/bridge-overview',
+          to: 'docs/overview',
           activeBasePath: 'docs',
           label: 'Docs',
           position: 'left',

@@ -1,8 +1,0 @@
-{
-  "id": "blockchain-neo",
-  "title": "NEO Blockchain",
-  "description": "",
-  "source": "@site/docs\\blockchain-neo.md",
-  "permalink": "/docs/blockchain-neo",
-  "sidebar_label": "NEO"
-}
