@@ -493,7 +493,7 @@ class Blockchain {
         throw new Error(error);
     }
     
-    async publishClaimTransaction(passport, password, wallet, claim, claimPublishId, wait, costOnly) {
+    async publishClaimTransaction(passport, password, wallet, claim, claimPublishId, wait, costOnly, reverseScripts) {
         if (!wallet) {
             throw new Error("wallet not provided");
         }
@@ -516,8 +516,23 @@ class Blockchain {
                 throw new Error("Unable to retrieve publish transaction for publish");
 
             //Secondarily sign it and relay the signed transaction
-            let signed = await _neo.secondarySignAddClaimTransaction(tx, wallet);
-            let res = await _neo.sendAddClaimTransaction({ transaction: signed.serialize(), hash: signed.hash }, wait);
+            let res;
+            try{
+                //Attempt with reversed scripts
+                let signed = await _neo.secondarySignAddClaimTransaction(tx, wallet, false);
+                res = await _neo.sendAddClaimTransaction({ transaction: signed.serialize(), hash: signed.hash }, wait);
+            }
+            catch(err){
+                console.log("Unable to send the claim transaction: " + err.message);
+            }
+
+            if(!res){
+                console.log("Attempting with reversed scripts");
+                //Attempt with non-reversed scripts
+                let signed = await _neo.secondarySignAddClaimTransaction(tx, wallet, true);
+                res = await _neo.sendAddClaimTransaction({ transaction: signed.serialize(), hash: signed.hash }, wait);
+            }
+
             if(res && res.txid)
                 await _claimService.completed(passport, password, claimPublishId);
         }

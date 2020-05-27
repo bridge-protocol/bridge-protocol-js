@@ -470,7 +470,7 @@ class NEO {
     }
 
     //Secondary sign the add claim transaction
-    async secondarySignAddClaimTransaction(tx, wallet) {
+    async secondarySignAddClaimTransaction(tx, wallet, reverseScripts) {
         return new Promise(async (resolve, reject) => {
             let account = new _neon.wallet.Account(wallet.privateKey);
             const provider = new _neon.api.neoscan.instance("MainNet");
@@ -488,8 +488,10 @@ class NEO {
             config.account = account;
             _neon.api.signTx(config)
                 .then(c => {
-                    //TODO: this may need to be sorted, something strange about witness order vs scripts order with NEO
-                    c.tx.scripts.reverse();
+                    //TODO: something strange about witness order vs scripts order with NEO, making it optional
+                    if(reverseScripts)
+                        c.tx.scripts.reverse();
+
                     resolve(c.tx);
                 })
                 .catch(c => {
