@@ -1,7 +1,7 @@
 ---
 id: sdk
 title: Bridge Core SDK
-sidebar_label: Javascript SDK
+sidebar_label: Overview
 ---
 
 The Bridge SDK is an open-source JavaScript library that exposes all functionality of the Bridge Protocol, Bridge Network, and Bridge Smart Contract functionality on the Ethereum and NEO blockchains.

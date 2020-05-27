@@ -7,7 +7,6 @@ module.exports = {
   organizationName: 'bridge-protocol', // Usually your GitHub org/user name.
   projectName: 'bridgeprotocol.github.io', // Usually your repo name.
   themeConfig: {
-    defaultDarkMode: true,
     navbar: {
       title: '',
       logo: {

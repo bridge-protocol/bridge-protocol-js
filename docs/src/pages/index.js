@@ -26,7 +26,7 @@ const features = [
     ),
   },
   {
-    title: <>Open Sourced</>,
+    title: <>Open Source</>,
     imageUrl: '/img/github.png',
     description: (
       <>

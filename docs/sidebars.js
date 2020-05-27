@@ -1,44 +1,6 @@
 module.exports = {
   gettingStarted: {
-    'Getting Started': ['bridge-overview'],
-    'Bridge Passport': ['bridge-passport', 'passport-key', 'passport-claim', 'passport-wallet'],
-    'Bridge Network': ['network','token','marketplace'],
-    'Bridge Protocol': ['messaging', 'messaging-auth', 'messaging-claimsimport','messaging-payment'],
-    'JavaScript SDK':[
-      'sdk',
-      'sdk-examples',
-      {
-        type: 'category',
-        label: 'Modules',
-        items:[{
-          type: 'category',
-          label: 'Models',
-          items: ['sdk-models-claim', 'sdk-models-claimpackage', 'sdk-models-passport', 'sdk-models-wallet']
-        },
-        {
-          type: 'category',
-          label: 'Messaging',
-          items: ['sdk-messaging-auth', 'sdk-messaging-claim', 'sdk-messaging-payment']
-        },
-        {
-          type: 'category',
-          label: 'Services',
-          items: ['sdk-services-application', 'sdk-services-blockchain', 'sdk-services-bridge', 'sdk-services-claim', 'sdk-services-partner', 'sdk-services-passport', 'sdk-services-profile', 'sdk-services-tokenswap']
-        },
-        {
-          type: 'category',
-          label: 'Utils',
-          items: ['sdk-utils-claim']
-        }]
-      }
-    ],
-    'REST Microservice': [
-        'integration',
-        { type:'category',
-          label: 'Endpoints',
-          items: ['integration-passport','integration-claim','integration-profile','integration-blockchain']
-        }
-    ],
+    'Getting Started': ['overview','whatsnew'],
     'Browser Extension':[
       'extension-passport',
       {
@@ -61,6 +23,75 @@ module.exports = {
         label: 'Marketplace Requests',
         items: ['extension-marketplace', 'extension-marketplace-details', 'extension-marketplace-request', 'extension-marketplace-verification']
       }
+    ],
+    'Network Explorer': ['network-explorer'],
+    'Developers':[
+      {
+        type: 'category',
+        label: 'Concepts',
+        items:[
+        'bridge-overview',  
+        {
+          type: 'category',
+          label: 'Bridge Passport',
+          items:['bridge-passport', 'passport-key', 'passport-claim', 'passport-wallet']
+        },
+        {
+          type: 'category',
+          label: 'Bridge Protocol',
+          items: ['messaging', 'messaging-auth', 'messaging-claimsimport','messaging-payment']
+        },
+        {
+          type: 'category',
+          label: 'Bridge Network',
+          items: ['network','marketplace']
+        },
+        'token'
+        ]
+      },
+      {
+        type: 'category',
+        label: 'Javascript SDK',
+        items:[
+          'sdk',
+          'sdk-examples',
+          {
+            type: 'category',
+            label: 'Modules',
+            items:[{
+              type: 'category',
+              label: 'Models',
+              items: ['sdk-models-claim', 'sdk-models-claimpackage', 'sdk-models-passport', 'sdk-models-wallet']
+            },
+            {
+              type: 'category',
+              label: 'Messaging',
+              items: ['sdk-messaging-auth', 'sdk-messaging-claim', 'sdk-messaging-payment']
+            },
+            {
+              type: 'category',
+              label: 'Services',
+              items: ['sdk-services-application', 'sdk-services-blockchain', 'sdk-services-bridge', 'sdk-services-claim', 'sdk-services-partner', 'sdk-services-passport', 'sdk-services-profile', 'sdk-services-tokenswap']
+            },
+            {
+              type: 'category',
+              label: 'Utils',
+              items: ['sdk-utils-claim']
+            }]
+          }
+        ]
+      },
+      {
+        type: 'category',
+        label: 'REST Microservice',
+        items:[
+          'integration',
+          { type:'category',
+            label: 'Endpoints',
+            items: ['integration-passport','integration-claim','integration-profile','integration-blockchain']
+          }
+        ]
+      },
     ]
   }
 };

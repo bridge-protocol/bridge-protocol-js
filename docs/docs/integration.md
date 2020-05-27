@@ -1,7 +1,7 @@
 ---
 id: integration
 title: Bridge REST Integration Microservice
-sidebar_label: REST Integration
+sidebar_label: Overview
 ---
 The Bridge Integration Microservices allows for easy integration with the Bridge SDK when the target platform does not support JavaScript.  The microservice is implemented as a standalone REST interface that can be easily run in a container in any hosting environment to enable that environment to take full advantage of Bridge SDK functionality.
 

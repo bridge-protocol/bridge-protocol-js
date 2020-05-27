@@ -1,5 +1,5 @@
 ---
 id: token
 title: Bridge Token (BRDG)
-sidebar_label: Token
+sidebar_label: Bridge Token
 ---

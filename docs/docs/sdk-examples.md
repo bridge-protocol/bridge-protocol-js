@@ -65,17 +65,33 @@ When a passport wants to request payment in BRDG a request needs to be made for 
 
 ---
 
+### Bridge Marketplace Requests
+<p class="nobottommargin">
+The Bridge Network API is used to find marketplace partners and send verification requests via the Bridge Protocol Marketplace. This example demonstrates how to use the endpoints to manage the lifecycle of a Bridge Marketplace verification request.
+</p>
+<a href="https://github.com/bridge-protocol/bridge-protocol-js/blob/master/examples/verification-request.js">View Example on GitHub</a>
+
+---
+
+### Blockchain Claim Publishing
+<p class="nobottommargin">
+To publish claims on NEO or Ethereum, the Bridge Network needs to verify the integrity of the claim before it can be published.  This example shows how to send a verified claim to the Bridge Network for verification and publishing.
+</p>
+<a href="https://github.com/bridge-protocol/bridge-protocol-js/blob/master/examples/claims-publish.js">View Example on GitHub</a>
+
+---
+
+### Cross-Chain Token Swap
+<p class="nobottommargin">
+The Bridge Token can exist on either the NEO or Ethereum blockchain.  This example shows how to send a token swap request to the Bridge Network to swap tokens between blockchains.
+</p>
+<a href="https://github.com/bridge-protocol/bridge-protocol-js/blob/master/examples/token-swap.js">View Example on GitHub</a>
+
+---
+
 ### Blockchain Interaction
 <p class="nobottommargin">
 A passport and verified claims can be published to both NEO and Ethereum blockchains in addition to transferring tokens.  This example demonstrates how to use the Bridge SDK to interact with Bridge Smart Contract functionality on both blockchains.
 </p>
 <a href="https://github.com/bridge-protocol/bridge-protocol-js/blob/master/examples/blockchain.js">View Example on GitHub</a>
-
----
-
-### API Services
-<p class="nobottommargin">
-The Bridge Network API is used to validate and relay Verification Requests, Claim Publishing, and Token Swaps on the Bridge Network.  This example demonstrates how to use the endpoints to manage the lifecycle of these entity types.
-</p>
-<a href="https://github.com/bridge-protocol/bridge-protocol-js/blob/master/examples/services.js">View Example on GitHub</a>
 

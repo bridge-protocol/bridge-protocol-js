@@ -1,7 +1,7 @@
 ---
 id: bridge-passport
 title: Bridge Passport
-sidebar_label: Passport
+sidebar_label: Overview
 ---
 
 The Bridge Passport is the container holds all of a user's keys, blockchain wallets, and claims to allow them to interact with the Bridge Network, Bridge Marketplace, other Bridge Passports, and multiple blockchains.
