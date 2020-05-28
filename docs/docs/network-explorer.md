@@ -1,7 +1,7 @@
 ---
 id: network-explorer
 title: Bridge Network Explorer
-sidebar_label: Overview
+sidebar_label: Network Explorer
 ---
 The Bridge Network Explorer gives an up to date overview of activity on the Bridge Network.
 

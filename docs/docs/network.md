@@ -4,6 +4,6 @@ title: Bridge Network
 sidebar_label: Overview
 ---
 
-The Bridge Network provides a layer of trust between Bridge Passports.  The Bridge Network exposes a public API that allows for passport information to be retrieved (partner status, blacklist status, etc).  Network and verification partners are vetted and registered with the network as known passports.  Passports may also be blacklisted.
+The Bridge Network provides a layer of trust between Bridge Passports and faciliates communication between known passports to create the Bridge Marketplace.  Network and verification partners are vetted and registered with the network as known passports, and bad actor passports may be blacklisted to prevent abuse.  Network fees are paid to the network in the form of Bridge Token (BRDG) in exchange for the layer of trust and communication between users and partners.
 
 <img class='centered' src='/img/network.png'></img>

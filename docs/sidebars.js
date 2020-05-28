@@ -1,8 +1,13 @@
 module.exports = {
   gettingStarted: {
     'Getting Started': ['overview','whatsnew'],
-    'Network Explorer': ['network-explorer'],
-    'Browser Extension':[
+    'Bridge Network':[
+      'network',
+      'marketplace',
+      'token',
+      'network-explorer'
+    ],
+    'Bridge Passport Extension':[
       'extension-passport',
       {
         type: 'category',
@@ -40,13 +45,7 @@ module.exports = {
           type: 'category',
           label: 'Bridge Protocol',
           items: ['messaging', 'messaging-auth', 'messaging-claimsimport','messaging-payment']
-        },
-        {
-          type: 'category',
-          label: 'Bridge Network',
-          items: ['network','marketplace']
-        },
-        'token'
+        }
         ]
       },
       {
