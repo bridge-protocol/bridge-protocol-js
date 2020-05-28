@@ -1,6 +1,7 @@
 module.exports = {
   gettingStarted: {
     'Getting Started': ['overview','whatsnew'],
+    'Network Explorer': ['network-explorer'],
     'Browser Extension':[
       'extension-passport',
       {
@@ -16,7 +17,7 @@ module.exports = {
       {
         type: 'category',
         label: 'Blockchain Wallets',
-        items: ['extension-wallets', 'extension-wallets-detail', 'extension-wallets-swap']
+        items: ['extension-wallets', 'extension-wallets-detail', 'extension-wallets-tx', 'extension-wallets-swap']
       },
       {
         type: 'category',
@@ -24,7 +25,6 @@ module.exports = {
         items: ['extension-marketplace', 'extension-marketplace-details', 'extension-marketplace-request', 'extension-marketplace-verification']
       }
     ],
-    'Network Explorer': ['network-explorer'],
     'Developers':[
       {
         type: 'category',
