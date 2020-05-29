@@ -1,6 +1,6 @@
 module.exports = {
   gettingStarted: {
-    'Getting Started': ['overview','whatsnew'],
+    'Getting Started': ['overview','whatsnew','definitions'],
     'Bridge Network':[
       'network',
       'marketplace',
@@ -12,7 +12,7 @@ module.exports = {
       {
         type: 'category',
         label: 'Passport Basics',
-        items: ['extension-opening', 'extension-managing', 'extension-navigating', 'extension-using']
+        items: ['extension-opening', 'extension-navigating', 'extension-using', 'extension-managing']
       },
       {
         type: 'category',
@@ -91,6 +91,10 @@ module.exports = {
           }
         ]
       },
+    ],
+    'Terms of Use':[
+      'license',
+      'tos'
     ]
   }
 };

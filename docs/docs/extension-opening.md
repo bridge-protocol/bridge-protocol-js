@@ -1,7 +1,7 @@
 ---
 id: extension-opening
-title: Creating or Opening a Passport
-sidebar_label: Creating and Opening
+title: Opening a Passport
+sidebar_label: Opening a passport
 ---
 
 When the extension is opened, the user will have an option to create a new passport or to import a previously created and exported passport.
