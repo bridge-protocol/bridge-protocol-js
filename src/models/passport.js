@@ -54,8 +54,10 @@ var passport = class Passport
         }
 
         try{
-            console.log("verifying passport password");
-            let key = await _crypto.decryptPrivateKey(this.key.private, password);
+            console.log("verifying passport password and decrypting keys");
+            let privateKey = await _crypto.decryptPrivateKey(this.key.private, password);
+            this.key.public = await _crypto.getPublicKeyFromPrivateKey(privateKey);
+            this.id = await _crypto.getPassportIdForPublicKey(this.key.public);
         }
         catch(err){
             this._reset();
@@ -87,14 +89,18 @@ var passport = class Passport
 
     async export(){
         console.log("preparing passport for export");
-        //Copy the object
-        let serialized = JSON.stringify(this);
-        let exp = JSON.parse(serialized);
+
+        //Streamline format for v3
+        let exp = {
+            version: "3.0",
+            key: this.key.private,
+            wallets: this.wallets,
+            claims: this.claims
+        }
 
         //Sanitize the wallets and keys
         for(let i=0; i<exp.wallets.length; i++){
-            let wallet = exp.wallets[i];
-            exp.wallets[i] = new _wallet.Wallet(wallet.network, wallet.address, wallet.key).export();
+            exp.wallets[i] = exp.wallets[i].export();
         }
 
         return exp;
@@ -208,21 +214,25 @@ var passport = class Passport
 
         if(!passport)
             return false;
-
-        if(!passport.id ||
-            !passport.version || 
-            !passport.key ||
-            !passport.key.public ||
-            !passport.key.private){
-                return false;
-        }
+        if(!passport.version || !passport.key)
+            return false;
 
         this._reset();
-
-        this.id = passport.id;
         this.version = passport.version;
-        this.key = passport.key;
+        if(parseFloat(this.version) < 3){
+            if(!passport.key.private)
+                return false;
 
+            this.key = {
+                private: passport.key.private
+            }
+        }
+        else{
+            this.key = {
+                private: passport.key
+            };
+        }
+        
         this.wallets = await this._initWallets(passport.wallets);
         this.claims = await this._initClaims(passport.claims);
         

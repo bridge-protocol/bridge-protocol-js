@@ -114,6 +114,22 @@ class Crypto {
         return generatedKey;
     };
 
+    async getPublicKeyFromPrivateKey(decryptedPrivateKey){
+        return new Promise(async (resolve, reject) => {
+            try{
+                let crypto = this;
+                decryptedPrivateKey.export_pgp_public(false, function(err, msg){
+                    if(err)
+                        reject(err);
+                    resolve(crypto.hexEncode(msg));
+                }); 
+            }
+            catch(err){
+                reject(err);
+            }
+        });
+    }
+
     async decryptPrivateKey(privateKey, passphrase){
         if(!privateKey){
             throw new Error("privateKey not provided");
