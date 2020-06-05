@@ -128,7 +128,7 @@ var passport = class Passport
         if(!network)
             throw new Error("Network not provided.");
         if(!this.wallets || this.wallets.length == 0)
-            throw new Error("Wallet not found for " + network);
+            return null;
 
         for(const wallet of this.wallets){
             if(wallet.network.toLowerCase() === network.toLowerCase())
@@ -218,21 +218,16 @@ var passport = class Passport
             return false;
 
         this._reset();
-        this.version = passport.version;
-        if(parseFloat(this.version) < 3){
-            if(!passport.key.private)
-                return false;
+        this.key = {
+            private: null
+        };
 
-            this.key = {
-                private: passport.key.private
-            }
-        }
-        else{
-            this.key = {
-                private: passport.key
-            };
-        }
-        
+        if(passport.key.private)
+            this.key.private = passport.key.private; //v1.1 support
+        else
+            this.key.private = passport.key;
+
+        this.version = _constants.passportVersion;
         this.wallets = await this._initWallets(passport.wallets);
         this.claims = await this._initClaims(passport.claims);
         

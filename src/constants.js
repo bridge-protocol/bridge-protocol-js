@@ -1,6 +1,6 @@
 class Constants {
     constructor() {
-        this.passportVersion = 1.1;
+        this.passportVersion = 3.0;
         this.bridgeApiUrl = "https://bridge-protocol.azurewebsites.net/api/";
         this.bridgeExplorerUrl = "https://bridge-protocol.azurewebsites.net/explorer/";
         this.bridgePassportId = "d7bc3488073454a6ce32b13a1e8cda6a8bddf16d";
