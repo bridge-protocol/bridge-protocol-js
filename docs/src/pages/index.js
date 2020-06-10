@@ -62,7 +62,7 @@ function Home() {
         <div className="container">
           <div className="hero-logo">
             <img src="/img/bridge-logo.png"></img>
-            <h2>Portable Digital Identity Solution v3.0</h2>
+            <h2>Digital Identity v3.0</h2>
           </div>
           <div className={styles.buttons}>
             <Link
