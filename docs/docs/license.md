@@ -1,11 +1,10 @@
 ---
 id: license
-title: Portable Digital Identity Solution License
+title: Bridge Digital Identity License
 sidebar_label: Open Source License(s)
 ---
 
-Open source portions of the Bridge Protocol Portable Digital 
-Identity Solution are copyright 2018-2020 Bridge Protocol Corporation and licensed 
+Open source portions of the Bridge Digital Identity are copyright 2018-2020 Bridge Protocol Corporation and licensed 
 under the Apache License, Version 2.0 (the "License").
 A copy of this notice and any other related licensing information can be found in 
 the respective repositories alongside the source code.

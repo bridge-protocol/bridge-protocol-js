@@ -1,35 +1,83 @@
 ---
 id: overview
-title: Bridge Portable Digital Identity Solution
+title: Bridge Digital Identity
 sidebar_label: Overview
 ---
-The Bridge Portable Digital Identity Solution was designed to provide users with a self-managed, portable digital identity that could be used to provide verified information about their identity and eligibility securely both on and offline.  The Bridge Protocol can be easily implemented by any browser, mobile, or blockchain application to request information about a user's digital identity without compromising the privacy and security of the user.
+Bridge Digital Identity is a unique approach to portable digital identity that can be applied to a wide range of applications and environments, making it ideal for securely managing and transmitting digital identity.  In this article, we will look at an overview of the components that make up the Bridge Digital Identity solution and how it can be used.
 
 <img class='centered' src='/img/general-overview.png'></img>
 
-At its core, the Bridge Protocol is a portable peer-to-peer protocol that allows for the secure transmission of digital identity between Bridge Passports.  The Bridge Protocol Portable Digital Identity solution allows passports to send and receive digital identity claims both on and offline.  This aspect of the protocol opens the potential for real-world applications by removing dependency Internet connectivity or unstable and unpredictable blockchain networks at the point of identity transmission.  The protocol can easily be implemented in web and mobile applications, blockchain distributed applications, and even in hardware and IoT applications.
+The Bridge Protocol is at the core of the solution, which is simply a peer-to-peer protocol that allows for the secure transmission of portable digital identity. It enables individuals (and devices) to send and receive digital identity claims in both on and offline environments. The ability to request and transmit identity in an offline environment opens the potential for real-world applications by removing dependency on Internet connectivity or slow and unpredictable blockchain networks at the point of identity transmission. The protocol can easily be implemented in web and mobile applications, blockchain distributed applications, and even in hardware and IoT devices.
 
-### Interaction Between User Passports
-The most basic transmission of digital identity can be done peer-to-peer between user passports without the Bridge Network.  Optionally, the participants can use the Bridge Network as a point of trust to further verify the passport to ensure there are no blacklists or other issues outstanding for the passport.
+## Components of the Bridge Ecosystem
+The Bridge Digital Identity ecosystem is made up of several components that allow for a robust, secure, and fully integrated digital identity verification and transmission solution.
 
-### Interaction with Bridge Network Partners
-Bridge Network Partners are passports belonging to individuals or organizations that are verified and registered on the network as a trusted partner.  When interacting with a Bridge Network Partner passport, users can be sure they know who is requesting information about their digital identity.
+### Bridge Passport
 
-### Interaction with Bridge Marketplace Partners
-Bridge Marketplace Partners are Bridge Network Partners that also provide verification services in the Bridge Marketplace in exchange for Bridge Tokens as payment.  Users will interact with the partner's web or distributed application to provide Marketplace Partners with the requested informmation about their identity to be verified, and in return the partner will transmit verified claims about the user using the peer-to-peer protocol.
+<img class='centered' src='/img/bridge-passport-hl.png'></img>
 
-### Interaction with Third-Party Browser Applications
-Any web based or mobile application can implement the Bridge Protocol and request and accept digital claims from a Bridge Passport to authenticate and authorize users.  It is recommended that all applications implementing the protocol register with the network so they can provide an additional level of trust for their users, but not required.
-
-### Interaction with Blockchain Distributed Applications
-Users are able to publish their verified claims to the NEO and Ethereum blockchains to allow for asynchronous / offline identity verification. Blockchain distributed applications can simply interact directly with the Bridge Keyserver smart contract on either respective blockchain to retrieve the anonymmous claims information for the requested identity without interacting directly with the user in realtime.
+The Bridge Passport is exactly as it sounds, the container for an individual's digital identity. A user's passport will contain their Bridge cryptographic keys, their blockchain wallets and cryptographic keys for on-chain transactions, and their verified information about their identity in the form of secure, portable claims.
 
 
+### Bridge Network
+
+<img class='centered' src='/img/bridge-network-hl.png'></img>
+
+The Bridge Network is a public network that can facilitate communication between Bridge identities as well as provide an optional layer of trust when Bridge identities interact with one another. The Bridge Network maintains a record of known Bridge Network partner identities that have been verified as trusted organizations, as well a record of any blacklisted identities to remove bad actors from the network.
+
+
+### Bridge Marketplace
+
+<img class='centered' src='/img/bridge-marketplace-hl.png'></img>
+
+The Bridge Marketplace is a part of the Bridge Network that provides a marketplace for end users to verify their personal information to be included as part of their verified digital identity. The Bridge Marketplace connects users with trusted marketplace partners that can offer them verification services in exchange for Bridge tokens as payment.
+
+One key aspect of the Bridge Marketplace is that it keeps decentralization in mind, as it only serves to connect users with Bridge Marketplace partners. Once the  user selects a marketplace partner and sends the appropriate network fees, the user is directed to the partner to complete the identity verification process. 
+
+Any payments, personal information, or issued verified identity claims are transmitted directly between the user and marketplace partner without any involvement from the Bridge Network. The network does not collect or maintain any personal information about the user aside from facilitating the initial request for services between the user and partner.
+
+### Bridge Passport Browser Extension
+The Bridge Passport Browser Extension is the official software client that fully implements the Bridge Protocol, Bridge Network, and Bridge Marketplace with a user interface. The extension enables end users to create, verify, and use their digital identity in both web and blockchain based applications.
+
+<img class='centered' src='/img/bridge-screenshot-hl.png'></img>
+
+Using the extension, users are able to:
+
+- Interact with marketplace partners to verify their personal information
+- Import verified identity claims to their passport
+- Login to browser-based applications implementing the Bridge Protocol using their digital identity
+- Manage NEO and Ethereum blockchain wallets to send token payments and swap tokens cross-chain
+- Publish their digital identity to the NEO and Ethereum blockchain networks for use with decentralized applications on either network.
+
+### Bridge Token and Smart Contracts
+
+<img class='centered' src='/img/bridge-token-hl.png'></img>
+
+The fees for services on the Bridge Network and Bridge Marketplace are paid using the Bridge Token (BRDG). The Bridge Token was initially created and launched on the NEO blockchain, but as of the 3.0 release, the Bridge Token is now not only available on NEO as a NEP-5 compliant token, but also on the Ethereum blockchain as an ERC-20 token.  The token can be easily be swapped between the chains using the Bridge Passport Browser Extension.  The Bridge Smart Contracts are deployed on both the NEO and Ethereum blockchain networks. The cross-chain token and smart contracts expand the use of the Bridge Token and Bridge Digital Identity to both NEO and Ethereum ecosystem projects.
 
 
 
+## Using Bridge Identity in Applications
+
+### Web Applications
+
+<img class='centered' src='/img/browser-app-hl.png'></img>
+
+Any browser based application can implement the Bridge Protocol to authenticate and authorize a user's digital identity. Identity claims can be transmitted securely via peer-to-peer communication between the Bridge Passport Browser Extension and the requesting application.
 
 
+### Blockchain Distributed Applications
+
+<img class='centered' src='/img/blockchain-app-hl.png'></img>
+
+Bridge identity can be optionally published to the NEO and Ethereum blockchain networks to provide asynchronous on-chain identity verification to ecosystem projects on both networks.  Blockchain distributed applications can simply interact directly with the Bridge Smart Contract to verify the Bridge identity without interacting directly with the user in real-time.
+
+
+### Offline Applications
+
+<img class='centered' src='/img/offline-app-hl.png'></img>
+
+It is even possible to implement the Bridge Protocol in real-world applications without online connectivity. The protocol can be implemented in mobile or hardware applications to securely transmit digital identity directly without relying on a synchronized and available blockchain node or Internet connectivity.  If connectivity is available, the participants can use the Bridge Network as a point of trust to further verify the identity requesting or transmitting identity claims to ensure there are no blacklists or other issues outstanding for the passport.
 
 
 
