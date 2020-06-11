@@ -8,11 +8,11 @@ import styles from './styles.module.css';
 
 const features = [
   {
-    title: <>Secure Digital Identity</>,
+    title: <>Sovereign Digital Identity</>,
     imageUrl: '/img/secure.png',
     description: (
       <>
-        Bridge Protocol is a secure identity protocol that allows for verification, management, and transmission of digital identity.  With the Bridge Protocol, users are in total control of their data and only provide the data they choose.
+        Bridge Protocol is a sovereign identity protocol that allows for verification, management, and transmission of digital identity.  With the Bridge Protocol, users are in total control of their data and only provide the data they choose.
       </>
     ),
   },
@@ -61,8 +61,8 @@ function Home() {
       <header className={classnames('hero hero--primary', styles.heroBanner)}>
         <div className="container">
           <div className="hero-logo">
-            <img src="/img/bridge-logo.png"></img>
-            <h2>Digital Identity v3.0</h2>
+            <img src="/img/bridge-identity-white.png"></img>
+            <h2>Digital Identity Platform v3.0</h2>
           </div>
           <div className={styles.buttons}>
             <Link
