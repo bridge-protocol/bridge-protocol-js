@@ -12,7 +12,7 @@ const features = [
     imageUrl: '/img/secure.png',
     description: (
       <>
-        Bridge Protocol is a sovereign identity protocol that allows for verification, management, and transmission of digital identity.  With the Bridge Protocol, users are in total control of their data and only provide the data they choose.
+        Bridge Protocol is a sovereign identity protocol that allows for verification, management, and transmission of digital identity.  With Bridge Identity, users are in total control of their data and only provide the data they choose.
       </>
     ),
   },
@@ -21,7 +21,7 @@ const features = [
     imageUrl: '/img/flexible.png',
     description: (
       <>
-        Your Bridge Protocol identity is fully portable allowing for peer-to-peer, in-person, and on-chain transmission with popular blockchains.  There are several flexible integrated authentication and authorization options for any application.
+        Your Bridge Identity is fully portable allowing for online, offline, and blockchain-based identity verification options.  There are several flexible options to accept Bridge Identity for any application.
       </>
     ),
   },
@@ -30,7 +30,7 @@ const features = [
     imageUrl: '/img/github.png',
     description: (
       <>
-        Bridge Protocol was built and open sourced to bring secure digital identity to the community.  The core SDK, integration microservices, and end-user clients are all available on GitHub and free to use in all of your applications.
+        Bridge Identity was built and open sourced to bring sovereign digital identity to the community.  The core SDK, integration components, and end-user clients are all available on GitHub and free to use in all of your applications.
       </>
     ),
   },
