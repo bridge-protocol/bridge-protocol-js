@@ -217,7 +217,7 @@ async sendPassportPublishRequest(passport, password, wallet, costOnly)
 ---
 
 ### sendClaimPublishRequest()
-Sends the required publish and fee transactions and notifies the Bridge Network of the claim publish request to be verified and published.
+Sends the required publish and fee transactions and notifies the Bridge Network of the claim publish request to be verified and published.  For Ethereum, once verified, the claim transaction is sent by Bridge and published.
 ```
 async sendClaimPublishRequest(passport, wallet, claim, hashOnly, costOnly)
 ```
@@ -231,7 +231,7 @@ async sendClaimPublishRequest(passport, wallet, claim, hashOnly, costOnly)
 ---
 
 ### publishClaimTransaction()
-Publishes the claim transaction to the blockchain.  For NEO this signs and publishes the preapproved publish transaction, for Ethereum this publishes the initial unverified claim that would later be approved by Bridge in a separate transaction.
+Publishes the claim transaction to the blockchain (NEO Only).  This will retrieve the Bridge signed transaction that will need to be dual signed by the owner and then relayed to the node.
 ```
 async publishClaimTransaction(passport, password, wallet, claim, hashOnly, claimPublishId, wait, costOnly)
 ```
@@ -245,13 +245,5 @@ async publishClaimTransaction(passport, password, wallet, claim, hashOnly, claim
 - **costOnly** (bool) - if true, the estimated transaction cost is returned and the transaction is not relayed
 
 ---
-
-### getOracleGasPrice()
-Retrieve the oracle gas price from the specified blockchain network
-```
-async getOracleGasPrice(network)
-```
-- **network** (string) - the blockchain network to retrieve the gas price from
-
 
 
