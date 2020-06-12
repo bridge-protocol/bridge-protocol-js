@@ -1,7 +1,7 @@
 ---
 id: whatsnew
-title: What's New in Version 3.0 (Beta)
-sidebar_label: What's New in Version 3.0 (Beta)
+title: What's New in Version 3.0
+sidebar_label: What's New in Version 3.0
 ---
 
 We are excited to release Bridge Digital Identity v3.0 Beta to the community!  This release takes Bridge Identity to the next level with substantial updates that will offer easier integration, increased blockchain support, and an improved user experience.
