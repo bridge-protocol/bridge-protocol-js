@@ -70,11 +70,21 @@ class Ethereum {
 
     //Asset and transaction management functions
     async getOracleGasPrice(){
-        let res = await this._callEtherscan("&module=gastracker&action=gasoracle");
-        if(res && res.status == "1" && res.result && res.result.SafeGasPrice){
-            return parseInt(res.result.SafeGasPrice);
+        try{
+            let res = await this._callEtherscan("&module=gastracker&action=gasoracle");
+            if(res && res.status == "1" && res.result && res.result.ProposeGasPrice){
+                var price = parseInt(res.result.ProposeGasPrice);
+                if(price < _constants.defaultEthereumGwei)
+                    price = _constants.defaultEthereumGwei;
+    
+                return price;
+            }
         }
-        return 0;
+        catch(err){
+
+        }
+
+        return _constants.defaultEthereumGwei;
     }
 
     async getAddressBalances(address){
@@ -351,11 +361,6 @@ class Ethereum {
     async _getGasPrice(){
         //Just fix gas price at 12 for now
         let gasPriceGwei = await this.getOracleGasPrice();
-
-        //Just in case something goes wrong
-        if(gasPriceGwei < 15)
-            gasPriceGwei = 15;
-
         console.log("Proposed gas price: " + gasPriceGwei + " gwei");
         return gasPriceGwei.toString();
     }
