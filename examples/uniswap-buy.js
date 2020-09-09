@@ -19,8 +19,15 @@ async function Init() {
     console.log(info.route.midPrice.toSignificant(6));
     console.log(info.route.midPrice.invert().toSignificant(6));
 
+    //Construct the trade
     const trade = await _bridge.Services.Blockchain.getUniswapTrade(wallet.address, 1, info.route, 20);
     console.log(JSON.stringify(trade));
+
+    //Relay the transaction
+    let tx = await _bridge.Services.Blockchain.sendUniswapTradeTransaction(trade, false);
+    console.log(JSON.stringify(tx));
+
+    //TODO: Handle trade completion status
 }
 
 async function loadPassport(file, password){

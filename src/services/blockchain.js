@@ -569,6 +569,10 @@ class Blockchain {
     async getUniswapTrade(address, amount, route, slippagePercent){
         return await _uniswap.createTrade(address, amount, route, slippagePercent);
     };
+
+    async sendUniswapTradeTransaction(trade, costOnly){
+        return await _eth.sendUniswapTransaction(trade, costOnly);
+    }
 };
 
 exports.Blockchain = new Blockchain();

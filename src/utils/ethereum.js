@@ -263,6 +263,29 @@ class Ethereum {
         let success = senderValid && recipientValid && amountValid && memoValid;
         return { complete: true, success };
     };
+
+    async sendUniswapTransaction(trade, costOnly){
+        //let deadline = trade.deadline
+        //let to = trade.to
+        //let path = trade.path
+        //let amountOutMin = trade.amountOutMin
+
+        //Need to execute sc invoke
+        //function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline)
+        //    external
+        //    payable
+        //    returns (uint[] memory amounts);
+
+        //let tx = def;//Get the transaction definition
+        //if(costOnly){
+            //return await this._getTransactionCost(50000); //Find the cost
+        //}
+        //else{
+            //let data = tx.encodeABI();
+            //return await this._broadcastTransaction();
+        //}
+        return true;
+    }
     //End asset and transaction management functions
 
     //Smart contract for passport and claims management
