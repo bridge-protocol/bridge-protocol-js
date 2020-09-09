@@ -1,37 +1,26 @@
 //---------------------Bridge Protocol SDK Example------------------------
 //- Author: Bridge Protocol Corporation
-//- File: token-swap.js
+//- File: uniswap-buy.js
 //- Description: 
-//  Demonstrates creating a tokens swap on the Bridge Network
+//  Demonstrates buying BRDG via uniswap using the SDK
 //- Prerequisites: passport-create.js 
-//                 NEO wallet with GAS + BRDG
-//                 Ethereum wallet with ETH + BRDG
+//                 Ethereum wallet with ETH 
 //------------------------------------------------------------------------
 const _bridge = require("../src/index");
-
 const _password = "12345";
 
 async function Init() {
     //Load existing wallet
     let passport = await loadPassport('./passport.json', _password);
-
     //Unlock the wallet
-    let wallet = await getUnlockedWallet(passport, "neo", _password);
-    let receivingWallet = await getUnlockedWallet(passport, "eth", _password);
+    let wallet = await getUnlockedWallet(passport, "eth", _password);
 
-    //let cost = await sendTokenSwapRequest(passport, wallet, receivingWallet, 5, true);
-    let swap = await sendTokenSwapRequest(passport, wallet, receivingWallet, 1);
-}
+    const info = await _bridge.Services.Blockchain.getUniswapInfo();
+    console.log(info.route.midPrice.toSignificant(6));
+    console.log(info.route.midPrice.invert().toSignificant(6));
 
-async function sendTokenSwapRequest(passport, wallet, receivingWallet, amount, costOnly){
-    try{
-        return await _bridge.Services.Blockchain.sendTokenSwapRequest(passport, _password, wallet, receivingWallet, amount, costOnly);
-    }
-    catch(err){
-        console.log(err);
-    }
-    
-    return null;
+    const trade = await _bridge.Services.Blockchain.getUniswapTrade(wallet.address, 1, info.route, 20);
+    console.log(JSON.stringify(trade));
 }
 
 async function loadPassport(file, password){

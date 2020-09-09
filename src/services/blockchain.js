@@ -2,6 +2,7 @@ const _constants = require('../constants').Constants;
 const _api = require('../utils/api');
 const _neo = require('../utils/neo').NEO;
 const _eth = require('../utils/ethereum').Ethereum;
+const _uniswap = require('../utils/uniswap').Uniswap;
 const _bridgeService = require('./bridge.js').BridgeApi;
 const _passportService = require('./passport.js').PassportApi;
 const _claimService = require('./claim.js').ClaimApi;
@@ -554,6 +555,20 @@ class Blockchain {
             return await _neo.createApprovedClaimTransaction(wallet, claim, address);
         }
     }
+
+    async getUniswapInfo()
+    {
+        const pair = await _uniswap.getPairInfo(_constants.bridgeEthereumERC20Address, 18, "BRDG", "Bridge Protocol");
+        const route = await _uniswap.getRouteInfo(pair);
+        return{
+            pair,
+            route
+        };
+    };
+
+    async getUniswapTrade(address, amount, route, slippagePercent){
+        return await _uniswap.createTrade(address, amount, route, slippagePercent);
+    };
 };
 
 exports.Blockchain = new Blockchain();
