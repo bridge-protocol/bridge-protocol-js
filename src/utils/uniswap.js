@@ -30,7 +30,8 @@ class Uniswap{
             const to = address; // should be a checksummed recipient address
             const deadline = Math.floor(Date.now() / 1000) + 60 * 20 // 20 minutes from the current Unix time
             const value = trade.inputAmount.raw // // needs to be converted to e.g. hex
-    
+            const exchange = route.pairs[0].liquidityToken;
+
             return {
                 amountIn,
                 token,
@@ -40,7 +41,8 @@ class Uniswap{
                 path,
                 to,
                 deadline,
-                value
+                value,
+                exchange
             }
         }
         catch(err){
@@ -64,6 +66,16 @@ class Uniswap{
         );
     
         return await UNISWAP.Fetcher.fetchPairData(token, UNISWAP.WETH[token.chainId]);
+    }
+
+    async tradeTokens(trade)
+    {
+        //require(DAI.transferFrom(msg.sender, address(this), amountIn), 'transferFrom failed.');
+        //require(DAI.approve(address(UniswapV2Router02), amountIn), 'approve failed.');
+        //address[] memory path = new address[](2);
+        //path[0] = address(DAI);
+        //path[1] = UniswapV2Router02.WETH();
+        //UniswapV2Router02.swapExactTokensForETH(amountIn, amountOutMin, path, msg.sender, block.timestamp);
     }
 }
 
