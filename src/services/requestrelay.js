@@ -1,6 +1,6 @@
 const _constants = require("../constants").Constants;
 const _openApi = require('../utils/openApi').OpenAPIUtility;
-const _apiBaseUrl = "http://localhost:60525/api/relay/" //_constants.bridgeApiUrl + "relay/";
+const _apiBaseUrl = _constants.bridgeApiUrl + "relay/";
 
 class RequestRelayApi
 {
