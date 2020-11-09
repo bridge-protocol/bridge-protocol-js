@@ -10,9 +10,9 @@ class OpenAPIUtility {
             method: method,
             body: method == "POST" ? JSON.stringify(data) : null,
             headers: method == "POST" ? {
-                "Content-Type": 'application/json',
-                "Content-Length": Buffer.byteLength(JSON.stringify(data), 'utf8')
-            } : null
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(JSON.stringify(data), 'utf8')
+            } : {'Content-Type': 'application/json'}
         };
 
         const response = await _fetch(endpoint, options);
