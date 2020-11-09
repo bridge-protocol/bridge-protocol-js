@@ -12,5 +12,8 @@ module.exports = {
        filename: 'bridgeprotocol.min.js',
        libraryTarget: 'var',
        library: 'BridgeProtocol'
+  },
+  optimization: {
+        minimize: false
   }
 };
