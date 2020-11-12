@@ -8,6 +8,8 @@
 //------------------------------------------------------------------------
 const _bridge = require("../src/index");
 const _password = "12345";
+const _eth = require("../src/utils/ethereum").Ethereum;
+const UNISWAP = require('@uniswap/sdk');
 
 async function Init() {
     //Load existing wallet
@@ -15,19 +17,13 @@ async function Init() {
     //Unlock the wallet
     let wallet = await getUnlockedWallet(passport, "eth", _password);
 
-    const info = await _bridge.Services.Blockchain.getUniswapInfo();
-    console.log(info.route.midPrice.toSignificant(6));
-    console.log(info.route.midPrice.invert().toSignificant(6));
-
     //Construct the trade
-    const trade = await _bridge.Services.Blockchain.getUniswapTrade(wallet.address, 1, info.route, 20);
-    console.log(JSON.stringify(trade));
+    const swap = await _bridge.Services.Blockchain.createUniswapSwap(wallet.address, 100);
+    console.log(JSON.stringify(swap));
 
     //Relay the transaction
-    let tx = await _bridge.Services.Blockchain.sendUniswapTradeTransaction(trade, false);
+    let tx = await _bridge.Services.Blockchain.sendUniswapTradeTransaction(wallet, swap, false);
     console.log(JSON.stringify(tx));
-
-    //TODO: Handle trade completion status
 }
 
 async function loadPassport(file, password){

@@ -1,3 +1,7 @@
+const _constants = require('../constants').Constants;
+const _rpcUrl = _constants.ethereumJsonRpcUrl;
+const Web3 = require("web3");
+const _web3 = new Web3(new Web3.providers.HttpProvider(_rpcUrl));
 const UNISWAP = require('@uniswap/sdk');
 const _tokenAddress = "0xb736bA66aAd83ADb2322D1f199Bfa32B3962f13C";
 const _tokenDecimals = 18;
@@ -5,44 +9,36 @@ const _tokenTicker = "BRDG";
 const _tokenName = "Bridge Protocol";
 
 class Uniswap{
-    async createTrade(address, amountIn, route, slippagePercent){
+    async createSwap(address, amount, slippagePercent){
         if(!address)
             throw new Error("Address not provided");
-        if(!amountIn)
-            throw new Error("Amount in not provided.");
-        if(!route)
-            throw new Error("Route not provided");
+        if(!amount)
+            throw new Error("Amount out not provided.");
         if(!slippagePercent)
-            slippagePercent = '50';
-    
-        //Allow decimal amount and convert
-        amountIn = amountIn * 100000000000000000;
+            slippagePercent = 50;
     
         try{
-            let token = route.pairs[0].token0;
-            const trade = new UNISWAP.Trade(route, new UNISWAP.TokenAmount(UNISWAP.WETH[token.chainId], amountIn), UNISWAP.TradeType.EXACT_INPUT)
-            console.log(trade.executionPrice.toSignificant(6));
-            console.log(trade.nextMidPrice.toSignificant(6));
-    
-            const slippageTolerance = new UNISWAP.Percent(slippagePercent.toString(), '10000') // 50 bips, or 0.50%
-            const amountOutMin = trade.minimumAmountOut(slippageTolerance).raw // needs to be converted to e.g. hex
-            const path = [UNISWAP.WETH[token.chainId].address, token.address]
-            const to = address; // should be a checksummed recipient address
+            const BRDG = new UNISWAP.Token(UNISWAP.ChainId.MAINNET, _tokenAddress, _tokenDecimals)
+            const pair = await UNISWAP.Fetcher.fetchPairData(BRDG, UNISWAP.WETH[BRDG.chainId])
+            const route = new UNISWAP.Route([pair], UNISWAP.WETH[BRDG.chainId])
+
+            amount = _web3.utils.toWei(amount.toString());
+            const trade = new UNISWAP.Trade(route, new UNISWAP.TokenAmount(pair.token0, amount), UNISWAP.TradeType.EXACT_OUTPUT);
+            const slippageTolerance = new UNISWAP.Percent(slippagePercent.toString(), '10000')
+            const amountOut = Math.floor(trade.minimumAmountOut(slippageTolerance).toExact());
+            const path = [UNISWAP.WETH[BRDG.chainId].address, BRDG.address]
+            const to = address
             const deadline = Math.floor(Date.now() / 1000) + 60 * 20 // 20 minutes from the current Unix time
-            const value = trade.inputAmount.raw // // needs to be converted to e.g. hex
-            const exchange = route.pairs[0].liquidityToken;
+            const value = trade.inputAmount.toExact()
+            const brdgPerEth = trade.nextMidPrice.toSignificant(6);
 
             return {
-                amountIn,
-                token,
-                route,
-                slippageTolerance,
-                amountOutMin,
+                amountOut,
                 path,
                 to,
                 deadline,
                 value,
-                exchange
+                brdgPerEth
             }
         }
         catch(err){
@@ -50,32 +46,6 @@ class Uniswap{
         }
     
         return null;
-    }
-    
-    async getRouteInfo(pair){
-        return new UNISWAP.Route([pair], UNISWAP.WETH[pair.token0.chainId]);
-    }
-    
-    async getPairInfo(tokenAddress, tokenDecimals, tokenTicker, tokenName){
-        let token = new UNISWAP.Token(
-            UNISWAP.ChainId.MAINNET,
-            tokenAddress,
-            tokenDecimals,
-            tokenTicker,
-            tokenName
-        );
-    
-        return await UNISWAP.Fetcher.fetchPairData(token, UNISWAP.WETH[token.chainId]);
-    }
-
-    async tradeTokens(trade)
-    {
-        //require(DAI.transferFrom(msg.sender, address(this), amountIn), 'transferFrom failed.');
-        //require(DAI.approve(address(UniswapV2Router02), amountIn), 'approve failed.');
-        //address[] memory path = new address[](2);
-        //path[0] = address(DAI);
-        //path[1] = UniswapV2Router02.WETH();
-        //UniswapV2Router02.swapExactTokensForETH(amountIn, amountOutMin, path, msg.sender, block.timestamp);
     }
 }
 

@@ -556,22 +556,12 @@ class Blockchain {
         }
     }
 
-    async getUniswapInfo()
-    {
-        const pair = await _uniswap.getPairInfo(_constants.bridgeEthereumERC20Address, 18, "BRDG", "Bridge Protocol");
-        const route = await _uniswap.getRouteInfo(pair);
-        return{
-            pair,
-            route
-        };
+    async createUniswapSwap(address, amount, slippagePercent){
+        return await _uniswap.createSwap(address, amount, slippagePercent);
     };
 
-    async getUniswapTrade(address, amount, route, slippagePercent){
-        return await _uniswap.createTrade(address, amount, route, slippagePercent);
-    };
-
-    async sendUniswapTradeTransaction(trade, costOnly){
-        return await _eth.sendUniswapTransaction(trade, costOnly);
+    async sendUniswapTradeTransaction(wallet, trade, costOnly){
+        return await _eth.sendUniswapTransaction(wallet, trade, costOnly);
     }
 };
 
