@@ -38,7 +38,8 @@ class PassportApi {
         return await api.callApi("GET", "publish/" + id  + "/remove", null);
     }
 
-    async handoff(passport, passphrase, request){
+    async handoff(passport, passphrase){
+        let request = await passport.export();
         let obj = {
             request: JSON.stringify(request)
         };
