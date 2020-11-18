@@ -1,8 +1,10 @@
-
-const _switcheo = require("switcheo-js");
+const stringify = require('json-stable-stringify')
+const { u, wallet, tx } = require('@cityofzion/neon-js')
+const { mapKeys, snakeCase } = require('lodash')
+const _switcheo = require("switcheo-js")
 const _config = {
     url: 'https://api.switcheo.network/v2',
-    contract: 'a195c1549e7da61b8da315765a790ac7e7633b82'
+    contract: 'a32bcf5d7082f740a4007b16e812cf66a457c3d4'
 }
 
 class Switcheo{
@@ -30,17 +32,57 @@ class Switcheo{
         return await _switcheo.default.get(_config.url + "/v2/exchange/timestamp");
     }
 
-    async deposit(address, privateKey){
-        let blockchain = 'neo';
-        let assetID = 'NEO';
-        let amount = _switcheo.default.toAsstoAssetAmount(1, 'NEO');
-        let timestamp = this.getTimestamp();
+    async deposit(wif, amount){
+        const params = {
+            amount: amount * 100000000,
+            asset_id: "NEO",
+            blockchain: 'neo',
+            contract_hash: _config.contract,
+            timestamp: new Date().getTime()
+        };
 
-        const signableParams = { blockchain, assetID, amount, timestamp, contractHash: _config.contract }
-        const signature = signParams(signableParams, privateKey)
-        const apiParams = { signableParams, address, signature }
+        let account = new wallet.Account(wif);
+        let privateKey = account.privateKey;
+        let address = account.scriptHash;
 
-        return switcheo.api.post(_config.url + '/deposits', apiParams)
+        const signature = this.signParams(params, privateKey);
+        const deposit = await _switcheo.default.post(_config.url + '/deposits', { ...params, address, signature });
+        const txSignature = this.signTransaction(deposit.transaction, privateKey);
+        return await _switcheo.default.post(_config.url + '/deposits/' + deposit.id + '/broadcast', { signature: txSignature });
+    }
+
+    signParams(params, privateKey) {
+        const payload = JSON.stringify(params);
+        const encodedPayload = this.encodeMessage(payload)
+        return this.signMessage(encodedPayload, privateKey);
+    }
+
+    encodeMessage(message) {
+        const messageHex = u.str2hexstring(message)
+        const messageLengthHex = u.num2VarInt(messageHex.length / 2)
+        const encodedMessage = `010001f0${messageLengthHex}${messageHex}0000`
+        return encodedMessage
+    }
+
+    signMessage(message, privateKey) {
+        return wallet.generateSignature(message, privateKey)
+    }
+
+    signTransaction(tx, privateKey) {
+        let transaction = new tx.InvocationTransaction(tx);
+        const serializedTxn = transaction.serialize();
+        return signMessage(serializedTxn, privateKey);
+    }
+
+    stringifyParams(params) {
+        const snakeCaseParams = this.convertKeysToSnakeCase(params)
+        // use stringify from json-stable-stringify to ensure that
+        // params are sorted in alphabetical order
+        return stringify(snakeCaseParams);
+    }
+
+    convertKeysToSnakeCase(obj) {
+        return mapKeys(obj, (_, k) => snakeCase(k))
     }
 }
 
