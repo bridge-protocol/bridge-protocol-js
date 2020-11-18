@@ -45,10 +45,12 @@ class Switcheo{
         let privateKey = account.privateKey;
         let address = account.scriptHash;
 
-        const signature = this.signParams(params, privateKey);
+        let signature = this.signParams(params, privateKey);
         const deposit = await _switcheo.default.post(_config.url + '/deposits', { ...params, address, signature });
-        const txSignature = this.signTransaction(deposit.transaction, privateKey);
-        return await _switcheo.default.post(_config.url + '/deposits/' + deposit.id + '/broadcast', { signature: txSignature });
+
+        //Sign the tx
+        signature = this.signTransaction(deposit.transaction, privateKey);
+        return await _switcheo.default.post(_config.url + '/deposits/' + deposit.id + '/broadcast', { signature });
     }
 
     signParams(params, privateKey) {
@@ -68,10 +70,10 @@ class Switcheo{
         return wallet.generateSignature(message, privateKey)
     }
 
-    signTransaction(tx, privateKey) {
-        let transaction = new tx.InvocationTransaction(tx);
-        const serializedTxn = transaction.serialize();
-        return signMessage(serializedTxn, privateKey);
+    signTransaction(transaction, privateKey) {
+        let signTx = new tx.InvocationTransaction(transaction);
+        const serializedTxn = signTx.serialize(transaction, false)
+        return this.signMessage(serializedTxn, privateKey);
     }
 
     stringifyParams(params) {
