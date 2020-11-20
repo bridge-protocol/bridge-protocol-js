@@ -9,6 +9,16 @@ const _tokenTicker = "BRDG";
 const _tokenName = "Bridge Protocol";
 
 class Uniswap{
+    async getPairInfo(){
+        const BRDG = new UNISWAP.Token(UNISWAP.ChainId.MAINNET, _tokenAddress, _tokenDecimals)
+        return await UNISWAP.Fetcher.fetchPairData(BRDG, UNISWAP.WETH[BRDG.chainId]);
+    }
+
+    async getPrice(amount){
+        var pair = await this.getPairInfo();
+        return pair.getInputAmount(amount);
+    }
+
     async createSwap(address, amount, slippagePercent){
         if(!address)
             throw new Error("Address not provided");
@@ -24,7 +34,7 @@ class Uniswap{
 
             amount = _web3.utils.toWei(amount.toString());
             const trade = new UNISWAP.Trade(route, new UNISWAP.TokenAmount(pair.token0, amount), UNISWAP.TradeType.EXACT_OUTPUT);
-            const slippageTolerance = new UNISWAP.Percent(slippagePercent.toString(), '10000')
+            const slippageTolerance = new UNISWAP.Percent(slippagePercent.toString(), '10000');
             const amountOut = Math.floor(trade.minimumAmountOut(slippageTolerance).toExact());
             const path = [UNISWAP.WETH[BRDG.chainId].address, BRDG.address]
             const to = address

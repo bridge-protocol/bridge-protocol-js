@@ -274,6 +274,13 @@ class Blockchain {
             return await _eth.getOracleGasPrice();
     }
 
+    async getTransactionCost(network, gas){
+        if(network.toLowerCase() === "neo")
+            return null;
+        else if(network.toLowerCase() === "eth")
+            return await _eth.getTransactionCost(gas);
+    }
+
     async sendApplicationRequest(passport, password, wallet, partnerId, costOnly){
         if (!passport) {
             throw new Error("passport not provided");
@@ -554,6 +561,18 @@ class Blockchain {
 
             return await _neo.createApprovedClaimTransaction(wallet, claim, address);
         }
+    }
+
+    async getUniswapTransactionCost(){
+        return await _eth.getTransactionCost(109642);
+    }
+
+    async getUniswapInfo(){
+        return await _uniswap.getPairInfo();
+    }
+
+    async getUniswapPrice(amount){
+        return await _uniswap.getPrice(amount);
     }
 
     async createUniswapSwap(address, amount, slippagePercent){

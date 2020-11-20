@@ -89,6 +89,10 @@ class Ethereum {
         return _constants.defaultEthereumGwei;
     }
 
+    async getTransactionCost(gas){
+        return await this._getTransactionCost(gas);
+    }
+
     async getAddressBalances(address){
         let eth = await this.getEthBalance(address);
         let brdg = await this.getBrdgBalance(address);
