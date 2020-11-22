@@ -18,7 +18,7 @@ async function Init() {
     let wallet = await getUnlockedWallet(passport, "eth", _password);
 
     //Construct the trade
-    const swap = await _bridge.Services.Blockchain.createUniswapSwap(wallet.address, 103.01512435);
+    const swap = await _bridge.Services.Blockchain.createUniswapSwap(wallet.address, 1);
     console.log("Swap info: " + JSON.stringify(swap));
 
     //Get the estimated cost
