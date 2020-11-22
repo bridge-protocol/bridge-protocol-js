@@ -18,12 +18,16 @@ async function Init() {
     let wallet = await getUnlockedWallet(passport, "eth", _password);
 
     //Construct the trade
-    const swap = await _bridge.Services.Blockchain.createUniswapSwap(wallet.address, 100);
-    console.log(JSON.stringify(swap));
+    const swap = await _bridge.Services.Blockchain.createUniswapSwap(wallet.address, 103.01512435);
+    console.log("Swap info: " + JSON.stringify(swap));
+
+    //Get the estimated cost
+    let costs = await _bridge.Services.Blockchain.getUniswapEstimatedCost(wallet, swap);
+    console.log("Estimated cost: " + JSON.stringify(costs));
 
     //Relay the transaction
     let tx = await _bridge.Services.Blockchain.sendUniswapTradeTransaction(wallet, swap, false);
-    console.log(JSON.stringify(tx));
+    console.log("Transaction: " + JSON.stringify(tx));
 }
 
 async function loadPassport(file, password){

@@ -14,11 +14,6 @@ class Uniswap{
         return await UNISWAP.Fetcher.fetchPairData(BRDG, UNISWAP.WETH[BRDG.chainId]);
     }
 
-    async getPrice(amount){
-        var pair = await this.getPairInfo();
-        return pair.getInputAmount(amount);
-    }
-
     async createSwap(address, amount, slippagePercent){
         if(!address)
             throw new Error("Address not provided");

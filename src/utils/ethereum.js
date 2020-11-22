@@ -272,7 +272,7 @@ class Ethereum {
 
     async sendUniswapTransaction(wallet, swap, costOnly){
         if(costOnly){
-            return await this._getTransactionCost(22000);
+            return await this._getTransactionCost(110000);
         }
 
         const routerv2 = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";

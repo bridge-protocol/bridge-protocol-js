@@ -562,22 +562,25 @@ class Blockchain {
             return await _neo.createApprovedClaimTransaction(wallet, claim, address);
         }
     }
-
-    async getUniswapTransactionCost(){
-        return await _eth.getTransactionCost(109642);
-    }
-
+    
     async getUniswapInfo(){
         return await _uniswap.getPairInfo();
-    }
-
-    async getUniswapPrice(amount){
-        return await _uniswap.getPrice(amount);
     }
 
     async createUniswapSwap(address, amount, slippagePercent){
         return await _uniswap.createSwap(address, amount, slippagePercent);
     };
+
+    async getUniswapEstimatedCost(wallet, swap){
+        let tokenCost = (1 / swap.brdgPerEth) * swap.amountOut;
+        let txCost = await this.sendUniswapTradeTransaction(wallet, swap, true);
+        let totalCost = (parseFloat(tokenCost) + parseFloat(txCost)).toFixed(8);
+        return {
+            tokenCost,
+            txCost,
+            totalCost
+        }
+    }
 
     async sendUniswapTradeTransaction(wallet, trade, costOnly){
         return await _eth.sendUniswapTransaction(wallet, trade, costOnly);
