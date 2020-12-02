@@ -236,7 +236,7 @@ class NEO {
 
                 //invoke <contracthash> "whitelist" [address]
                 //address = address to whitelist
-                let tx = await this._createAndSignTransaction(wallet, _brdgHash, 'revoke', args);
+                let tx = await this._createAndSignTransaction(wallet, _brdgHash, 'whitelist', args);
 
                 if(!wait)
                     resolve(await this._relayTransaction(tx));
