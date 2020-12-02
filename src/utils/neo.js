@@ -218,6 +218,43 @@ class NEO {
         });
     }
 
+    async whitelistContract(wallet, contractAddress, wait){
+        return new Promise(async (resolve, reject) => {
+            if (!wallet) {
+                reject("wallet not provided");
+            }
+            if (!contractAddress) {
+                reject("contractAddress not provided");
+            }
+
+            try {
+                //Create the transaction
+                let addressScriptHash = this._getAddressScriptHash(wallet.address);
+                let contractScriptHash = this._getAddressScriptHash(contractAddress);
+                let args = [
+                    addressScriptHash,
+                    contractScriptHash
+                ];
+
+                //invoke <contracthash> "whitelist" [address]
+                //address = your public neo address being used to sign the invocation / tx
+                //identity = bridge passport id
+                //user = the address to remove
+                let tx = await this._createAndSignTransaction(wallet, _brdgHash, 'revoke', args);
+                //console.log(JSON.stringify(tx));
+
+                if(!wait)
+                    resolve(await this._relayTransaction(tx));
+                else
+                    resolve(await this._relayTransactionWaitStatus(tx));
+            }
+            catch (err) {
+                reject(err);
+                return;
+            }
+        });
+    }
+
     async sendBrdg(wallet, recipient, amount, paymentIdentifier, wait) {
         let neo = this;
         return new Promise(async (resolve, reject) => {
