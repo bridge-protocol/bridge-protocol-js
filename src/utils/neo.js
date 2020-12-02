@@ -229,19 +229,14 @@ class NEO {
 
             try {
                 //Create the transaction
-                let addressScriptHash = this._getAddressScriptHash(wallet.address);
                 let contractScriptHash = this._getAddressScriptHash(contractAddress);
                 let args = [
-                    addressScriptHash,
                     contractScriptHash
                 ];
 
                 //invoke <contracthash> "whitelist" [address]
-                //address = your public neo address being used to sign the invocation / tx
-                //identity = bridge passport id
-                //user = the address to remove
+                //address = address to whitelist
                 let tx = await this._createAndSignTransaction(wallet, _brdgHash, 'revoke', args);
-                //console.log(JSON.stringify(tx));
 
                 if(!wait)
                     resolve(await this._relayTransaction(tx));
