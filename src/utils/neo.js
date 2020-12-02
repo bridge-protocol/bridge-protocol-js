@@ -218,24 +218,21 @@ class NEO {
         });
     }
 
-    async whitelistContract(wallet, contractAddress, wait){
+    async whitelistContract(wallet, contractScriptHashes, wait){
         return new Promise(async (resolve, reject) => {
             if (!wallet) {
                 reject("wallet not provided");
             }
-            if (!contractAddress) {
-                reject("contractAddress not provided");
+            if (!contractScriptHashes || contractScriptHashes.length == 0) {
+                reject("contractScriptHashes not provided");
             }
 
             try {
                 //Create the transaction
-                let contractScriptHash = this._getAddressScriptHash(contractAddress);
-                let args = [
-                    contractScriptHash
-                ];
+                let args = contractScriptHashes;
 
-                //invoke <contracthash> "whitelist" [address]
-                //address = address to whitelist
+                //invoke <contracthash> "whitelist" [contracts]
+                //contracts = contracts to whitelist
                 let tx = await this._createAndSignTransaction(wallet, _brdgHash, 'whitelist', args);
 
                 if(!wait)
