@@ -218,6 +218,35 @@ class NEO {
         });
     }
 
+    async whitelistContract(wallet, contractScriptHashes, wait){
+        return new Promise(async (resolve, reject) => {
+            if (!wallet) {
+                reject("wallet not provided");
+            }
+            if (!contractScriptHashes || contractScriptHashes.length == 0) {
+                reject("contractScriptHashes not provided");
+            }
+
+            try {
+                //Create the transaction
+                let args = contractScriptHashes;
+
+                //invoke <contracthash> "whitelist" [contracts]
+                //contracts = contracts to whitelist
+                let tx = await this._createAndSignTransaction(wallet, _brdgHash, 'whitelist', args);
+
+                if(!wait)
+                    resolve(await this._relayTransaction(tx));
+                else
+                    resolve(await this._relayTransactionWaitStatus(tx));
+            }
+            catch (err) {
+                reject(err);
+                return;
+            }
+        });
+    }
+
     async sendBrdg(wallet, recipient, amount, paymentIdentifier, wait) {
         let neo = this;
         return new Promise(async (resolve, reject) => {

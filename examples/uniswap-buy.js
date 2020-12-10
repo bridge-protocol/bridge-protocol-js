@@ -1,37 +1,33 @@
 //---------------------Bridge Protocol SDK Example------------------------
 //- Author: Bridge Protocol Corporation
-//- File: token-swap.js
+//- File: uniswap-buy.js
 //- Description: 
-//  Demonstrates creating a tokens swap on the Bridge Network
+//  Demonstrates buying BRDG via uniswap using the SDK
 //- Prerequisites: passport-create.js 
-//                 NEO wallet with GAS + BRDG
-//                 Ethereum wallet with ETH + BRDG
+//                 Ethereum wallet with ETH 
 //------------------------------------------------------------------------
 const _bridge = require("../src/index");
-
 const _password = "12345";
+const _eth = require("../src/utils/ethereum").Ethereum;
+const UNISWAP = require('@uniswap/sdk');
 
 async function Init() {
     //Load existing wallet
     let passport = await loadPassport('./passport.json', _password);
-
     //Unlock the wallet
-    let wallet = await getUnlockedWallet(passport, "neo", _password);
-    let receivingWallet = await getUnlockedWallet(passport, "eth", _password);
+    let wallet = await getUnlockedWallet(passport, "eth", _password);
 
-    //let cost = await sendTokenSwapRequest(passport, wallet, receivingWallet, 5, true);
-    let swap = await sendTokenSwapRequest(passport, wallet, receivingWallet, 1);
-}
+    //Construct the trade
+    const swap = await _bridge.Services.Blockchain.createUniswapSwap(wallet.address, 1);
+    console.log("Swap info: " + JSON.stringify(swap));
 
-async function sendTokenSwapRequest(passport, wallet, receivingWallet, amount, costOnly){
-    try{
-        return await _bridge.Services.Blockchain.sendTokenSwapRequest(passport, _password, wallet, receivingWallet, amount, costOnly);
-    }
-    catch(err){
-        console.log(err);
-    }
-    
-    return null;
+    //Get the estimated cost
+    let costs = await _bridge.Services.Blockchain.getUniswapEstimatedCost(wallet, swap);
+    console.log("Estimated cost: " + JSON.stringify(costs));
+
+    //Relay the transaction
+    let tx = await _bridge.Services.Blockchain.sendUniswapTradeTransaction(wallet, swap, false);
+    console.log("Transaction: " + JSON.stringify(tx));
 }
 
 async function loadPassport(file, password){

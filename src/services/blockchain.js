@@ -2,6 +2,7 @@ const _constants = require('../constants').Constants;
 const _api = require('../utils/api');
 const _neo = require('../utils/neo').NEO;
 const _eth = require('../utils/ethereum').Ethereum;
+const _uniswap = require('../utils/uniswap').Uniswap;
 const _bridgeService = require('./bridge.js').BridgeApi;
 const _passportService = require('./passport.js').PassportApi;
 const _claimService = require('./claim.js').ClaimApi;
@@ -271,6 +272,13 @@ class Blockchain {
             return null;
         else if(network.toLowerCase() === "eth")
             return await _eth.getOracleGasPrice();
+    }
+
+    async getTransactionCost(network, gas){
+        if(network.toLowerCase() === "neo")
+            return null;
+        else if(network.toLowerCase() === "eth")
+            return await _eth.getTransactionCost(gas);
     }
 
     async sendApplicationRequest(passport, password, wallet, partnerId, costOnly){
@@ -553,6 +561,29 @@ class Blockchain {
 
             return await _neo.createApprovedClaimTransaction(wallet, claim, address);
         }
+    }
+    
+    async getUniswapInfo(){
+        return await _uniswap.getPairInfo();
+    }
+
+    async createUniswapSwap(address, amount, slippagePercent){
+        return await _uniswap.createSwap(address, amount, slippagePercent);
+    };
+
+    async getUniswapEstimatedCost(wallet, swap){
+        let tokenCost = (1 / swap.brdgPerEth) * swap.amountOut;
+        let txCost = await this.sendUniswapTradeTransaction(wallet, swap, true);
+        let totalCost = (parseFloat(tokenCost) + parseFloat(txCost)).toFixed(8);
+        return {
+            tokenCost,
+            txCost,
+            totalCost
+        }
+    }
+
+    async sendUniswapTradeTransaction(wallet, trade, costOnly){
+        return await _eth.sendUniswapTransaction(wallet, trade, costOnly);
     }
 };
 
