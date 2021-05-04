@@ -1,5 +1,6 @@
 const _neo = require('../utils/neo').NEO;
 const _eth = require('../utils/ethereum').Ethereum;
+const _bsc = require('../utils/bsc').Bsc;
 
 var wallet = class Wallet
 {
@@ -21,7 +22,7 @@ var wallet = class Wallet
         if(this.network.toLowerCase() === "neo"){
             return this.unlocked.WIF;
         }
-        else if(this.network.toLowerCase() === "eth"){
+        else if(this.network.toLowerCase() === "eth" || this.network.toLowerCase() === "bsc"){
             return this.unlocked.getPrivateKeyString();
         }
     }
@@ -35,6 +36,10 @@ var wallet = class Wallet
         else if(this.network.toLowerCase() === "eth"){
             wallet = _eth.createWallet(password, privateKey);
         }
+        else if(this.network.toLowerCase() === "bsc"){
+            wallet = _bsc.createWallet(password, privateKey);
+        }
+
         this.network = wallet.network;
         this.address = wallet.address;
         this.key = wallet.key;
@@ -58,6 +63,9 @@ var wallet = class Wallet
         }
         else if(this.network.toLowerCase() === "eth"){
             this.unlocked = await _eth.unlockWallet(this, password);
+        }
+        else if(this.network.toLowerCase() === "bsc"){
+            this.unlocked = await _bsc.unlockWallet(this,password);
         }
         return this.unlocked != null;
     }
