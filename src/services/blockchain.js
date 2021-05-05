@@ -99,6 +99,25 @@ class Blockchain {
         }
     }
 
+    async getNft(network, address, nftContract, tokenId){
+        if(network.toLowerCase() === "eth"){
+            let details = await _eth.getNft(nftContract, tokenId);
+            if(details && details.owner){
+                details.isOwner = details.owner.toLowerCase() == address.toLowerCase();
+            }
+            return details;
+        }
+
+        return null;
+    }
+
+    async sendNft(wallet, to, nftContract, tokenId, wait, costOnly){
+        if(wallet.network.toLowerCase() === "eth"){
+            return await _eth.sendNft(wallet, to, nftContract, tokenId, wait, costOnly);
+        }
+        return false;
+    }
+
     async getRecentTransactions(network, address) {
         if (network.toLowerCase() === "neo") {
             return await _neo.getLatestAddressTransactions(address);

@@ -1,14 +1,10 @@
 //---------------------Bridge Protocol SDK Example------------------------
 //- Author: Bridge Protocol Corporation
-//- File: blockchain.js
+//- File: nft.js
 //- Description: 
-//  Demonstrate the blockchain passport publishing, claims publishing and 
-//  token transfer functionality on NEO (NEP5) and Ethereum (ERC20) 
-//  blockchains
-//- Prerequisites: claims-import.js 
-//                 Verified Claim Type 3 (verified by Bridge)
-//                 NEO wallet with GAS + BRDG
-//                 Ethereum wallet with ETH + BRDG
+//  Demonstrate storing, viewing the details of, and transferring a NFT 
+//  on Ethereum from a Bridge Passport.
+//- Prerequisites: passport-create.js
 //------------------------------------------------------------------------
 const _bridge = require("../src/index");
 const _password = "123";
@@ -21,34 +17,31 @@ async function Init() {
 
     //Unlock the wallet
     let wallet = await getUnlockedWallet(passport, blockchain, _password);
-    
-    //Get the balances of the wallet
-    let balances = await getBalances(wallet);
-    console.log("Balances: " + JSON.stringify(balances));
 
-    //Transfer gas to ourselves
-    await transferGas(wallet, .0001);
+    let nftContract = "0xb19d9c7b037006d8Cd8549F384C383763d52a3D8";
+    let nftTokenId = 1;
 
-    // Publish the address
-    await publishPassport(passport, wallet);
+    //Add a NFT to the passport
+    passport.addNft(wallet.network, nftContract, nftTokenId);
 
-    //Send a payment back to ourselves
-    await sendPayment(wallet, .10000, wallet.address);
+    //Retrieve the NFT from the passport
+    let nft = passport.getNft(wallet.network, nftContract, nftTokenId);
 
-    // See the transactions
-    await getTransactions(wallet);
+    //Remove NFT from the passport
+    //passport.removeNft(wallet.network, nftContract, nftTokenId);
 
-    // Publish the claim
-    await publishClaim(passport, _password, wallet, "3", false);
+    //Get the NFT details
+    let details = await _bridge.Services.Blockchain.getNft(wallet.network, wallet.address, nft.contract, nft.tokenId);
+    console.log(JSON.stringify(details));
 
-    // Unpublish the claim
-    await unpublishClaim(wallet, "3");
-
-    // Unpublish the passport
-    await unpublishPassport(passport, wallet);
-
-    // Get gas price
-    let gasPrice = await _bridge.Services.Blockchain.getOracleGasPrice(blockchain);
+    //Transfer the NFT
+    if(details.isOwner){
+        let tx = await _bridge.Services.Blockchain.sendNft(wallet, "0xbcEb0032CbFc5C7e697dFb74b56D05dfB13b93F0", nft.contract, nft.tokenId);
+        console.log("NFT transferred - tx:" + JSON.stringify(tx));
+    }
+    else{
+        console.log("Address does not own NFT");
+    }
 }
 
 async function sendSwapRequest(walletFrom, walletTo, amount, costOnly){

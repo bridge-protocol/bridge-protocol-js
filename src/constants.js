@@ -27,14 +27,15 @@ class Constants {
         this.bridgeEthereumContractAddress = "0xd04098305f61c385Ea29041C5D53a9de06C80884";
         this.bridgeEthereumERC20Address = "0xb736bA66aAd83ADb2322D1f199Bfa32B3962f13C";
         this.bridgeEthereumAddress = "0x2B2Af72aa3d4c5Ed16571058F9aCE298bbAa9876";
-        this.bridgeEthereumChain = "mainnet";
+        this.bridgeEthereumChain = "testnet";
         this.defaultEthereumGasLimit = 150000;
         this.defaultEthereumGwei = 35;
-        this.ethereumJsonRpcUrl = "https://mainnet.infura.io/v3/abb847143b1346b7bff7277bdf8d160f";
-        this.etherscanUrl = "https://etherscan.io";
-        this.etherscanApiUrl = "http://api.etherscan.io/api?apikey=WTPNVNH25I8GWVXJMFHRYDJ8BCSAS18FRF";
+        this.ethereumJsonRpcUrl = "https://rinkeby.infura.io/v3/abb847143b1346b7bff7277bdf8d160f";
+        this.etherscanUrl = "https://rinkeby.etherscan.io"; //"https://etherscan.io";
+        this.etherscanApiUrl = "https://api-rinkeby.etherscan.io/api?apikey=WTPNVNH25I8GWVXJMFHRYDJ8BCSAS18FRF"; //"http://api.etherscan.io/api?apikey=WTPNVNH25I8GWVXJMFHRYDJ8BCSAS18FRF";
         this.ethereumSwapAddress = "0xcd8f3adf1f681d3ab519dc527ce51840efd0c495";
-
+        this.nftApiUrl = "https://rinkeby-api.opensea.io";
+        this.ipfsGatewayUrl = "https://gateway.pinata.cloud/ipfs";
 
         //Binance Smart Chain
         this.bscJsonRpcUrl = "https://data-seed-prebsc-1-s1.binance.org:8545"; //https://bsc-dataseed1.binance.org:443
