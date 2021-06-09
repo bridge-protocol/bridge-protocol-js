@@ -38,13 +38,13 @@ class Constants {
         this.ipfsGatewayUrl = "https://gateway.pinata.cloud/ipfs";
 
         //Binance Smart Chain
-        this.bscJsonRpcUrl = "https://data-seed-prebsc-1-s1.binance.org:8545"; //https://bsc-dataseed1.binance.org:443
-        this.bscApiUrl = "https://api-testnet.bscscan.com/api?apikey=UG7AA8M4X6SUDE87X37QUI56SJ7H7AHHU3"; //https://api.bscscan.com/api?apikey=UG7AA8M4X6SUDE87X37QUI56SJ7H7AHHU3";
-        this.bscScanUrl = "https://testnet.bscscan.com"; //"https://bscscan.com";
-        this.bscChain = "testnet"; //"mainnet"
+        this.bscJsonRpcUrl = "https://bsc-dataseed1.binance.org:443
+        this.bscApiUrl = "https://api.bscscan.com/api?apikey=UG7AA8M4X6SUDE87X37QUI56SJ7H7AHHU3";
+        this.bscScanUrl = "https://bscscan.com";
+        this.bscChain = "mainnet"
         this.defaultBscGasLimit = 150000;
         this.defaultBscGwei = 35;
-        this.bridgeBscContractAddress = "0x037e375704e9492e681a2734aFD4aF31005Dc5DA";
+        this.bridgeBscContractAddress = "0xE3CEE08c911bD94844c401E22Efdab08A35119E2";
         this.bridgeBscBEP20Address = "0xb736ba66aad83adb2322d1f199bfa32b3962f13c";
         this.bridgeBscAddress = "0x2B2Af72aa3d4c5Ed16571058F9aCE298bbAa9876";
         this.bscSwapAddress = "0xcd8f3adf1f681d3ab519dc527ce51840efd0c495";
