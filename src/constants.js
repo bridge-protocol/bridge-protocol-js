@@ -30,15 +30,15 @@ class Constants {
         this.bridgeEthereumChain = "testnet";
         this.defaultEthereumGasLimit = 150000;
         this.defaultEthereumGwei = 35;
-        this.ethereumJsonRpcUrl = "https://rinkeby.infura.io/v3/abb847143b1346b7bff7277bdf8d160f";
-        this.etherscanUrl = "https://rinkeby.etherscan.io"; //"https://etherscan.io";
-        this.etherscanApiUrl = "https://api-rinkeby.etherscan.io/api?apikey=WTPNVNH25I8GWVXJMFHRYDJ8BCSAS18FRF"; //"http://api.etherscan.io/api?apikey=WTPNVNH25I8GWVXJMFHRYDJ8BCSAS18FRF";
+        this.ethereumJsonRpcUrl = "https://mainnet.infura.io/v3/abb847143b1346b7bff7277bdf8d160f";
+        this.etherscanUrl = "https://etherscan.io";
+        this.etherscanApiUrl = "http://api.etherscan.io/api?apikey=WTPNVNH25I8GWVXJMFHRYDJ8BCSAS18FRF";
         this.ethereumSwapAddress = "0xcd8f3adf1f681d3ab519dc527ce51840efd0c495";
-        this.nftApiUrl = "https://rinkeby-api.opensea.io";
+        this.nftApiUrl = "https://api.opensea.io";
         this.ipfsGatewayUrl = "https://gateway.pinata.cloud/ipfs";
 
         //Binance Smart Chain
-        this.bscJsonRpcUrl = "https://bsc-dataseed1.binance.org:443
+        this.bscJsonRpcUrl = "https://bsc-dataseed1.binance.org:443";
         this.bscApiUrl = "https://api.bscscan.com/api?apikey=UG7AA8M4X6SUDE87X37QUI56SJ7H7AHHU3";
         this.bscScanUrl = "https://bscscan.com";
         this.bscChain = "mainnet"
