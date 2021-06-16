@@ -25,8 +25,6 @@ class Ethereum {
     createWallet(password, privateKeyString){ 
         let wallet;
 
-        console.log(_wallet);
-        
         if(!privateKeyString){
             console.log("creating new ETH wallet");
             wallet = _wallet.generate();
