@@ -103,6 +103,14 @@ class Constants {
                 "defaultExpirationDays": 0
             },
             {
+                "id": 5,
+                "name": "Phone Number",
+                "description": "Owner verified phone number",
+                "dataType": "string",
+                "scope": "private",
+                "defaultExpirationDays": 0
+            },
+            {
                 "id": 100001,
                 "name": "Over 18",
                 "description": "This claim verifies that the owner is over the age of 18 as verified by one or more official documents that comply with KYC and AML regulation.",
@@ -141,6 +149,14 @@ class Constants {
                 "dataType": "boolean",
                 "scope": "public",
                 "defaultExpirationDays": 90
+            },
+            {
+                "id": 100006,
+                "name": "COVID-19 Vaccinated",
+                "description": "Owner verified COVID-19 vaccinated",
+                "dataType": "boolean",
+                "scope": "public",
+                "defaultExpirationDays": 0
             }
         ];
     }
