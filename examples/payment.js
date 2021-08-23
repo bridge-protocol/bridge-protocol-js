@@ -9,7 +9,7 @@
 const _fs = require('fs');
 const _bridge = require("../src/index");
 
-const _password = "123";
+const _password = "12345";
 const _neoPrivateKey = ""; //Need to have a NEO wallet Private Key with some BRDG + GAS
 const _ethPrivateKey = ""; //Need to have an ETH wallet Private Key with some BRDG + GAS
 

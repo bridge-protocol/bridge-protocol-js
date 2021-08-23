@@ -3,7 +3,7 @@ Do Not Translate or Localize
 
 
 --------------------------------------------------------------------------------
-@cityofzion/neon-js v4.8.3 - Yak Jun Xiang
+@cityofzion/neon-js v4.9.0 - Yak Jun Xiang
 git+https://github.com/CityOfZion/neon-js.git
 --------------------------------------------------------------------------------
 
@@ -59,7 +59,7 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-@ethersproject/abstract-provider v5.1.0 - Richard Moore
+@ethersproject/abstract-provider v5.3.0 - Richard Moore
 git://github.com/ethers-io/ethers.js.git
 --------------------------------------------------------------------------------
 
@@ -87,7 +87,7 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-@ethersproject/abstract-signer v5.1.0 - Richard Moore
+@ethersproject/abstract-signer v5.3.0 - Richard Moore
 git://github.com/ethers-io/ethers.js.git
 --------------------------------------------------------------------------------
 
@@ -115,7 +115,7 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-@ethersproject/address v5.1.0 - Richard Moore
+@ethersproject/address v5.3.0 - Richard Moore
 git://github.com/ethers-io/ethers.js.git
 --------------------------------------------------------------------------------
 
@@ -143,7 +143,7 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-@ethersproject/base64 v5.1.0 - Richard Moore
+@ethersproject/base64 v5.3.0 - Richard Moore
 git://github.com/ethers-io/ethers.js.git
 --------------------------------------------------------------------------------
 
@@ -171,7 +171,7 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-@ethersproject/basex v5.1.0 - Richard Moore
+@ethersproject/basex v5.3.0 - Richard Moore
 git://github.com/ethers-io/ethers.js.git
 --------------------------------------------------------------------------------
 
@@ -209,7 +209,7 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-@ethersproject/bignumber v5.1.1 - Richard Moore
+@ethersproject/bignumber v5.3.0 - Richard Moore
 git://github.com/ethers-io/ethers.js.git
 --------------------------------------------------------------------------------
 
@@ -237,7 +237,7 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-@ethersproject/bytes v5.1.0 - Richard Moore
+@ethersproject/bytes v5.3.0 - Richard Moore
 git://github.com/ethers-io/ethers.js.git
 --------------------------------------------------------------------------------
 
@@ -265,7 +265,7 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-@ethersproject/constants v5.1.0 - Richard Moore
+@ethersproject/constants v5.3.0 - Richard Moore
 git://github.com/ethers-io/ethers.js.git
 --------------------------------------------------------------------------------
 
@@ -293,7 +293,7 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-@ethersproject/contracts v5.1.1 - Richard Moore
+@ethersproject/contracts v5.3.0 - Richard Moore
 git://github.com/ethers-io/ethers.js.git
 --------------------------------------------------------------------------------
 
@@ -321,7 +321,7 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-@ethersproject/hash v5.1.0 - Richard Moore
+@ethersproject/hash v5.3.0 - Richard Moore
 git://github.com/ethers-io/ethers.js.git
 --------------------------------------------------------------------------------
 
@@ -349,7 +349,7 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-@ethersproject/keccak256 v5.1.0 - Richard Moore
+@ethersproject/keccak256 v5.3.0 - Richard Moore
 git://github.com/ethers-io/ethers.js.git
 --------------------------------------------------------------------------------
 
@@ -377,14 +377,14 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-@ethersproject/logger v5.1.0 - Richard Moore
+@ethersproject/logger v5.3.0 - Richard Moore
 git://github.com/ethers-io/ethers.js.git
 --------------------------------------------------------------------------------
 
 MIT
 
 --------------------------------------------------------------------------------
-@ethersproject/networks v5.1.0 - Richard Moore
+@ethersproject/networks v5.3.1 - Richard Moore
 git://github.com/ethers-io/ethers.js.git
 --------------------------------------------------------------------------------
 
@@ -412,7 +412,7 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-@ethersproject/properties v5.1.0 - Richard Moore
+@ethersproject/properties v5.3.0 - Richard Moore
 git://github.com/ethers-io/ethers.js.git
 --------------------------------------------------------------------------------
 
@@ -440,7 +440,7 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-@ethersproject/providers v5.1.2 - Richard Moore
+@ethersproject/providers v5.3.1 - Richard Moore
 git://github.com/ethers-io/ethers.js.git
 --------------------------------------------------------------------------------
 
@@ -468,7 +468,7 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-@ethersproject/random v5.1.0 - Richard Moore
+@ethersproject/random v5.3.0 - Richard Moore
 git://github.com/ethers-io/ethers.js.git
 --------------------------------------------------------------------------------
 
@@ -496,7 +496,7 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-@ethersproject/rlp v5.1.0 - Richard Moore
+@ethersproject/rlp v5.3.0 - Richard Moore
 git://github.com/ethers-io/ethers.js.git
 --------------------------------------------------------------------------------
 
@@ -524,7 +524,7 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-@ethersproject/sha2 v5.1.0 - Richard Moore
+@ethersproject/sha2 v5.3.0 - Richard Moore
 git://github.com/ethers-io/ethers.js.git
 --------------------------------------------------------------------------------
 
@@ -552,7 +552,7 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-@ethersproject/signing-key v5.1.0 - Richard Moore
+@ethersproject/signing-key v5.3.0 - Richard Moore
 git://github.com/ethers-io/ethers.js.git
 --------------------------------------------------------------------------------
 
@@ -580,7 +580,7 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-@ethersproject/solidity v5.1.0 - Richard Moore
+@ethersproject/solidity v5.3.0 - Richard Moore
 git://github.com/ethers-io/ethers.js.git
 --------------------------------------------------------------------------------
 
@@ -608,7 +608,7 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-@ethersproject/strings v5.1.0 - Richard Moore
+@ethersproject/strings v5.3.0 - Richard Moore
 git://github.com/ethers-io/ethers.js.git
 --------------------------------------------------------------------------------
 
@@ -636,7 +636,7 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-@ethersproject/transactions v5.1.1 - Richard Moore
+@ethersproject/transactions v5.3.0 - Richard Moore
 git://github.com/ethers-io/ethers.js.git
 --------------------------------------------------------------------------------
 
@@ -664,7 +664,7 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-@ethersproject/web v5.1.0 - Richard Moore
+@ethersproject/web v5.3.0 - Richard Moore
 git://github.com/ethers-io/ethers.js.git
 --------------------------------------------------------------------------------
 
@@ -1483,7 +1483,7 @@ IN THE SOFTWARE.
 
 --------------------------------------------------------------------------------
 base-x v3.0.8 - Daniel Cousens
-https://github.com/cryptocoinjs/base-x.git
+git+https://github.com/cryptocoinjs/base-x.git
 --------------------------------------------------------------------------------
 
 The MIT License (MIT)
@@ -1569,42 +1569,14 @@ SOFTWARE.
 
 --------------------------------------------------------------------------------
 big.js v5.2.2 - Michael Mclaughlin
-https://github.com/MikeMcl/big.js.git
+git+https://github.com/MikeMcl/big.js.git
 --------------------------------------------------------------------------------
 
 MIT
 
 --------------------------------------------------------------------------------
-bip66 v1.1.5 - Daniel Cousens
-https://github.com/bitcoinjs/bip66.git
---------------------------------------------------------------------------------
-
-The MIT License (MIT)
-
-Copyright (c) 2015 Daniel Cousens
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
---------------------------------------------------------------------------------
 bn v1.0.5 - Thomas Wu
-git://github.com/keybase/bn
+git://github.com/keybase/bn.git
 --------------------------------------------------------------------------------
 
 Copyright (c) 2013, keybase
@@ -1663,8 +1635,8 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-brorand v1.1.0 - Fedor Indutny <fedor@indutny.com>
-git@github.com:indutny/brorand
+brorand v1.1.0 - Fedor Indutny
+git+ssh://git@github.com/indutny/brorand.git
 --------------------------------------------------------------------------------
 
 MIT
@@ -1698,8 +1670,8 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-browserify-cipher v1.0.1 - Calvin Metcalf <calvin.metcalf@gmail.com>
-git@github.com:crypto-browserify/browserify-cipher.git
+browserify-cipher v1.0.1 - Calvin Metcalf
+git+ssh://git@github.com/crypto-browserify/browserify-cipher.git
 --------------------------------------------------------------------------------
 
 The MIT License (MIT)
@@ -1726,7 +1698,7 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-browserify-des v1.0.2 - Calvin Metcalf <calvin.metcalf@gmail.com>
+browserify-des v1.0.2 - Calvin Metcalf
 git+https://github.com/crypto-browserify/browserify-des.git
 --------------------------------------------------------------------------------
 
@@ -1880,14 +1852,14 @@ IN THE SOFTWARE.
 
 --------------------------------------------------------------------------------
 bs58 v4.0.1
-https://github.com/cryptocoinjs/bs58
+git+https://github.com/cryptocoinjs/bs58.git
 --------------------------------------------------------------------------------
 
 MIT
 
 --------------------------------------------------------------------------------
 bs58check v2.1.2 - Daniel Cousens
-https://github.com/bitcoinjs/bs58check.git
+git+https://github.com/bitcoinjs/bs58check.git
 --------------------------------------------------------------------------------
 
 The MIT License (MIT)
@@ -1943,7 +1915,7 @@ THE SOFTWARE.
 
 --------------------------------------------------------------------------------
 buffer-xor v1.0.3 - Daniel Cousens
-https://github.com/crypto-browserify/buffer-xor.git
+git+https://github.com/crypto-browserify/buffer-xor.git
 --------------------------------------------------------------------------------
 
 The MIT License (MIT)
@@ -2032,7 +2004,7 @@ THE SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-cipher-base v1.0.4 - Calvin Metcalf <calvin.metcalf@gmail.com>
+cipher-base v1.0.4 - Calvin Metcalf
 git+https://github.com/crypto-browserify/cipher-base.git
 --------------------------------------------------------------------------------
 
@@ -2060,8 +2032,8 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-class-is v1.1.0 - Diogo Silva <fsdiogo@gmail.com>
-git@github.com:moxystudio/js-class-is.git
+class-is v1.1.0 - Diogo Silva
+git+ssh://git@github.com/moxystudio/js-class-is.git
 --------------------------------------------------------------------------------
 
 The MIT License (MIT)
@@ -2089,7 +2061,7 @@ THE SOFTWARE.
 
 --------------------------------------------------------------------------------
 content-hash v2.5.2 - pldespaigne
-https://github.com/pldespaigne/content-hash
+git+https://github.com/pldespaigne/content-hash.git
 --------------------------------------------------------------------------------
 
 ISC License
@@ -2110,7 +2082,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 --------------------------------------------------------------------------------
 cookiejar v2.1.2 - bradleymeck
-https://github.com/bmeck/node-cookiejar.git
+git+https://github.com/bmeck/node-cookiejar.git
 --------------------------------------------------------------------------------
 
 The MIT License (MIT)
@@ -2136,8 +2108,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-core-util-is v1.0.2 - Isaac Z. Schlueter <i@izs.me> (http://blog.izs.me/)
-git://github.com/isaacs/core-util-is
+core-util-is v1.0.2 - Isaac Z. Schlueter
+git://github.com/isaacs/core-util-is.git
 --------------------------------------------------------------------------------
 
 Copyright Node.js contributors. All rights reserved.
@@ -2191,7 +2163,7 @@ SOFTWARE.
 
 --------------------------------------------------------------------------------
 create-hash v1.2.0
-git@github.com:crypto-browserify/createHash.git
+git+ssh://git@github.com/crypto-browserify/createHash.git
 --------------------------------------------------------------------------------
 
 The MIT License (MIT)
@@ -2219,7 +2191,7 @@ SOFTWARE.
 
 --------------------------------------------------------------------------------
 create-hmac v1.1.7
-https://github.com/crypto-browserify/createHmac.git
+git+https://github.com/crypto-browserify/createHmac.git
 --------------------------------------------------------------------------------
 
 The MIT License (MIT)
@@ -2246,7 +2218,7 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-crypto-browserify v3.12.0 - Dominic Tarr <dominic.tarr@gmail.com> (dominictarr.com)
+crypto-browserify v3.12.0 - Dominic Tarr
 git://github.com/crypto-browserify/crypto-browserify.git
 --------------------------------------------------------------------------------
 
@@ -2284,7 +2256,7 @@ MIT
 
 --------------------------------------------------------------------------------
 decode-uri-component v0.2.0 - Sam Verschueren
-SamVerschueren/decode-uri-component
+git+https://github.com/SamVerschueren/decode-uri-component.git
 --------------------------------------------------------------------------------
 
 The MIT License (MIT)
@@ -2312,7 +2284,7 @@ THE SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-des.js v1.0.1 - Fedor Indutny <fedor@indutny.com>
+des.js v1.0.1 - Fedor Indutny
 git+ssh://git@github.com/indutny/des.js.git
 --------------------------------------------------------------------------------
 
@@ -2320,7 +2292,7 @@ MIT
 
 --------------------------------------------------------------------------------
 diffie-hellman v5.0.3 - Calvin Metcalf
-https://github.com/crypto-browserify/diffie-hellman.git
+git+https://github.com/crypto-browserify/diffie-hellman.git
 --------------------------------------------------------------------------------
 
 Copyright (c) 2017 Calvin Metcalf
@@ -2345,15 +2317,15 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-elliptic v6.5.2 - Fedor Indutny <fedor@indutny.com>
-git@github.com:indutny/elliptic
+elliptic v6.5.4 - Fedor Indutny
+git+ssh://git@github.com/indutny/elliptic.git
 --------------------------------------------------------------------------------
 
 MIT
 
 --------------------------------------------------------------------------------
-es5-ext v0.10.53 - Mariusz Nowak <medyk@medikoo.com> (http://www.medikoo.com/)
-medikoo/es5-ext
+es5-ext v0.10.53 - Mariusz Nowak
+git+https://github.com/medikoo/es5-ext.git
 --------------------------------------------------------------------------------
 
 ISC License
@@ -2374,7 +2346,7 @@ PERFORMANCE OF THIS SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-eth-ens-namehash v2.0.8 - Dan Finlay <dan@danfinlay.com>
+eth-ens-namehash v2.0.8 - Dan Finlay
 git+ssh://git@github.com/danfinlay/eth-ens-namehash.git
 --------------------------------------------------------------------------------
 
@@ -2388,7 +2360,7 @@ git+https://github.com/maiavictor/eth-lib.git
 MIT
 
 --------------------------------------------------------------------------------
-ethereum-bloom-filters v1.0.9 - joshstevens19@hotmail.co.uk
+ethereum-bloom-filters v1.0.10 - joshstevens19@hotmail.co.uk
 git+https://github.com/joshstevens19/ethereum-bloom-filters.git
 --------------------------------------------------------------------------------
 
@@ -2510,8 +2482,8 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-ethereumjs-tx v2.1.2 - mjbecze <mb@ethdev.com>
-https://github.com/ethereumjs/ethereumjs-tx.git
+ethereumjs-tx v2.1.2 - mjbecze
+git+https://github.com/ethereumjs/ethereumjs-tx.git
 --------------------------------------------------------------------------------
 
 Mozilla Public License Version 2.0
@@ -3298,8 +3270,8 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-ethjs-unit v0.1.6 - Nick Dodson <thenickdodson@gmail.com>
-git://github.com/ethjs/ethjs-unit
+ethjs-unit v0.1.6 - Nick Dodson
+git://github.com/ethjs/ethjs-unit.git
 --------------------------------------------------------------------------------
 
 The MIT License (MIT)
@@ -3411,8 +3383,8 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-evp_bytestokey v1.0.3 - Calvin Metcalf <calvin.metcalf@gmail.com>
-https://github.com/crypto-browserify/EVP_BytesToKey.git
+evp_bytestokey v1.0.3 - Calvin Metcalf
+git+https://github.com/crypto-browserify/EVP_BytesToKey.git
 --------------------------------------------------------------------------------
 
 The MIT License (MIT)
@@ -3465,8 +3437,8 @@ THE SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-hash-base v3.1.0 - Kirill Fomichev <fanatid@ya.ru> (https://github.com/fanatid)
-https://github.com/crypto-browserify/hash-base.git
+hash-base v3.1.0 - Kirill Fomichev
+git+https://github.com/crypto-browserify/hash-base.git
 --------------------------------------------------------------------------------
 
 The MIT License (MIT)
@@ -3493,14 +3465,14 @@ THE SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-hash.js v1.1.7 - Fedor Indutny <fedor@indutny.com>
-git@github.com:indutny/hash.js
+hash.js v1.1.7 - Fedor Indutny
+git+ssh://git@github.com/indutny/hash.js.git
 --------------------------------------------------------------------------------
 
 MIT
 
 --------------------------------------------------------------------------------
-hmac-drbg v1.0.1 - Fedor Indutny <fedor@indutny.com>
+hmac-drbg v1.0.1 - Fedor Indutny
 git+ssh://git@github.com/indutny/hmac-drbg.git
 --------------------------------------------------------------------------------
 
@@ -3535,14 +3507,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 --------------------------------------------------------------------------------
 iced-error v0.0.13
-https://github.com/keybase/iced-error.git
+git+https://github.com/keybase/iced-error.git
 --------------------------------------------------------------------------------
 
 
 
 --------------------------------------------------------------------------------
 iced-lock v1.1.0
-https://github.com/maxtaco/iced-lock.git
+git+https://github.com/maxtaco/iced-lock.git
 --------------------------------------------------------------------------------
 
 Copyright (c) 2014, Maxwell Krohn
@@ -3577,7 +3549,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 --------------------------------------------------------------------------------
 iced-runtime v1.0.4 - Maxwell Krohn
-https://github.com/maxtaco/iced-runtime
+git+https://github.com/maxtaco/iced-runtime.git
 --------------------------------------------------------------------------------
 
 Copyright (c) 2009-2015 Jeremy Ashkenas
@@ -3606,7 +3578,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 --------------------------------------------------------------------------------
 idna-uts46-hx v2.3.1 - Kai Schwarz
-https://github.com/hexonet/idna-uts46
+git+https://github.com/hexonet/idna-uts46.git
 --------------------------------------------------------------------------------
 
 Original work Copyright (c) 2015 Joshua Cranmer <Pidgeot18@gmail.com> as part of
@@ -3691,7 +3663,7 @@ PERFORMANCE OF THIS SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-is-function v1.0.2 - Stephen Sugden <me@stephensugden.com>
+is-function v1.0.2 - Stephen Sugden
 git://github.com/grncdr/js-is-function.git
 --------------------------------------------------------------------------------
 
@@ -3717,7 +3689,7 @@ THE SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-is-hex-prefixed v1.0.0 - Nick Dodson <thenickdodson@gmail.com>
+is-hex-prefixed v1.0.0 - Nick Dodson
 git+ssh://git@github.com/SilentCicero/is-hex-prefixed.git
 --------------------------------------------------------------------------------
 
@@ -3996,13 +3968,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 --------------------------------------------------------------------------------
-keccak v1.4.0
-https://github.com/cryptocoinjs/keccak.git
+keccak v3.0.1
+git+https://github.com/cryptocoinjs/keccak.git
 --------------------------------------------------------------------------------
 
 The MIT License (MIT)
 
-Copyright (c) 2016 https://github.com/cryptocoinjs/keccak contributors
+Copyright (c) 2016-2019 https://github.com/cryptocoinjs/keccak contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -4025,7 +3997,7 @@ THE SOFTWARE.
 
 --------------------------------------------------------------------------------
 keybase-ecurve v1.0.1
-https://github.com/keybase/ecurve
+git+https://github.com/keybase/ecurve.git
 --------------------------------------------------------------------------------
 
 MIT License
@@ -4053,7 +4025,7 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-keybase-nacl v1.1.3 - Maxwell Krohn
+keybase-nacl v1.1.4 - Maxwell Krohn
 github.com/keybase/node-nacl
 --------------------------------------------------------------------------------
 
@@ -4088,8 +4060,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 --------------------------------------------------------------------------------
-md5.js v1.3.5 - Kirill Fomichev <fanatid@ya.ru> (https://github.com/fanatid)
-https://github.com/crypto-browserify/md5.js.git
+md5.js v1.3.5 - Kirill Fomichev
+git+https://github.com/crypto-browserify/md5.js.git
 --------------------------------------------------------------------------------
 
 The MIT License (MIT)
@@ -4116,15 +4088,15 @@ THE SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-miller-rabin v4.0.1 - Fedor Indutny <fedor@indutny.com>
-git@github.com:indutny/miller-rabin
+miller-rabin v4.0.1 - Fedor Indutny
+git+ssh://git@github.com/indutny/miller-rabin.git
 --------------------------------------------------------------------------------
 
 MIT
 
 --------------------------------------------------------------------------------
 minimalistic-assert v1.0.1
-https://github.com/calvinmetcalf/minimalistic-assert.git
+git+https://github.com/calvinmetcalf/minimalistic-assert.git
 --------------------------------------------------------------------------------
 
 Copyright 2015 Calvin Metcalf
@@ -4142,7 +4114,7 @@ OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 
 --------------------------------------------------------------------------------
-minimalistic-crypto-utils v1.0.1 - Fedor Indutny <fedor@indutny.com>
+minimalistic-crypto-utils v1.0.1 - Fedor Indutny
 git+ssh://git@github.com/indutny/minimalistic-crypto-utils.git
 --------------------------------------------------------------------------------
 
@@ -4150,7 +4122,7 @@ MIT
 
 --------------------------------------------------------------------------------
 more-entropy v0.0.7
-https://github.com/keybase/entropy.git
+git+https://github.com/keybase/entropy.git
 --------------------------------------------------------------------------------
 
 The MIT License (MIT)
@@ -4318,7 +4290,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-number-to-bn v1.7.0 - Nick Dodson <thenickdodson@gmail.com>
+number-to-bn v1.7.0 - Nick Dodson
 git+ssh://git@github.com/SilentCicero/number-to-bn.git
 --------------------------------------------------------------------------------
 
@@ -4347,7 +4319,7 @@ THE SOFTWARE.
 
 --------------------------------------------------------------------------------
 object-assign v4.1.1 - Sindre Sorhus
-sindresorhus/object-assign
+git+https://github.com/sindresorhus/object-assign.git
 --------------------------------------------------------------------------------
 
 The MIT License (MIT)
@@ -4457,8 +4429,8 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-parse-headers v2.0.3 - David Björklund <david.bjorklund@gmail.com>
-https://github.com/kesla/parse-headers.git
+parse-headers v2.0.3 - David Björklund
+git+https://github.com/kesla/parse-headers.git
 --------------------------------------------------------------------------------
 
 MIT
@@ -4582,7 +4554,7 @@ SOFTWARE.**
 
 --------------------------------------------------------------------------------
 public-encrypt v4.0.3 - Calvin Metcalf
-https://github.com/crypto-browserify/publicEncrypt.git
+git+https://github.com/crypto-browserify/publicEncrypt.git
 --------------------------------------------------------------------------------
 
 Copyright (c) 2017 Calvin Metcalf
@@ -4635,14 +4607,14 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 --------------------------------------------------------------------------------
 purepack v1.0.6
-https://github.com/keybase/purepack.git
+git+https://github.com/keybase/purepack.git
 --------------------------------------------------------------------------------
 
 
 
 --------------------------------------------------------------------------------
 query-string v5.1.1 - Sindre Sorhus
-sindresorhus/query-string
+git+https://github.com/sindresorhus/query-string.git
 --------------------------------------------------------------------------------
 
 MIT License
@@ -4695,7 +4667,7 @@ IN THE SOFTWARE.
 
 --------------------------------------------------------------------------------
 randombytes v2.1.0
-git@github.com:crypto-browserify/randombytes.git
+git+ssh://git@github.com/crypto-browserify/randombytes.git
 --------------------------------------------------------------------------------
 
 MIT License
@@ -4723,7 +4695,7 @@ SOFTWARE.
 
 --------------------------------------------------------------------------------
 randomfill v1.0.4
-https://github.com/crypto-browserify/randomfill.git
+git+https://github.com/crypto-browserify/randomfill.git
 --------------------------------------------------------------------------------
 
 MIT License
@@ -4805,7 +4777,7 @@ IN THE SOFTWARE.
 
 --------------------------------------------------------------------------------
 ripemd160 v2.0.2
-https://github.com/crypto-browserify/ripemd160
+git+https://github.com/crypto-browserify/ripemd160.git
 --------------------------------------------------------------------------------
 
 The MIT License (MIT)
@@ -4832,8 +4804,8 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-rlp v2.2.5 - martin becze
-https://github.com/ethereumjs/rlp.git
+rlp v2.2.6 - martin becze
+git+https://github.com/ethereumjs/rlp.git
 --------------------------------------------------------------------------------
 
 Mozilla Public License Version 2.0
@@ -5268,7 +5240,7 @@ SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-scrypt-js v3.0.1 - Richard Moore <me@ricmoo.com>
+scrypt-js v3.0.1 - Richard Moore
 git://github.com/ricmoo/scrypt-js.git
 --------------------------------------------------------------------------------
 
@@ -5297,8 +5269,8 @@ THE SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-secp256k1 v3.8.0 - Martin Becze <mjbecze@gmail.com>
-https://github.com/cryptocoinjs/secp256k1-node.git
+secp256k1 v4.0.2 - Martin Becze
+git+https://github.com/cryptocoinjs/secp256k1-node.git
 --------------------------------------------------------------------------------
 
 The MIT License (MIT)
@@ -5329,7 +5301,7 @@ THE SOFTWARE.
 
 --------------------------------------------------------------------------------
 setimmediate v1.0.5 - YuzuJS
-YuzuJS/setImmediate
+git+https://github.com/YuzuJS/setImmediate.git
 --------------------------------------------------------------------------------
 
 Copyright (c) 2012 Barnesandnoble.com, llc, Donavon West, and Domenic Denicola
@@ -5355,7 +5327,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-sha.js v2.4.11 - Dominic Tarr <dominic.tarr@gmail.com> (dominictarr.com)
+sha.js v2.4.11 - Dominic Tarr
 git://github.com/crypto-browserify/sha.js.git
 --------------------------------------------------------------------------------
 
@@ -5469,7 +5441,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 --------------------------------------------------------------------------------
 strict-uri-encode v1.1.0 - Kevin Mårtensson
-kevva/strict-uri-encode
+git+https://github.com/kevva/strict-uri-encode.git
 --------------------------------------------------------------------------------
 
 The MIT License (MIT)
@@ -5551,7 +5523,7 @@ IN THE SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-strip-hex-prefix v1.0.0 - Nick Dodson <thenickdodson@gmail.com>
+strip-hex-prefix v1.0.0 - Nick Dodson
 git+ssh://git@github.com/SilentCicero/strip-hex-prefix.git
 --------------------------------------------------------------------------------
 
@@ -5732,7 +5704,7 @@ MIT
 
 --------------------------------------------------------------------------------
 triplesec v4.0.3 - keybase
-https://github.com/keybase/triplesec.git
+git+https://github.com/keybase/triplesec.git
 --------------------------------------------------------------------------------
 
 The MIT License (MIT)
@@ -5759,17 +5731,17 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 --------------------------------------------------------------------------------
 tweetnacl v0.13.3 - TweetNaCl-js contributors
-https://github.com/dchest/tweetnacl-js.git
+git+https://github.com/dchest/tweetnacl-js.git
 --------------------------------------------------------------------------------
 
 Public domain
 
 --------------------------------------------------------------------------------
-underscore v1.9.1 - Jeremy Ashkenas <jeremy@documentcloud.org>
+underscore v1.12.1 - Jeremy Ashkenas
 git://github.com/jashkenas/underscore.git
 --------------------------------------------------------------------------------
 
-Copyright (c) 2009-2018 Jeremy Ashkenas, DocumentCloud and Investigative
+Copyright (c) 2009-2020 Jeremy Ashkenas, DocumentCloud and Investigative
 Reporters & Editors
 
 Permission is hereby granted, free of charge, to any person
@@ -5852,7 +5824,7 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 
 --------------------------------------------------------------------------------
 utf8 v3.0.0 - Mathias Bynens
-https://github.com/mathiasbynens/utf8.js.git
+git+https://github.com/mathiasbynens/utf8.js.git
 --------------------------------------------------------------------------------
 
 Copyright Mathias Bynens <https://mathiasbynens.be/>
@@ -5903,7 +5875,7 @@ IN THE SOFTWARE.
 
 
 --------------------------------------------------------------------------------
-util-deprecate v1.0.2 - Nathan Rajlich <nathan@tootallnate.net> (http://n8.io/)
+util-deprecate v1.0.2 - Nathan Rajlich
 git://github.com/TooTallNate/util-deprecate.git
 --------------------------------------------------------------------------------
 
@@ -5935,7 +5907,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 --------------------------------------------------------------------------------
 uuid v3.3.2
-https://github.com/kelektiv/node-uuid.git
+git+https://github.com/kelektiv/node-uuid.git
 --------------------------------------------------------------------------------
 
 The MIT License (MIT)
@@ -5969,7 +5941,7 @@ git://github.com/chrisdickinson/varint.git
 MIT
 
 --------------------------------------------------------------------------------
-web3 v1.3.5 - ethereum.org
+web3 v1.3.6 - ethereum.org
 git+https://github.com/ethereum/web3.js.git
 --------------------------------------------------------------------------------
 
@@ -5990,7 +5962,7 @@ along with web3.js. If not, see <http://www.gnu.org/licenses/>.
 
 
 --------------------------------------------------------------------------------
-web3-bzz v1.3.5
+web3-bzz v1.3.6
 https://github.com/ethereum/web3.js/tree/1.x/packages/web3-bzz
 --------------------------------------------------------------------------------
 
@@ -6011,7 +5983,7 @@ along with web3.js. If not, see <http://www.gnu.org/licenses/>.
 
 
 --------------------------------------------------------------------------------
-web3-core v1.3.5
+web3-core v1.3.6
 https://github.com/ethereum/web3.js/tree/1.x/packages/web3-core
 --------------------------------------------------------------------------------
 
@@ -6032,7 +6004,7 @@ along with web3.js. If not, see <http://www.gnu.org/licenses/>.
 
 
 --------------------------------------------------------------------------------
-web3-core-helpers v1.3.5
+web3-core-helpers v1.3.6
 https://github.com/ethereum/web3.js/tree/1.x/packages/web3-core-helpers
 --------------------------------------------------------------------------------
 
@@ -6053,7 +6025,7 @@ along with web3.js. If not, see <http://www.gnu.org/licenses/>.
 
 
 --------------------------------------------------------------------------------
-web3-core-method v1.3.5
+web3-core-method v1.3.6
 https://github.com/ethereum/web3.js/tree/1.x/packages/web3-core-method
 --------------------------------------------------------------------------------
 
@@ -6074,7 +6046,7 @@ along with web3.js. If not, see <http://www.gnu.org/licenses/>.
 
 
 --------------------------------------------------------------------------------
-web3-core-promievent v1.3.5
+web3-core-promievent v1.3.6
 https://github.com/ethereum/web3.js/tree/1.x/packages/web3-core-promievent
 --------------------------------------------------------------------------------
 
@@ -6095,7 +6067,7 @@ along with web3.js. If not, see <http://www.gnu.org/licenses/>.
 
 
 --------------------------------------------------------------------------------
-web3-core-requestmanager v1.3.5
+web3-core-requestmanager v1.3.6
 https://github.com/ethereum/web3.js/tree/1.x/packages/web3-core-requestmanager
 --------------------------------------------------------------------------------
 
@@ -6116,7 +6088,7 @@ along with web3.js. If not, see <http://www.gnu.org/licenses/>.
 
 
 --------------------------------------------------------------------------------
-web3-core-subscriptions v1.3.5
+web3-core-subscriptions v1.3.6
 https://github.com/ethereum/web3.js/tree/1.x/packages/web3-core-subscriptions
 --------------------------------------------------------------------------------
 
@@ -6137,7 +6109,7 @@ along with web3.js. If not, see <http://www.gnu.org/licenses/>.
 
 
 --------------------------------------------------------------------------------
-web3-eth v1.3.5
+web3-eth v1.3.6
 https://github.com/ethereum/web3.js/tree/1.x/packages/web3-eth
 --------------------------------------------------------------------------------
 
@@ -6158,7 +6130,7 @@ along with web3.js. If not, see <http://www.gnu.org/licenses/>.
 
 
 --------------------------------------------------------------------------------
-web3-eth-abi v1.3.5
+web3-eth-abi v1.3.6
 https://github.com/ethereum/web3.js/tree/1.x/packages/web3-eth-abi
 --------------------------------------------------------------------------------
 
@@ -6179,7 +6151,7 @@ along with web3.js. If not, see <http://www.gnu.org/licenses/>.
 
 
 --------------------------------------------------------------------------------
-web3-eth-accounts v1.3.5
+web3-eth-accounts v1.3.6
 https://github.com/ethereum/web3.js/tree/1.x/packages/web3-eth-accounts
 --------------------------------------------------------------------------------
 
@@ -6200,7 +6172,7 @@ along with web3.js. If not, see <http://www.gnu.org/licenses/>.
 
 
 --------------------------------------------------------------------------------
-web3-eth-contract v1.3.5
+web3-eth-contract v1.3.6
 https://github.com/ethereum/web3.js/tree/1.x/packages/web3-eth-contract
 --------------------------------------------------------------------------------
 
@@ -6221,7 +6193,7 @@ along with web3.js. If not, see <http://www.gnu.org/licenses/>.
 
 
 --------------------------------------------------------------------------------
-web3-eth-ens v1.3.5
+web3-eth-ens v1.3.6
 https://github.com/ethereum/web3.js/tree/1.x/packages/web3-eth-ens
 --------------------------------------------------------------------------------
 
@@ -6242,7 +6214,7 @@ along with web3.js. If not, see <http://www.gnu.org/licenses/>.
 
 
 --------------------------------------------------------------------------------
-web3-eth-iban v1.3.5
+web3-eth-iban v1.3.6
 https://github.com/ethereum/web3.js/tree/1.x/packages/web3-eth-iban
 --------------------------------------------------------------------------------
 
@@ -6263,7 +6235,7 @@ along with web3.js. If not, see <http://www.gnu.org/licenses/>.
 
 
 --------------------------------------------------------------------------------
-web3-eth-personal v1.3.5
+web3-eth-personal v1.3.6
 https://github.com/ethereum/web3.js/tree/1.x/packages/web3-eth-personal
 --------------------------------------------------------------------------------
 
@@ -6284,7 +6256,7 @@ along with web3.js. If not, see <http://www.gnu.org/licenses/>.
 
 
 --------------------------------------------------------------------------------
-web3-net v1.3.5
+web3-net v1.3.6
 https://github.com/ethereum/web3.js/tree/1.x/packages/web3-net
 --------------------------------------------------------------------------------
 
@@ -6305,7 +6277,7 @@ along with web3.js. If not, see <http://www.gnu.org/licenses/>.
 
 
 --------------------------------------------------------------------------------
-web3-providers-http v1.3.5
+web3-providers-http v1.3.6
 https://github.com/ethereum/web3.js/tree/1.x/packages/web3-providers-http
 --------------------------------------------------------------------------------
 
@@ -6326,7 +6298,7 @@ along with web3.js. If not, see <http://www.gnu.org/licenses/>.
 
 
 --------------------------------------------------------------------------------
-web3-providers-ipc v1.3.5
+web3-providers-ipc v1.3.6
 https://github.com/ethereum/web3.js/tree/1.x/packages/web3-providers-ipc
 --------------------------------------------------------------------------------
 
@@ -6347,7 +6319,7 @@ along with web3.js. If not, see <http://www.gnu.org/licenses/>.
 
 
 --------------------------------------------------------------------------------
-web3-providers-ws v1.3.5
+web3-providers-ws v1.3.6
 https://github.com/ethereum/web3.js/tree/1.x/packages/web3-providers-ws
 --------------------------------------------------------------------------------
 
@@ -6368,7 +6340,7 @@ along with web3.js. If not, see <http://www.gnu.org/licenses/>.
 
 
 --------------------------------------------------------------------------------
-web3-shh v1.3.5
+web3-shh v1.3.6
 https://github.com/ethereum/web3.js/tree/1.x/packages/web3-shh
 --------------------------------------------------------------------------------
 
@@ -6389,7 +6361,7 @@ along with web3.js. If not, see <http://www.gnu.org/licenses/>.
 
 
 --------------------------------------------------------------------------------
-web3-utils v1.3.5
+web3-utils v1.3.6
 https://github.com/ethereum/web3.js/tree/1.x/packages/web3-utils
 --------------------------------------------------------------------------------
 
