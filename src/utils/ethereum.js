@@ -130,7 +130,7 @@ class Ethereum {
         let tx = contract.methods.safeTransferFrom(wallet.address, to, tokenId);
 
         if(costOnly){
-            return await this._getTransactionCost(50000);
+            return await this._getTransactionCost(55000);
         }
         else{
             let data = tx.encodeABI();
@@ -184,7 +184,7 @@ class Ethereum {
     async sendEth(wallet, recipient, amount, identifier, wait, nonce, costOnly)
     {
         if(costOnly){
-            return await this._getTransactionCost(22000);
+            return await this._getTransactionCost(28000);
         }
 
         return await this._broadcastTransaction(wallet, recipient, identifier, wait, nonce, amount);
@@ -196,7 +196,7 @@ class Ethereum {
 
         let tx = _token.methods.transferWithMemo(recipient, amount, memo);
         if(costOnly){
-            return await this._getTransactionCost(50000);
+            return await this._getTransactionCost(55000);
         }
         else{
             let data = tx.encodeABI();
@@ -338,7 +338,7 @@ class Ethereum {
             claimValue = claim.valueHash.toString();
 
         let len = Buffer.byteLength(claimValue, 'utf8');
-        return await this._getTransactionCost((len * 2100)); //Use character length of the value, storage cost will be variable
+        return await this._getTransactionCost((len * 2200)); //Use character length of the value, storage cost will be variable
     }
 
     async removeClaim(wallet, claimType, wait, nonce, costOnly){
@@ -358,7 +358,7 @@ class Ethereum {
     async publishPassport(wallet, passport, wait, nonce, costOnly){
         let tx = _contract.methods.publishPassport(passport);
         if(costOnly){
-            return await this._getTransactionCost(120000);
+            return await this._getTransactionCost(150000);
         }
         else{
             let data = tx.encodeABI();
@@ -378,7 +378,7 @@ class Ethereum {
     async unpublishPassport(wallet, wait, nonce, costOnly){
         let tx = _contract.methods.unpublishPassport();
         if(costOnly){
-            return await this._getTransactionCost(24000);
+            return await this._getTransactionCost(25000);
         }
         else{
             const data = tx.encodeABI();
