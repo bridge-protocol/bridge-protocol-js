@@ -1,7 +1,7 @@
 const _constants = require('../constants').Constants;
-const _api = require('../utils/api');
 const _neo = require('../utils/neo').NEO;
 const _eth = require('../utils/ethereum').Ethereum;
+const _bsc = require('../utils/bsc').Bsc;
 const _uniswap = require('../utils/uniswap').Uniswap;
 const _bridgeService = require('./bridge.js').BridgeApi;
 const _passportService = require('./passport.js').PassportApi;
@@ -26,6 +26,9 @@ class Blockchain {
         else if(wallet.network.toLowerCase() === "eth"){
             return await _eth.publishPassport(wallet, passport.id, wait, null, costOnly);
         }
+        else if(wallet.network.toLowerCase() === "bsc"){
+            return await _bsc.publishPassport(wallet, passport.id, wait, null, costOnly);
+        }
 
         return null;
     }
@@ -42,6 +45,9 @@ class Blockchain {
         else if(network.toLowerCase() === "eth"){
             return await _eth.getAddressForPassport(passportId);
         }
+        else if(network.toLowerCase() === "eth"){
+            return await _bsc.getAddressForPassport(passportId);
+        }
     }
 
     async getPassportForAddress(network, address){
@@ -55,6 +61,9 @@ class Blockchain {
         }
         else if(network.toLowerCase() === "eth"){
             return await _eth.getPassportForAddress(address);
+        }
+        else if(network.toLowerCase() === "bsc"){
+            return await _bsc.getPassportForAddress(address);
         }
     }
 
@@ -73,6 +82,9 @@ class Blockchain {
         else if(wallet.network.toLowerCase() === "eth"){
             return await _eth.unpublishPassport(wallet, wait, null, costOnly);
         }
+        else if(wallet.network.toLowerCase() === "bsc"){
+            return await _bsc.unpublishPassport(wallet, wait, null, costOnly);
+        }
     }
 
     async getBalances(network, address) {
@@ -82,6 +94,28 @@ class Blockchain {
         else if(network.toLowerCase() === "eth"){
             return await _eth.getAddressBalances(address);
         }
+        else if(network.toLowerCase() === "bsc"){
+            return await _bsc.getAddressBalances(address);
+        }
+    }
+
+    async getNft(network, address, nftContract, tokenId){
+        if(network.toLowerCase() === "eth"){
+            let details = await _eth.getNft(nftContract, tokenId);
+            if(details && details.owner){
+                details.isOwner = details.owner.toLowerCase() == address.toLowerCase();
+            }
+            return details;
+        }
+
+        return null;
+    }
+
+    async sendNft(wallet, to, nftContract, tokenId, wait, costOnly){
+        if(wallet.network.toLowerCase() === "eth"){
+            return await _eth.sendNft(wallet, to, nftContract, tokenId, wait, costOnly);
+        }
+        return false;
     }
 
     async getRecentTransactions(network, address) {
@@ -90,6 +124,9 @@ class Blockchain {
         }
         else if(network.toLowerCase() === "eth"){
             return await _eth.getBrdgTransactions(address);
+        }
+        else if(network.toLowerCase() === "bsc"){
+            return await _bsc.getBrdgTransactions(address);
         }
 
         return null;
@@ -108,6 +145,21 @@ class Blockchain {
         }
         else if(wallet.network.toLowerCase() === "eth"){
             let info = await _eth.sendEth(wallet, recipient, amount, paymentIdentifier, wait, null, costOnly);
+            if(costOnly)
+                return info;
+
+            //If we aren't waiting, just return the hash
+            if(!wait)
+                return info;
+
+            let verify = await this.verifyGasTransfer(wallet.network, info.transactionHash, wallet.address, recipient, amount, paymentIdentifier);
+            if(verify.success)
+                return info.transactionHash;
+
+            return null;
+        }
+        else if(wallet.network.toLowerCase() === "bsc"){
+            let info = await _bsc.sendBsc(wallet, recipient, amount, paymentIdentifier, wait, null, costOnly);
             if(costOnly)
                 return info;
 
@@ -158,6 +210,19 @@ class Blockchain {
             let verify = await _eth.verifyTokenPayment(info, wallet.address, recipient, amount, paymentIdentifier);
             return verify.success;
         }
+        else if(wallet.network.toLowerCase() === "bsc"){
+            let info = await _bsc.sendBrdg(wallet, recipient, amount, paymentIdentifier, wait, null, costOnly);
+            console.log(info);
+            if(costOnly)
+                return info;
+
+            //If we aren't waiting, just return the hash
+            if(!wait)
+                return info;
+
+            let verify = await _bsc.verifyTokenPayment(info, wallet.address, recipient, amount, paymentIdentifier);
+            return verify.success;
+        }
     }
 
     async verifyPayment(network, hash, from, to, amount, paymentIdentifier){
@@ -178,6 +243,9 @@ class Blockchain {
         else if(network.toLowerCase() === "eth"){
             return await _eth.verifyTokenPaymentFromHash(hash, from, to, amount, paymentIdentifier);
         }
+        else if(network.toLowerCase() === "bsc"){
+            return await _bsc.verifyTokenPaymentFromHash(hash, from, to, amount, paymentIdentifier);
+        }
     }
 
     async verifyGasTransfer(network, hash, from, to, amount, paymentIdentifier){
@@ -196,6 +264,9 @@ class Blockchain {
         else if(network.toLowerCase() === "eth"){
             return await _eth.verifyEthPaymentFromHash(hash, from, to, amount, paymentIdentifier);
         }
+        else if(network.toLowerCase() === "bsc"){
+            return await _bsc.verifyBscPaymentFromHash(hash, from, to, amount, paymentIdentifier);
+        }
     }
 
     async getTransactionStatus(network, hash){
@@ -209,6 +280,9 @@ class Blockchain {
         }
         else if(network.toLowerCase() === "eth"){
             return await _eth.getTransactionStatus(hash);
+        }
+        else if(network.toLowerCase() === "bsc"){
+            return await _bsc.getTransactionStatus(hash);
         }
     }
 
@@ -245,6 +319,9 @@ class Blockchain {
         else if(wallet.network.toLowerCase() === "eth"){
             return await _eth.removeClaim(wallet, claimTypeId, wait, null, costOnly);
         }
+        else if(wallet.network.toLowerCase() === "bsc"){
+            return await _bsc.removeClaim(wallet, claimTypeId, wait, null, costOnly);
+        }
     }
 
     //Public get claim for any address
@@ -263,6 +340,13 @@ class Blockchain {
                 verified: claim != null
             };
         }
+        else if(network.toLowerCase() === "bsc"){
+            let claim = await _bsc.getClaimForAddress(address, claimTypeId);
+            return{
+                claim,
+                verified: claim != null
+            };
+        }
 
         return null;
     }
@@ -272,6 +356,8 @@ class Blockchain {
             return null;
         else if(network.toLowerCase() === "eth")
             return await _eth.getOracleGasPrice();
+            else if(network.toLowerCase() === "bsc")
+            return await _bsc.getOracleGasPrice();
     }
 
     async getTransactionCost(network, gas){
@@ -279,6 +365,8 @@ class Blockchain {
             return null;
         else if(network.toLowerCase() === "eth")
             return await _eth.getTransactionCost(gas);
+        else if(network.toLowerCase() === "bsc")
+            return await _bsc.getTransactionCost(gas);
     }
 
     async sendApplicationRequest(passport, password, wallet, partnerId, costOnly){
@@ -302,9 +390,11 @@ class Blockchain {
             recipient = _constants.bridgeAddress;
         else if (wallet.network.toLowerCase() === "eth")
             recipient = _constants.bridgeEthereumAddress;
+        else if(wallet.network.toLowerCase() === "bsc")
+            recipient = _constants.bridgeBscAddress;
 
         let brdgTransferFee = 0;
-        if(wallet.network.toLowerCase() === "eth")   
+        if(wallet.network.toLowerCase() === "eth" || wallet.network.toLowerCase() === "bsc")   
             brdgTransferFee = await this.sendPayment(wallet, networkFee, recipient, "costonly", false, true);
  
         //The initial token transfer fee, the bridge network token send fee, and the gas transfer fee for the token send fee
@@ -352,18 +442,30 @@ class Blockchain {
             swapAddress = _constants.neoSwapAddress;
         else if (wallet.network.toLowerCase() === "eth")
             swapAddress = _constants.ethereumSwapAddress;
+        else if(wallet.network.toLowerCase() === "bsc")
+            swapAddress = _constants.bscSwapAddress;
 
         let swapFee = 0;
         let gasTransferFee = 0;
         let brdgTransferFee = 0;
         
-        if(receivingWallet.network.toLowerCase() === "eth")
+        if(receivingWallet.network.toLowerCase() === "eth" || receivingWallet.network.toLowerCase() === "bsc")
         {
-            //If we are sending from NEO -> ETH there's no cost of transferring tokens to the swap address
-            //But the gas needed to transfer the tokens on ETH needs to be prepaid to the swap address
-            swapFee = await this.sendPayment(receivingWallet, amount, swapAddress, "costonly", false, true);
-            gasTransferFee = await this.transferGas(receivingWallet, swapFee, swapAddress, "costonly", false, true);
-        }        
+            if(wallet.network.toLowerCase() === "neo"){
+                //If we are sending from NEO -> ETH there's no cost of transferring tokens to the swap address
+                //But the gas needed to transfer the tokens on ETH needs to be prepaid to the swap address
+                swapFee = await this.sendPayment(receivingWallet, amount, swapAddress, "costonly", false, true);
+                gasTransferFee = await this.transferGas(receivingWallet, swapFee, swapAddress, "costonly", false, true);
+            }
+            else 
+            {
+                //If we are sending from BSC/ETH -> ETH/BSC there will be initial BRDG transfer costs on the source network
+                //Gas costs, as well as the gas needed to send tokens on the target network
+                swapFee = await this.sendPayment(receivingWallet, amount, swapAddress, "costonly", false, true);
+                gasTransferFee = await this.transferGas(receivingWallet, swapFee, swapAddress, "costonly", false, true);
+                brdgTransferFee = await this.sendPayment(wallet, amount, swapAddress, "costonly", false, true);
+            }
+        }       
         else 
         {
             //We're sending from ETH -> NEO we just have the cost of transferring tokens to the swap address
@@ -423,16 +525,19 @@ class Blockchain {
             recipient = _constants.bridgeAddress;
         else if (wallet.network.toLowerCase() === "eth")
             recipient = _constants.bridgeEthereumAddress;
+        else if (wallet.network.toLowerCase() === "bsc")
+            recipient = _constants.bridgeBscAddress;
 
         let publishFee = 0;
         let gasTransferFee = 0;
         let brdgTransferFee = 0;
-        if(wallet.network.toLowerCase() === "eth")
+        if(wallet.network.toLowerCase() === "eth" || wallet.network.toLowerCase() === "bsc")
         {
             publishFee = await _eth.getPublishClaimCost(claim, true);
             gasTransferFee = await this.transferGas(wallet, publishFee, recipient, "costonly", false, true);
             brdgTransferFee = await this.sendPayment(wallet, networkFee, recipient, "costonly", false, true);
-        }        
+        }     
+           
         //Unverified publish tx cost + Network fee transfer cost + Bridge approval tx cost gas cost + gas transfer cost 
         if(costOnly)
             return parseFloat(publishFee * 2) + parseFloat(brdgTransferFee) + parseFloat(gasTransferFee);

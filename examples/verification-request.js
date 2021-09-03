@@ -11,7 +11,7 @@
 //------------------------------------------------------------------------
 const _bridge = require("../src/index");
 
-const _password = "123";
+const _password = "12345";
 
 async function Init() {
     //Load existing wallet

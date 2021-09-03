@@ -13,7 +13,7 @@ async function Init() {
     const passport = new _bridge.Models.Passport();
 
     //Load from file
-    await passport.openFile('./passport.json',_password);
+    await passport.openFile('./examples/passport.json',_password);
     console.log("Loaded from File:");
     console.log(JSON.stringify(passport));
 
@@ -26,6 +26,11 @@ async function Init() {
     let ethWallet = passport.getWalletForNetwork("eth");
     await ethWallet.unlock(_password);
     console.log("Unlocked ETH wallet: " + JSON.stringify(ethWallet.unlocked));
+
+    //Unlock the BSC wallet (required for any signing/tx activity)
+    let bscWallet = passport.getWalletForNetwork("bsc");
+    await bscWallet.unlock(_password);
+    console.log("Unlocked BSC wallet: " + JSON.stringify(bscWallet.unlocked));
 }
 
 Init();

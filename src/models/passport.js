@@ -2,7 +2,6 @@ const _fs = require('fs');
 const _constants = require('../constants').Constants;
 const _crypto = require('../utils/crypto').Crypto;
 const _wallet = require('./wallet');
-const _claim = require('./claim');
 const _claimPackage = require('./claimPackage');
 
 var passport = class Passport
@@ -95,7 +94,8 @@ var passport = class Passport
             version: "3.0",
             key: this.key.private,
             wallets: this.wallets,
-            claims: this.claims
+            claims: this.claims,
+            nfts: this.nfts
         }
 
         //Sanitize the wallets and keys
@@ -198,6 +198,44 @@ var passport = class Passport
         return null;
     }
 
+    
+    addNft(network, contract, tokenId)
+    {
+        this.nfts.push({
+            network,
+            contract,
+            tokenId
+        })
+    }
+
+    getNft(network, contract, tokenId){
+        for(let i=0; i<this.nfts.length; i++){
+            if(this.nfts[i].network == network && this.nfts[i].contract == contract && this.nfts[i].tokenId == tokenId){
+                return this.nfts[i];
+            }
+               
+        }
+
+        return null;
+    }
+
+    removeNft(network, contract, tokenId){
+        let idx = -1;
+
+        for(let i=0; i<this.nfts.length; i++){
+            if(this.nfts[i].network == network && this.nfts[i].contract == contract && this.nfts[i].tokenId == tokenId){
+                idx = i;
+            }
+        }
+
+        if(idx > -1){
+            if(idx == 0 && this.nfts.length == 1)
+                this.nfts = [];
+            else
+                this.nfts = this.nfts.splice(idx-1,1);
+        }
+    }
+
     _reset(){
         this.id = null;
         this.version = null;
@@ -207,6 +245,7 @@ var passport = class Passport
         };
         this.wallets = new Array();
         this.claims = new Array();
+        this.nfts = new Array();
     }
 
     async _load(json){
@@ -230,6 +269,7 @@ var passport = class Passport
         this.version = _constants.passportVersion;
         this.wallets = await this._initWallets(passport.wallets);
         this.claims = await this._initClaims(passport.claims);
+        this.nfts = await this._initNfts(passport.nfts);
         
         return true;
     }
@@ -256,6 +296,20 @@ var passport = class Passport
         }
 
         return wallets;
+    }
+
+    async _initNfts(nfts){
+        if(!nfts || nfts.length == 0)
+            return [];
+
+        let res = [];
+        for(let i=0; i<nfts.length; i++){
+            if(nfts[i].network != null && nfts[i].contract != null && nfts[i].tokenId != null){
+                res.push(nfts[i]);
+            }
+        }
+
+        return res;
     }
 };
 

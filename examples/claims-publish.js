@@ -10,14 +10,14 @@
 //------------------------------------------------------------------------
 const _bridge = require("../src/index");
 
-const _password = "123";
+const _password = "12345";
 
 async function Init() {
     //Load existing wallet
-    let passport = await loadPassport('./passport.json', _password);
+    let passport = await loadPassport('./examples/passport.json', _password);
 
     //Unlock the wallet
-    let wallet = await getUnlockedWallet(passport, "eth", _password);
+    let wallet = await getUnlockedWallet(passport, "bsc", _password);
 
     //Check and see if the passport is published, this is required to publish claims on the blockchain
     let published = await _bridge.Services.Blockchain.getPassportForAddress(wallet.network, wallet.address);
@@ -29,7 +29,7 @@ async function Init() {
     }
     
     if(!published && published.length == 0 && !pending){
-        let passportCost = await await sendPassportPublishRequest(passport, wallet, true);
+        let passportCost = await sendPassportPublishRequest(passport, wallet, true);
         await sendPassportPublishRequest(passport, wallet);
     }
 

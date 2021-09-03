@@ -16,18 +16,23 @@ async function Init() {
     await passport.create(_password);
     console.log(JSON.stringify(passport));
 
-    //Create passport and add a newly generated NEO wallet
+    //Add a newly generated NEO wallet
     //Optionally provide a WIF as the third parameter to import an existing NEO wallet
     await passport.addWallet("neo", _password);
     console.log(JSON.stringify(passport.wallets));
 
-    //Create passport and add a newly generated ETH wallet
+    //Add a newly generated ETH wallet
     //Optionally provide a PrivateKey as the third parameter to import an existing ETH wallet
     await passport.addWallet("eth", _password);
     console.log(JSON.stringify(passport.wallets));
 
+    //Add a newly generated BSC wallet
+    //Optionally provide a PrivateKey as the third parameter to import an existing BSC wallet
+    await passport.addWallet("bsc", _password);
+    console.log(JSON.stringify(passport.wallets));
+
     //Save the passport to a file
-    await passport.save('./passport.json');
+    await passport.save('./examples/passport.json');
     console.log("Passport saved");
 }
 
