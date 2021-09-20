@@ -71,6 +71,14 @@ class Constants {
     getClaimTypes() {
         return [
             {
+                "id": 0,
+                "name": "Photo",
+                "description": "Owner Photo",
+                "dataType": "string",
+                "scope": "private",
+                "defaultExpirationDays": 0
+            },
+            {
                 "id": 1,
                 "name": "First Name",
                 "description": "Owner first name",
