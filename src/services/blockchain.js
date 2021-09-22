@@ -99,15 +99,19 @@ class Blockchain {
         }
     }
 
-    async getNft(network, address, nftContract, tokenId){
+    async getNftsForAddress(network, address){
         if(network.toLowerCase() === "eth"){
-            let details = await _eth.getNft(nftContract, tokenId);
-            if(details && details.owner){
-                details.isOwner = details.owner.toLowerCase() == address.toLowerCase();
-            }
-            return details;
+            return await _eth.getNftsForAddress(address);
         }
 
+        return null;
+    }
+
+    async getNft(network, nftContract, tokenId){
+        if(network.toLowerCase() === "eth"){
+            return await _eth.getNft(nftContract, tokenId);
+        }
+ 
         return null;
     }
 
