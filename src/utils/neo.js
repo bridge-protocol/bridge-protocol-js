@@ -886,17 +886,11 @@ class NEO {
         return result;
     }
 
-    async _getRpcClient(provider) {
+    async _getRpcClient() {
         return new Promise((resolve, reject) => {
             try {
-                if(!provider)
-                    provider = new _neon.api.neoscan.instance("MainNet");
-
-                _neon.settings.httpsOnly = true;
-                provider.getRPCEndpoint().then(nodeUrl => {
-                    let client = _neon.default.create.rpcClient(nodeUrl);
-                    resolve(client);
-                });
+                let client = _neon.default.create.rpcClient("http://seed1.ngd.network:10332");
+                resolve(client);
             }
             catch (err) {
                 reject(err);
