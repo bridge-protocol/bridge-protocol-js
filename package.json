@@ -1,6 +1,6 @@
 {
   "name": "@bridge-protocol/bridge-protocol-js",
-  "version": "3.2.5",
+  "version": "3.2.6",
   "description": "Bridge Protocol and Bridge Protocol Network SDK",
   "main": "./src/index.js",
   "scripts": {
@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/bridge-protocol/bridge-protocol-js#readme",
   "dependencies": {
-    "@cityofzion/neon-js": "^4.7.0",
+    "@cityofzion/neon-js": "^4.9.0",
     "@ethersproject/contracts": "^5.1.1",
     "@ethersproject/providers": "^5.1.2",
     "@ethersproject/solidity": "^5.1.0",

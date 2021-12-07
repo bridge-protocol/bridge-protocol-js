@@ -9,6 +9,7 @@ const _pollRetries = _constants.neoscanPollRetries;
 const _bridgeContractHash = _constants.bridgeContractHash;
 const _bridgeContractAddress = _constants.bridgeContractAddress;
 const _brdgHash = _constants.brdgHash;
+const _neoNode = "https://mainnet1.neo2.coz.io:443";
 
 class NEO {
     //Wallet management functions
@@ -886,10 +887,10 @@ class NEO {
         return result;
     }
 
-    async _getRpcClient() {
+    async _getRpcClient(provider) {
         return new Promise((resolve, reject) => {
             try {
-                let client = _neon.default.create.rpcClient("http://seed1.ngd.network:10332");
+                let client = _neon.default.create.rpcClient(_neoNode);
                 resolve(client);
             }
             catch (err) {
