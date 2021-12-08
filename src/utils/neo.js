@@ -9,7 +9,7 @@ const _pollRetries = _constants.neoscanPollRetries;
 const _bridgeContractHash = _constants.bridgeContractHash;
 const _bridgeContractAddress = _constants.bridgeContractAddress;
 const _brdgHash = _constants.brdgHash;
-const _neoNode = "https://mainnet1.neo2.coz.io:443";
+const _neoNodes = _constants.neoNodes;
 
 class NEO {
     //Wallet management functions
@@ -888,14 +888,40 @@ class NEO {
     }
 
     async _getRpcClient(provider) {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             try {
-                let client = _neon.default.create.rpcClient(_neoNode);
+                let client = await this._checkRpcNode(_neoNodes[0]);
+                if(client == null)
+                    client = await this._checkRpcNode(_neoNodes[1]);
                 resolve(client);
             }
             catch (err) {
                 reject(err);
             }
+        });
+    }
+
+    async _checkRpcNode(url){
+        return new Promise(async (resolve, reject) => {
+            try {
+                console.log("Pinging node '" + url + "'");
+                let client = _neon.default.create.rpcClient(url);
+                let balanceResponse = await client.query({
+                    method: "getnep5balances",
+                    params: [_bridgeContractAddress],
+                });
+                if(balanceResponse){
+                    console.log(JSON.stringify(balanceResponse));
+                    console.log('success');
+                    resolve(client);
+                }
+                else{
+                    console.log('fail');
+                }
+            } catch (e) {
+                console.log('fail');
+            }
+            resolve(null);
         });
     }
 

@@ -22,7 +22,8 @@ class Constants {
         this.neoscanApiUrl = "https://neoscan.io/api/main_net/v1";
         this.neoscanPollInterval = 15000;
         this.neoscanPollRetries = 20;
-
+        this.neoNodes = ["https://mainnet1.neo2.coz.io:443","https://mainnet2.neo2.coz.io:443"]
+    
         //Ethereum
         this.bridgeEthereumContractAddress = "0xd04098305f61c385Ea29041C5D53a9de06C80884";
         this.bridgeEthereumERC20Address = "0xb736bA66aAd83ADb2322D1f199Bfa32B3962f13C";
