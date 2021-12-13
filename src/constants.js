@@ -18,7 +18,7 @@ class Constants {
         this.neoHash = "0xc56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b";
         this.gasHash = "0x602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7";
         this.neoSwapAddress = "AWo5hq5uZs9dTvYZkYBLvo4pWV6f9a5BMu";
-        this.neoscanUrl = "https://neoscan.io/";
+        this.neoscanUrl = "https://dora.coz.io/";
         this.neoscanApiUrl = "https://neoscan.io/api/main_net/v1";
         this.neoscanPollInterval = 15000;
         this.neoscanPollRetries = 20;

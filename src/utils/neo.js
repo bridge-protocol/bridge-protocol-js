@@ -92,7 +92,7 @@ class NEO {
                     amount: tx.amount,
                     from: tx.address_from,
                     to: tx.address_to,
-                    url: _neoscanUrl + "transaction/" + tx.txid
+                    url: _neoscanUrl + "transaction/neo2/mainnet/" + tx.txid
                 });
             }
         });
