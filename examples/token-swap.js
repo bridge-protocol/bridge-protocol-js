@@ -9,22 +9,23 @@
 //------------------------------------------------------------------------
 const _bridge = require("../src/index");
 
-const _password = "12345";
+const _password = "123";
 
 async function Init() {
     //Load existing wallet
-    let passport = await loadPassport('./passport.json', _password);
+    let passport = await loadPassport('./examples/guba-passport.json', _password);
 
     //Unlock the wallet
     let wallet = await getUnlockedWallet(passport, "neo", _password);
-    let receivingWallet = await getUnlockedWallet(passport, "eth", _password);
+    let receivingWallet = await getUnlockedWallet(passport, "bsc", _password);
 
     //let cost = await sendTokenSwapRequest(passport, wallet, receivingWallet, 5, true);
-    let swap = await sendTokenSwapRequest(passport, wallet, receivingWallet, 1);
+    let swap = await sendTokenSwapRequest(passport, wallet, receivingWallet, 100);
 }
 
 async function sendTokenSwapRequest(passport, wallet, receivingWallet, amount, costOnly){
     try{
+        process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         return await _bridge.Services.Blockchain.sendTokenSwapRequest(passport, _password, wallet, receivingWallet, amount, costOnly);
     }
     catch(err){

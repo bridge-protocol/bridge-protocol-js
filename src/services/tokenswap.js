@@ -34,13 +34,15 @@ class TokenSwapApi
         return null;
     }
 
-    async createTokenSwap(passport, passphrase, network, address, receivingAddress, amount){
-        let obj = {
+    async createTokenSwap(passport, passphrase, network, address, receivingNetwork, receivingAddress, amount){
+        var obj = {
             network,
             address,
+            receivingNetwork,
             receivingAddress,
             amount
         };
+        
         var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
         let res = await api.callApi("POST", "create", obj);
         if(res.tokenSwap)
@@ -51,7 +53,7 @@ class TokenSwapApi
 
     async updatePaymentTransaction(passport, passphrase, id, transactionId, gasTransactionId)
     {
-        let obj = {
+        var obj = {
             id,
             transactionId,
             gasTransactionId

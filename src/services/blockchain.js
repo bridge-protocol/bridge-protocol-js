@@ -441,7 +441,12 @@ class Blockchain {
             throw new Error("valid amount not provided");
         }
 
+        let swapFee = 0;
+        let gasTransferFee = 0;
+        let brdgTransferFee = 0;
         let swapAddress = null;
+        let gasPmtAddress = null;
+
         if(wallet.network.toLowerCase() === "neo")
             swapAddress = _constants.neoSwapAddress;
         else if (wallet.network.toLowerCase() === "eth")
@@ -449,30 +454,19 @@ class Blockchain {
         else if(wallet.network.toLowerCase() === "bsc")
             swapAddress = _constants.bscSwapAddress;
 
-        let swapFee = 0;
-        let gasTransferFee = 0;
-        let brdgTransferFee = 0;
-        
-        if(receivingWallet.network.toLowerCase() === "eth" || receivingWallet.network.toLowerCase() === "bsc")
-        {
-            if(wallet.network.toLowerCase() === "neo"){
-                //If we are sending from NEO -> ETH there's no cost of transferring tokens to the swap address
-                //But the gas needed to transfer the tokens on ETH needs to be prepaid to the swap address
-                swapFee = await this.sendPayment(receivingWallet, amount, swapAddress, "costonly", false, true);
-                gasTransferFee = await this.transferGas(receivingWallet, swapFee, swapAddress, "costonly", false, true);
-            }
-            else 
-            {
-                //If we are sending from BSC/ETH -> ETH/BSC there will be initial BRDG transfer costs on the source network
-                //Gas costs, as well as the gas needed to send tokens on the target network
-                swapFee = await this.sendPayment(receivingWallet, amount, swapAddress, "costonly", false, true);
-                gasTransferFee = await this.transferGas(receivingWallet, swapFee, swapAddress, "costonly", false, true);
-                brdgTransferFee = await this.sendPayment(wallet, amount, swapAddress, "costonly", false, true);
-            }
-        }       
-        else 
-        {
-            //We're sending from ETH -> NEO we just have the cost of transferring tokens to the swap address
+        if(receivingWallet.network.toLowerCase() === "neo")
+            gasPmtAddress = _constants.neoSwapAddress;
+        else if (receivingWallet.network.toLowerCase() === "eth")
+            gasPmtAddress = _constants.ethereumSwapAddress;
+        else if(receivingWallet.network.toLowerCase() === "bsc")
+            gasPmtAddress = _constants.bscSwapAddress;
+
+        if(receivingWallet.network.toLowerCase() === "neo"){ //Sending to NEO has no target GAS fees
+            brdgTransferFee = await this.sendPayment(wallet, amount, swapAddress, "costonly", false, true);
+        }
+        else{
+            swapFee = await this.sendPayment(receivingWallet, amount, gasPmtAddress, "costonly", false, true);
+            gasTransferFee = await this.transferGas(receivingWallet, swapFee, gasPmtAddress, "costonly", false, true);
             brdgTransferFee = await this.sendPayment(wallet, amount, swapAddress, "costonly", false, true);
         }
 
@@ -485,15 +479,16 @@ class Blockchain {
         let tokenSwap = null;
         let error = null;
         try{
-            tokenSwap = await _tokenSwapService.createTokenSwap(passport, password, wallet.network, wallet.address, receivingWallet.address, amount);
+            tokenSwap = await _tokenSwapService.createTokenSwap(passport, password, wallet.network, wallet.address, receivingWallet.network, receivingWallet.address, amount);
             if(!tokenSwap && !tokenSwap.id)
                 throw new Error("Could not create token swap request on Bridge Network.");
 
-            //Send the GAS for the ethereum swap to the Bridge Network
+            //Send the GAS for the target transaction
             let gasTransactionId = null;
-            //If we're sending from NEO, we need to prepay the gas from the ETH wallet
-            if(receivingWallet.network.toLowerCase() === "eth")
-                gasTransactionId = await this.transferGas(receivingWallet, swapFee, _constants.ethereumSwapAddress, tokenSwap.id);
+
+            //If we're sending from NEO, we need to prepay the gas from the target network wallet
+            if(receivingWallet.network.toLowerCase() != "neo")
+                gasTransactionId = await this.transferGas(receivingWallet, swapFee, gasPmtAddress, tokenSwap.id);
             
             //Transfer the BRDG to the swap address
             let transactionId = await this.sendPayment(wallet, amount, swapAddress, tokenSwap.id);

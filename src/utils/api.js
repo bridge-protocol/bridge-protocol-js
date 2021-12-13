@@ -36,13 +36,13 @@ var APIUtility = class APIUtility {
             "BridgePassportVersion": this._passport.version,
             "BridgeSignature": signedMessage
         };
-
         if (method == "POST") {
             headers = {
-                "Content-Type": 'application/json',
-                "Content-Length": Buffer.byteLength(data, 'utf8'),
                 "BridgePassportPublicKey": this._passport.publicKey,
-                "BridgePassportVersion": this._passport.version
+                "BridgePassportVersion": this._passport.version,
+                "BridgeSignature": signedMessage,
+                "Content-Type": 'application/json',
+                "Content-Length": Buffer.byteLength(data, 'utf8')
             };
         }
 
@@ -52,7 +52,7 @@ var APIUtility = class APIUtility {
         };
 
         if (method == "POST") {
-            options.body = signedMessage;
+            options.body = data;
         }
 
         const response = await _fetch(this._apiBaseUrl + endpoint, options);
