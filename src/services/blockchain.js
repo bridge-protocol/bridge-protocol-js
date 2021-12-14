@@ -504,72 +504,7 @@ class Blockchain {
         throw new Error(error);
     }
 
-    async sendClaimPublishRequest(passport, password, wallet, claim, hashOnly, costOnly){
-        if (!passport) {
-            throw new Error("passport not provided");
-        }
-        if (!password) {
-            throw new Error("password not provided");
-        }
-        if (!wallet) {
-            throw new Error("wallet not provided");
-        }
-        if (!claim) {
-            throw new Error("claim not provided");
-        }
-
-        let networkFee = await _bridgeService.getBridgeNetworkFee(passport, password);
-        let recipient = null;
-        if(wallet.network.toLowerCase() === "neo")
-            recipient = _constants.bridgeAddress;
-        else if (wallet.network.toLowerCase() === "eth")
-            recipient = _constants.bridgeEthereumAddress;
-        else if (wallet.network.toLowerCase() === "bsc")
-            recipient = _constants.bridgeBscAddress;
-
-        let publishFee = 0;
-        let gasTransferFee = 0;
-        let brdgTransferFee = 0;
-        if(wallet.network.toLowerCase() === "eth" || wallet.network.toLowerCase() === "bsc")
-        {
-            publishFee = await _eth.getPublishClaimCost(claim, true);
-            gasTransferFee = await this.transferGas(wallet, publishFee, recipient, "costonly", false, true);
-            brdgTransferFee = await this.sendPayment(wallet, networkFee, recipient, "costonly", false, true);
-        }     
-           
-        //Unverified publish tx cost + Network fee transfer cost + Bridge approval tx cost gas cost + gas transfer cost 
-        if(costOnly)
-            return parseFloat(publishFee * 2) + parseFloat(brdgTransferFee) + parseFloat(gasTransferFee);
-    
-        publishFee = parseFloat(publishFee).toFixed(9);
-    
-        let claimPublish;
-        let error;
-        try{
-            //Create the claim publish request on the Bridge Network
-            claimPublish = await _claimService.createClaimPublish(passport, password, wallet.network, wallet.address, claim, hashOnly);
-            if(!claimPublish || !claimPublish.id)
-                throw new Error("Unable to create claim publish request");
-
-            //Send the network fee BRDG transaction using blockchain
-            let transactionId = await this.sendPayment(wallet, networkFee, recipient, claimPublish.id);
-        
-            //Send the GAS approval fee transaction using blockchain (ethereum only)
-            let gasTransactionId = null;
-            if(wallet.network.toLowerCase() === "eth")
-                gasTransactionId = await this.transferGas(wallet, publishFee, recipient, claimPublish.id);
-        
-            //Update the transaction info
-            return await _claimService.updateClaimPaymentTransaction(passport, password, claimPublish.id, transactionId, gasTransactionId);
-        }
-        catch(err){
-            error = err.message;
-            await _claimService.remove(passport, password, claimPublish.id);
-        }
-
-        throw new Error(error);
-    }
-
+    //Send the publish request and associated fee(s) to the Bridge network for verification
     async sendPassportPublishRequest(passport, password, wallet, costOnly){
         if (!passport) {
             throw new Error("passport not provided");
@@ -604,7 +539,80 @@ class Blockchain {
 
         throw new Error(error);
     }
+
+    async sendClaimPublishRequest(passport, password, wallet, claim, hashOnly, costOnly){
+        if (!passport) {
+            throw new Error("passport not provided");
+        }
+        if (!password) {
+            throw new Error("password not provided");
+        }
+        if (!wallet) {
+            throw new Error("wallet not provided");
+        }
+        if (!claim) {
+            throw new Error("claim not provided");
+        }
+
+        let networkFee = await _bridgeService.getBridgeNetworkFee(passport, password);
+        let recipient = null;
+        if(wallet.network.toLowerCase() === "neo")
+            recipient = _constants.bridgeAddress;
+        else if (wallet.network.toLowerCase() === "eth")
+            recipient = _constants.bridgeEthereumAddress;
+        else if (wallet.network.toLowerCase() === "bsc")
+            recipient = _constants.bridgeBscAddress;
+
+        let publishFee = 0;
+        let gasTransferFee = 0;
+        let brdgTransferFee = 0;
+        if(wallet.network.toLowerCase() === "eth")
+        {
+            publishFee = await _eth.publishClaim(wallet, claim, hashOnly, false, null, true);
+            gasTransferFee = await this.transferGas(wallet, publishFee, recipient, "costonly", false, true);
+            brdgTransferFee = await this.sendPayment(wallet, networkFee, recipient, "costonly", false, true);
+        }     
+        if(wallet.network.toLowerCase() === "bsc")
+        {
+            publishFee = await _bsc.publishClaim(wallet, claim, hashOnly, false, null, true);
+            gasTransferFee = await this.transferGas(wallet, publishFee, recipient, "costonly", false, true);
+            brdgTransferFee = await this.sendPayment(wallet, networkFee, recipient, "costonly", false, true);
+        }   
+           
+        //Unverified publish tx cost + Network fee transfer cost + Bridge approval tx cost gas cost + gas transfer cost 
+        if(costOnly)
+            return parseFloat(publishFee * 2) + parseFloat(brdgTransferFee) + parseFloat(gasTransferFee);
     
+        publishFee = parseFloat(publishFee).toFixed(9);
+    
+        let claimPublish;
+        let error;
+        try{
+            //Create the claim publish request on the Bridge Network
+            claimPublish = await _claimService.createClaimPublish(passport, password, wallet.network, wallet.address, claim, hashOnly);
+            if(!claimPublish || !claimPublish.id)
+                throw new Error("Unable to create claim publish request");
+
+            //Send the network fee BRDG transaction using blockchain
+            let transactionId = await this.sendPayment(wallet, networkFee, recipient, claimPublish.id);
+        
+            //Send the GAS approval fee, not required for Neo v2
+            let gasTransactionId = null;
+            if(wallet.network.toLowerCase() != "neo")
+                gasTransactionId = await this.transferGas(wallet, publishFee, recipient, claimPublish.id);
+        
+            //Update the transaction info
+            return await _claimService.updateClaimPaymentTransaction(passport, password, claimPublish.id, transactionId, gasTransactionId);
+        }
+        catch(err){
+            error = err.message;
+            await _claimService.remove(passport, password, claimPublish.id);
+        }
+
+        throw new Error(error);
+    }
+
+    //Used only for Neo v2, gets the transaction after payment is verified to secondary sign and relay
     async publishClaimTransaction(passport, password, wallet, claim, claimPublishId, wait, costOnly, reverseScripts) {
         if (!wallet) {
             throw new Error("wallet not provided");
@@ -664,6 +672,20 @@ class Blockchain {
                 return 0;
 
             return await _neo.createApprovedClaimTransaction(wallet, claim, address);
+        }
+    }
+
+    //Bridge internal use, transaction will fail with non-bridge signatures
+    //For ETH and BSC we approve the publish via the smart contract
+    async publishClaim(wallet, claim, hashOnly){
+        try{
+            if(wallet.network.toLowerCase() === "eth")
+                return await _eth.publishClaim(wallet, claim, hashOnly);
+            if(wallet.network.toLowerCase() === "bsc")
+                return await _bsc.publishClaim(wallet, claim, hashOnly);
+        }
+        catch(err){
+
         }
     }
     

@@ -326,15 +326,28 @@ class Ethereum {
     }
     //End asset and transaction management functions
 
-    //Smart contract for passport and claims management
-    async getPublishClaimCost(claim, hashOnly)
-    {
-        let claimValue = claim.claimValue.toString();
-        if(hashOnly)
-            claimValue = claim.valueHash.toString();
+    //This can only be called by Bridge
+    async publishClaim(wallet, claim, wait, nonce, costOnly){
+        if(!wallet)
+            throw new Error("Wallet is required");
+        if(!claim)
+            throw new Error("Claim is required");
 
-        let len = Buffer.byteLength(claimValue, 'utf8');
-        return await this._getTransactionCost((len * 2100)); //Use character length of the value, storage cost will be variable
+        //If we're marked to publish hash only, use the hash for the value
+        var claimValue = claim.claim.claimValue;
+        if (claim.hashOnly)
+            claimValue = claim.claim.claimValueHash;
+
+        let tx = _contract.methods.publishClaim(claim.address, claim.claimTypeId, claim.createdOn, claimValue);
+        if(costOnly)
+        {
+            let len = Buffer.byteLength(claimValue, 'utf8');
+            return await this._getTransactionCost((len * 2100)); //Use character length of the value, storage cost will be variable
+        }
+        else{
+            let data = tx.encodeABI();
+            return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, wait, nonce);
+        }
     }
 
     async removeClaim(wallet, claimType, wait, nonce, costOnly){

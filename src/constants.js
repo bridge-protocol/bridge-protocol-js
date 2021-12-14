@@ -28,7 +28,7 @@ class Constants {
         this.bridgeEthereumContractAddress = "0xd04098305f61c385Ea29041C5D53a9de06C80884";
         this.bridgeEthereumERC20Address = "0xb736bA66aAd83ADb2322D1f199Bfa32B3962f13C";
         this.bridgeEthereumAddress = "0x2B2Af72aa3d4c5Ed16571058F9aCE298bbAa9876";
-        this.bridgeEthereumChain = "testnet";
+        this.bridgeEthereumChain = "mainnet";
         this.defaultEthereumGasLimit = 150000;
         this.defaultEthereumGwei = 35;
         this.ethereumJsonRpcUrl = "https://mainnet.infura.io/v3/abb847143b1346b7bff7277bdf8d160f";
