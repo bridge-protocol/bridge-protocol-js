@@ -278,11 +278,11 @@ class Bsc {
             throw new Error("Claim is required");
 
         //If we're marked to publish hash only, use the hash for the value
-        var claimValue = claim.claim.claimValue;
+        var claimValue = claim.claimValue;
         if (claim.hashOnly)
-            claimValue = claim.claim.claimValueHash;
+            claimValue = claim.claimValueHash;
 
-        let tx = _contract.methods.publishClaim(claim.address, claim.claimTypeId, claim.createdOn, claimValue);
+        let tx = _contract.methods.publishClaim(wallet.address, claim.claimTypeId, claim.createdOn, claimValue);
         if(costOnly)
         {
             let len = Buffer.byteLength(claimValue, 'utf8');

@@ -334,17 +334,17 @@ class Ethereum {
             throw new Error("Claim is required");
 
         //If we're marked to publish hash only, use the hash for the value
-        var claimValue = claim.claim.claimValue;
+        var claimValue = claim.claimValue;
         if (claim.hashOnly)
-            claimValue = claim.claim.claimValueHash;
+            claimValue = claim.claimValueHash;
 
-        let tx = _contract.methods.publishClaim(claim.address, claim.claimTypeId, claim.createdOn, claimValue);
         if(costOnly)
         {
             let len = Buffer.byteLength(claimValue, 'utf8');
             return await this._getTransactionCost((len * 2100)); //Use character length of the value, storage cost will be variable
         }
         else{
+            let tx = _contract.methods.publishClaim(wallet.address, claim.claimTypeId, claim.createdOn, claimValue);
             let data = tx.encodeABI();
             return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, wait, nonce);
         }
