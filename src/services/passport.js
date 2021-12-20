@@ -37,15 +37,6 @@ class PassportApi {
         var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
         return await api.callApi("GET", "publish/" + id  + "/remove", null);
     }
-
-    async handoff(passport, passphrase){
-        let request = await passport.export();
-        let obj = {
-            request: JSON.stringify(request)
-        };
-        var api = new _api.APIUtility(_apiBaseUrl, passport, passphrase);
-        return await api.callApi("POST", "handoff", obj);
-    }
 };
 
 exports.PassportApi = new PassportApi;
