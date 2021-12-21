@@ -2,7 +2,7 @@ const Web3 = require("web3");
 const _constants = require('../constants').Constants;
 const _fetch = require('node-fetch');
 const _tx = require("ethereumjs-tx");
-const _wallet = require('ethereumjs-wallet').default;
+const _wallet = require('ethereumjs-wallet');
 const _util = require("ethereumjs-util");
 const _abi = [{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"string","name":"claimType","type":"string"},{"internalType":"uint256","name":"claimDate","type":"uint256"},{"internalType":"string","name":"claimValue","type":"string"}],"name":"publishClaim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"passport","type":"string"}],"name":"publishPassport","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"claimType","type":"string"}],"name":"removeClaim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[],"name":"unpublishPassport","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"passport","type":"string"}],"name":"getAddressForPassport","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"string","name":"claimType","type":"string"}],"name":"getClaim","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"getPassportForAddress","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"}];
 const _tokenAbi = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"string","name":"memo","type":"string"}],"name":"Memo","type":"event"},{"inputs":[{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"},{"internalType":"string","name":"memo","type":"string"}],"name":"transferWithMemo","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}];
@@ -19,8 +19,15 @@ const _web3 = new Web3(new Web3.providers.HttpProvider(_rpcUrl));
 const _contract = new _web3.eth.Contract(_abi, _bridgeContractAddress);
 const _token = new _web3.eth.Contract(_tokenAbi, _bridgeTokenContractAddress);
 const UNISWAP = require('@uniswap/sdk');
+const _openSea = require('opensea-js');
 
-class Ethereum {
+class Ethereum { 
+    constructor(){
+        this.seaport = new _openSea.OpenSeaPort(new Web3.providers.HttpProvider(_rpcUrl), {
+            networkName: _openSea.Network.Main
+        })
+    }
+
     //Wallet Management Functions
     createWallet(password, privateKeyString){ 
         let wallet;
@@ -100,29 +107,18 @@ class Ethereum {
         return [{asset:"ETH", balance: eth}, {asset: "BRDG", balance: brdg}];
     }
 
-    async getNft(nftContract, tokenId) {
-        let details = await this._callOpensea("/asset/" + nftContract + "/" + tokenId);
-
-        if(details){
-            let owner = null;
-            if(details.owner && details.owner.address)
-                owner = details.owner.address;
-
-            return {
-                owner,
-                tokenId: details.token_id,
-                name: details.name,
-                description: details.description,
-                imageOriginal: details.image_original_url,
-                imageUrl: details.image_url,
-                imagePreviewUrl: details.image_preview_url,
-                animationUrl: details.animation_url,
-                animationOriginalUrl: details.animation_original_url,
-                link: details.permalink
-            };
-        }
+    async getNftsForAddress(owner){
+        let res = await this.seaport.api.getAssets({ owner });
+        if(res && res.assets)
+            return res.assets;
 
         return null;
+    }
+
+    async getNft(nftContract, tokenId) {
+        let res = await this.seaport.api.getAssets({ asset_contract_address: nftContract, token_ids: [tokenId] });
+        if(res && res.assets && res.assets[0])
+            return res.assets[0];
     };
 
     async sendNft(wallet, to, nftContract, tokenId, wait, nonce, costOnly){
@@ -330,15 +326,28 @@ class Ethereum {
     }
     //End asset and transaction management functions
 
-    //Smart contract for passport and claims management
-    async getPublishClaimCost(claim, hashOnly)
-    {
-        let claimValue = claim.claimValue.toString();
-        if(hashOnly)
-            claimValue = claim.valueHash.toString();
+    //This can only be called by Bridge
+    async publishClaim(wallet, claim, wait, nonce, costOnly){
+        if(!wallet)
+            throw new Error("Wallet is required");
+        if(!claim)
+            throw new Error("Claim is required");
 
-        let len = Buffer.byteLength(claimValue, 'utf8');
-        return await this._getTransactionCost((len * 2100)); //Use character length of the value, storage cost will be variable
+        //If we're marked to publish hash only, use the hash for the value
+        var claimValue = claim.claimValue;
+        if (claim.hashOnly)
+            claimValue = claim.claimValueHash;
+
+        if(costOnly)
+        {
+            let len = Buffer.byteLength(claimValue, 'utf8');
+            return await this._getTransactionCost((len * 2100)); //Use character length of the value, storage cost will be variable
+        }
+        else{
+            let tx = _contract.methods.publishClaim(wallet.address, claim.claimTypeId, claim.createdOn, claimValue);
+            let data = tx.encodeABI();
+            return await this._broadcastTransaction(wallet, _bridgeContractAddress, data, wait, nonce);
+        }
     }
 
     async removeClaim(wallet, claimType, wait, nonce, costOnly){
@@ -502,37 +511,6 @@ class Ethereum {
         };
 
         let url = _etherscanApiUrl + params;
-        const response = await _fetch(url, options);
-
-        if (response.ok) {
-            let text = await response.text();
-            if (text.length > 0)
-                return JSON.parse(text);
-            else
-                return true;
-        }
-        else {
-            var error = response.statusText;
-            let text = await response.text();
-            if (text) {
-                var res = JSON.parse(text);
-                if (res && res.message)
-                    error = res.message;
-            }
-            else
-                text = response.statusText;
-
-            console.log(error);
-            return {};
-        }
-    }
-
-    async _callOpensea(params){
-        let options = {
-            method: 'GET'
-        };
-
-        var url = _constants.nftApiUrl + params;
         const response = await _fetch(url, options);
 
         if (response.ok) {

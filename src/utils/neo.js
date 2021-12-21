@@ -9,6 +9,7 @@ const _pollRetries = _constants.neoscanPollRetries;
 const _bridgeContractHash = _constants.bridgeContractHash;
 const _bridgeContractAddress = _constants.bridgeContractAddress;
 const _brdgHash = _constants.brdgHash;
+const _neoNodes = _constants.neoNodes;
 
 class NEO {
     //Wallet management functions
@@ -91,7 +92,7 @@ class NEO {
                     amount: tx.amount,
                     from: tx.address_from,
                     to: tx.address_to,
-                    url: _neoscanUrl + "transaction/" + tx.txid
+                    url: _neoscanUrl + "transaction/neo2/mainnet/" + tx.txid
                 });
             }
         });
@@ -887,20 +888,40 @@ class NEO {
     }
 
     async _getRpcClient(provider) {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             try {
-                if(!provider)
-                    provider = new _neon.api.neoscan.instance("MainNet");
-
-                _neon.settings.httpsOnly = true;
-                provider.getRPCEndpoint().then(nodeUrl => {
-                    let client = _neon.default.create.rpcClient(nodeUrl);
-                    resolve(client);
-                });
+                let client = await this._checkRpcNode(_neoNodes[0]);
+                if(client == null)
+                    client = await this._checkRpcNode(_neoNodes[1]);
+                resolve(client);
             }
             catch (err) {
                 reject(err);
             }
+        });
+    }
+
+    async _checkRpcNode(url){
+        return new Promise(async (resolve, reject) => {
+            try {
+                console.log("Pinging node '" + url + "'");
+                let client = _neon.default.create.rpcClient(url);
+                let balanceResponse = await client.query({
+                    method: "getnep5balances",
+                    params: [_bridgeContractAddress],
+                });
+                if(balanceResponse){
+                    console.log(JSON.stringify(balanceResponse));
+                    console.log('success');
+                    resolve(client);
+                }
+                else{
+                    console.log('fail');
+                }
+            } catch (e) {
+                console.log('fail');
+            }
+            resolve(null);
         });
     }
 

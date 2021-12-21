@@ -199,12 +199,13 @@ var passport = class Passport
     }
 
     
-    addNft(network, contract, tokenId)
+    addNft(network, contract, tokenId, thumbnail)
     {
         this.nfts.push({
             network,
             contract,
-            tokenId
+            tokenId,
+            thumbnail
         })
     }
 
@@ -213,7 +214,6 @@ var passport = class Passport
             if(this.nfts[i].network == network && this.nfts[i].contract == contract && this.nfts[i].tokenId == tokenId){
                 return this.nfts[i];
             }
-               
         }
 
         return null;
